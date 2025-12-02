@@ -3,7 +3,7 @@
 
 git status
 git add .
-git commit -m "Add Desc Here"
+git commit -m "Updated settings configuration"
 git push origin main
 
 
