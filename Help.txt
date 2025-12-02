@@ -1,0 +1,23 @@
+
+1️⃣ Commit & push your code to GitHub
+
+git status
+git add .
+git commit -m "Add Desc Here"
+git push origin main
+
+
+2️⃣ Then on DigitalOcean, pull your latest changes:
+
+cd /home/enpower-skill-lab
+git pull origin main
+source venv/bin/activate
+python manage.py migrate
+python manage.py collectstatic --noinput
+systemctl restart gunicorn
+systemctl restart nginx
+
+
+OR 
+
+Run "deploy.sh" on the server
