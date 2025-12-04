@@ -32,6 +32,15 @@ INSTALLED_APPS = [
     'lms',
     'attendance',
     'reports',
+
+    # New role-based apps
+    'superadmin',
+    'coordinator',
+    'school_admin',
+    'teacher',
+    'parent',
+    'student',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

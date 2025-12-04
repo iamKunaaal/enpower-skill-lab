@@ -3,7 +3,7 @@
 
 git status
 git add .
-git commit -m "Updated settings configuration"
+git commit -m "Added login functionality"
 git push origin main
 
 
