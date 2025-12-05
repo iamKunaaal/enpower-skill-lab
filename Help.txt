@@ -3,7 +3,7 @@
 
 git status
 git add .
-git commit -m "Added login functionality"
+git commit -m "All apps created"
 git push origin main
 
 
