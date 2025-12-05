@@ -22,7 +22,7 @@ def login_view(request):
 
             # Redirect based on role
             if role == "SUPER_ADMIN":
-                return redirect('/super-admin/dashboard/')
+                return redirect('superadmin_dashboard')
             if role == "PROGRAM_COORDINATOR":
                 return redirect('/coordinator/dashboard/')
             if role == "SCHOOL_ADMIN":
