@@ -1,0 +1,327 @@
+/* School List Styles */
+
+:root {
+  --primary: #6B21A8;
+  --background-light: #F3F4F6;
+  --background-dark: #111827;
+  --card-radius: 0.5rem;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.card {
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  border-radius: var(--card-radius);
+  box-shadow: var(--shadow);
+  background-color: #fff;
+}
+
+body.dark .card {
+  background-color: #1f2937;
+  border-color: #374151;
+}
+
+.btn-white {
+  background-color: #fff;
+  color: #4b5563;
+  border: 1px solid #d1d5db;
+}
+
+.btn-white:hover {
+  background-color: #f9fafb;
+  color: #111827;
+}
+
+body.dark .btn-white {
+  background-color: #374151;
+  color: #e5e7eb;
+  border-color: #4b5563;
+}
+
+body.dark .btn-white:hover {
+  background-color: #4b5563;
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+.btn-primary:hover {
+  background-color: #581c87;
+  border-color: #581c87;
+}
+
+.control-pill {
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.status-active {
+  background-color: #d1fae5;
+  color: #166534;
+}
+
+.status-inactive {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+body.dark .status-active {
+  background-color: rgba(16, 185, 129, 0.18);
+  color: #34d399;
+}
+
+body.dark .status-inactive {
+  background-color: rgba(248, 113, 113, 0.18);
+  color: #fca5a5;
+}
+
+.initial-badge {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #fff;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+.table> :not(caption)>*>* {
+  padding: 0.85rem 1.25rem;
+  vertical-align: middle;
+}
+
+.table thead th {
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  color: #6b7280;
+  text-transform: uppercase;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+body.dark .table thead th {
+  color: #9ca3af;
+  background: rgba(55, 65, 81, 0.7);
+  border-color: #374151;
+}
+
+.table tbody td {
+  color: #111827;
+}
+
+body.dark .table tbody td {
+  color: #e5e7eb;
+}
+
+.shadow-light {
+  box-shadow: var(--shadow);
+}
+
+.pagination .page-link {
+  border-color: #d1d5db;
+  color: #6b7280;
+}
+
+.pagination .page-link.active,
+.pagination .page-item.active .page-link {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+body.dark .pagination .page-link {
+  background-color: #1f2937;
+  border-color: #4b5563;
+  color: #9ca3af;
+}
+
+body.dark .pagination .page-link.active {
+  color: #fff;
+}
+
+/* Unified Modern Gradient Buttons */
+.btn-gradient {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 22px;
+  font-weight: 600;
+  color: #fff !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transition: all 0.2s ease-in-out;
+  text-decoration: none;
+}
+
+.btn-gradient:hover {
+  opacity: 0.95;
+  color: #fff !important;
+}
+
+/* Individual Gradient Styles */
+.btn-download {
+  background: linear-gradient(90deg, #0EA5E9, #0284C7);
+}
+
+.btn-upload {
+  background: linear-gradient(90deg, #10B981, #059669);
+}
+
+.btn-add {
+  background: linear-gradient(90deg, #7E22CE, #6B21A8);
+}
+
+.btn-gradient .material-symbols-outlined {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+div.dataTables_wrapper div.dataTables_length select{
+  width: 70px !important;
+}
+
+/* DataTable Column Width Adjustments */
+#schoolTable {
+  width: 100% !important;
+}
+
+/* Set specific column widths for better content fit */
+#schoolTable thead th:nth-child(1) { /* School ID */
+  width: 100px;
+  min-width: 100px;
+}
+
+#schoolTable thead th:nth-child(2) { /* School Name */
+  width: 220px;
+  min-width: 200px;
+}
+
+#schoolTable thead th:nth-child(3) { /* Location */
+  width: 150px;
+  min-width: 130px;
+}
+
+#schoolTable thead th:nth-child(4) { /* Contact Information */
+  width: 220px;
+  min-width: 180px;
+}
+
+#schoolTable thead th:nth-child(5) { /* Number of Students */
+  width: 140px;
+  min-width: 140px;
+  text-align: center;
+}
+
+#schoolTable thead th:nth-child(6) { /* Status */
+  width: 110px;
+  min-width: 100px;
+  text-align: center;
+}
+
+#schoolTable thead th:nth-child(7) { /* Actions */
+  width: 100px;
+  min-width: 90px;
+  text-align: center;
+}
+
+#schoolTable tbody td:nth-child(5),
+#schoolTable tbody td:nth-child(6),
+#schoolTable tbody td:nth-child(7) {
+  text-align: center;
+}
+
+/* Table wrapper outer - contains both DataTables controls and table */
+.table-wrapper-outer {
+  width: 100%;
+  overflow: visible;
+}
+
+/* Improved table responsive wrapper with clean scrollbar */
+.table-responsive {
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Custom scrollbar styling for a cleaner look */
+.table-responsive::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+body.dark .table-responsive::-webkit-scrollbar-track {
+  background: #374151;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+body.dark .table-responsive::-webkit-scrollbar-thumb {
+  background: #4b5563;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+body.dark .table-responsive::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* DataTables header and footer - fixed position */
+.datatable-header,
+.datatable-footer {
+  background: white;
+  position: relative;
+  z-index: 2;
+}
+
+body.dark .datatable-header,
+body.dark .datatable-footer {
+  background: #1f2937;
+}
+
+/* Table scroll wrapper - only this scrolls horizontally */
+.table-scroll-wrapper {
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+  z-index: 1;
+}
+
+/* Prevent text wrapping in specific columns */
+#schoolTable tbody td:nth-child(1),
+#schoolTable tbody td:nth-child(5) {
+  white-space: nowrap;
+}
+
+/* Allow controlled wrapping for longer content */
+#schoolTable tbody td:nth-child(2),
+#schoolTable tbody td:nth-child(3),
+#schoolTable tbody td:nth-child(4) {
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+@media (max-width: 768px) {
+  div.dataTables_wrapper div.dataTables_filter{
+    text-align: left;
+  } 
+}

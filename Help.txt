@@ -3,7 +3,7 @@
 
 git status
 git add .
-git commit -m "All apps created"
+git commit -m "Super-Admin Dashboard Added"
 git push origin main
 
 

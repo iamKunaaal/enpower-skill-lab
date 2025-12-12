@@ -1,0 +1,105 @@
+{% extends 'superadmin/base.html' %}
+{% load static %}
+
+{% block title %}School List - Enpower Skill Lab{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="{% static 'css/school-list.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-page" style="padding: 2rem;">
+  <div style="max-width: 100%;">
+    <header style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+      <h1 style="font-size: 1.5rem; font-weight: 700; margin: 0; color: #1d1d1f;">School List</h1>
+      <div style="display: flex; gap: 0.75rem;">
+        <button class="btn-gradient btn-download">
+          <span class="material-symbols-outlined">download</span>
+          Download Sample CSV
+        </button>
+
+        <button class="btn-gradient btn-upload">
+          <span class="material-symbols-outlined">upload</span>
+          Upload CSV
+        </button>
+
+        <a href="{% url 'onboard_school' %}" class="btn-gradient btn-add text-decoration-none">
+          <span class="material-symbols-outlined">add</span>
+          Add New School
+        </a>
+      </div>
+    </header>
+
+    <main class="card" style="background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden;">
+      <div class="table-wrapper-outer">
+        <div class="table-responsive">
+          <table id="schoolTable" class="table mb-0 align-middle">
+            <thead>
+              <tr>
+                <th scope="col">SCHOOL ID</th>
+                <th scope="col">SCHOOL NAME</th>
+                <th scope="col">LOCATION</th>
+                <th scope="col">CONTACT INFORMATION</th>
+                <th scope="col">NUMBER OF STUDENTS</th>
+                <th scope="col">STATUS</th>
+                <th scope="col">ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for school in schools %}
+              <tr>
+                <td class="text-muted text-monospace">{{ school.school_code }}</td>
+                <td class="fw-semibold">
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="initial-badge" style="background-color:{{ school.badge_color }};">{{ school.initials }}</div>
+                    <span>{{ school.school_name }}</span>
+                  </div>
+                </td>
+                <td class="text-muted">{{ school.city }}, {{ school.state }}</td>
+                <td class="text-muted">{{ school.school_email }}</td>
+                <td class="text-muted">{{ school.num_students|default:"N/A" }}</td>
+                <td>
+                  {% if school.is_active %}
+                  <span class="control-pill status-active">Active</span>
+                  {% else %}
+                  <span class="control-pill status-inactive">Inactive</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <div class="d-flex align-items-center gap-3 justify-content-center">
+                    <a href="#" class="text-decoration-none" style="color: #6b7280;" title="Edit">
+                      <span class="material-symbols-outlined" style="font-size: 20px;">edit</span>
+                    </a>
+                    <a href="#" class="text-decoration-none" style="color: #6b7280;" title="View">
+                      <span class="material-symbols-outlined" style="font-size: 20px;">visibility</span>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="7" class="text-center text-muted py-5">
+                  <span class="material-symbols-outlined" style="font-size: 48px; opacity: 0.3;">school</span>
+                  <p class="mt-2">No schools found. Add your first school to get started!</p>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'js/school-list.js' %}"></script>
+{% endblock %}
