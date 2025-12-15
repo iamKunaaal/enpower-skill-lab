@@ -173,7 +173,9 @@ function initializeSidebar() {
             'school-details.html': 'nav-school-details',
 
             // Users - School Admins
-            'schooladmin-list.html': 'nav-school-admins',
+            '/super-admin/school-admins/': 'nav-school-admins',
+            'school-admin-list.html': 'nav-school-admins',
+            '/super-admin/onboard-school-admin/': 'nav-add-school-admins',
             'onboard-school-admin.html': 'nav-add-school-admins',
 
             // Users - Program Coordinators

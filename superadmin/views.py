@@ -2,8 +2,16 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.http import JsonResponse
+from django.db.models import Q
+from django.contrib.auth import get_user_model
+from django.contrib.auth.hashers import make_password
+from django.core.mail import send_mail
+from django.conf import settings
 from schools.models import School
+from school_admin.models import SchoolAdmin
 import json
+import secrets
+import string
 
 # Helper function to check role
 def is_superadmin(user):
@@ -180,3 +188,198 @@ def school_list(request):
         'active_schools': schools.filter(is_active=True).count(),
     }
     return render(request, 'superadmin/school-list.html', context)
+
+
+@login_required
+@user_passes_test(is_superadmin)
+def search_schools(request):
+    """
+    AJAX endpoint to search schools by name, code, or city.
+    Returns JSON response with matching schools and their assignment status.
+    """
+    query = request.GET.get('q', '').strip()
+
+    if not query:
+        return JsonResponse({'schools': []})
+
+    # Search schools by name, code, or city
+    schools = School.objects.filter(
+        Q(school_name__icontains=query) |
+        Q(school_code__icontains=query) |
+        Q(city__icontains=query)
+    ).values('id', 'school_name', 'school_code', 'city', 'state')[:10]  # Limit to 10 results
+
+    # Convert to list and add assignment status
+    schools_list = list(schools)
+    for school in schools_list:
+        # Check if this school already has an admin assigned
+        has_admin = SchoolAdmin.objects.filter(school_id=school['id'], is_active=True).exists()
+        school['has_admin'] = has_admin
+
+    return JsonResponse({'schools': schools_list})
+
+
+@login_required
+@user_passes_test(is_superadmin)
+def school_admin_list(request):
+    """
+    View to display list of all school admins.
+    """
+    school_admins = SchoolAdmin.objects.select_related('school').all().order_by('-created_at')
+
+    # Add helper properties for each admin
+    colors = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#06b6d4']
+    for admin in school_admins:
+        # Get initials from admin name
+        words = admin.full_name.strip().split()
+        if len(words) >= 2:
+            admin.initials = (words[0][0] + words[1][0]).upper()
+        else:
+            admin.initials = admin.full_name[:2].upper()
+
+        # Assign badge color based on first character
+        admin.badge_color = colors[ord(admin.full_name[0]) % len(colors)]
+        
+        # Check if profile photo file actually exists
+        admin.has_photo = bool(admin.profile_photo and admin.profile_photo.name)
+
+    context = {
+        'school_admins': school_admins,
+        'total_admins': school_admins.count(),
+        'active_admins': school_admins.filter(account_status='active').count(),
+        'pending_admins': school_admins.filter(account_status='pending').count(),
+    }
+    return render(request, 'superadmin/school-admin-list.html', context)
+
+
+@login_required
+@user_passes_test(is_superadmin)
+def onboard_school_admin(request):
+    """
+    View to handle school admin onboarding form.
+    Supports both GET (display form) and POST (submit form data).
+    """
+    User = get_user_model()
+
+    if request.method == 'POST':
+        try:
+            # Get form data
+            data = request.POST
+
+            # Check if school already has an admin
+            school_id = data.get('school')
+            existing_admin = SchoolAdmin.objects.filter(school_id=school_id, is_active=True).first()
+
+            if existing_admin:
+                school = School.objects.get(id=school_id)
+                messages.error(
+                    request,
+                    f'This school "{school.school_name}" already has an assigned School Admin: {existing_admin.full_name} ({existing_admin.email}). Each school can only have one School Admin.'
+                )
+                schools = School.objects.all().order_by('school_name')
+                return render(request, 'superadmin/onboard-school-admin.html', {'schools': schools})
+
+            # Generate temporary password
+            def generate_temp_password(length=12):
+                """Generate a secure random password"""
+                characters = string.ascii_letters + string.digits + "!@#$%"
+                return ''.join(secrets.choice(characters) for _ in range(length))
+
+            temp_password = generate_temp_password()
+
+            # Create User account
+            user = User.objects.create(
+                username=data.get('email'),  # Use email as username
+                email=data.get('email'),
+                first_name=data.get('fullName').split()[0] if data.get('fullName') else '',
+                last_name=' '.join(data.get('fullName').split()[1:]) if len(data.get('fullName', '').split()) > 1 else '',
+                role='SCHOOL_ADMIN',
+                is_active=True,
+                password=make_password(temp_password)  # Hash the password
+            )
+
+            # Create SchoolAdmin profile
+            school_admin = SchoolAdmin.objects.create(
+                user=user,
+                full_name=data.get('fullName'),
+                email=data.get('email'),
+                phone=data.get('phone'),
+                gender=data.get('gender'),
+                date_of_birth=data.get('dateOfBirth') if data.get('dateOfBirth') else None,
+                address=data.get('address') if data.get('address') else None,
+                city=data.get('city') if data.get('city') else None,
+                state=data.get('state') if data.get('state') else None,
+                pincode=data.get('pincode') if data.get('pincode') else None,
+                school_id=data.get('school'),
+                account_status='pending',
+                is_active=True,
+                temporary_password=make_password(temp_password),  # Store hashed temp password
+                password_changed=False,
+                created_by=request.user
+            )
+
+            # Print confirmation to terminal
+            print("\n" + "="*80)
+            print("✅ SCHOOL ADMIN CREATED SUCCESSFULLY")
+            print("="*80)
+            print(f"School Admin ID: {school_admin.id}")
+            print(f"User ID: {user.id}")
+            print(f"Full Name: {school_admin.full_name}")
+            print(f"Email: {school_admin.email}")
+            print(f"Username: {user.username}")
+            print(f"Temporary Password: {temp_password}")
+            print(f"School ID: {school_admin.school_id}")
+            print(f"Account Status: {school_admin.account_status}")
+            print("="*80 + "\n")
+
+            # Handle profile photo upload
+            if 'profilePhoto' in request.FILES:
+                school_admin.profile_photo = request.FILES['profilePhoto']
+                school_admin.save()
+
+            # Send email with credentials
+            try:
+                school = School.objects.get(id=data.get('school'))
+                email_subject = 'Welcome to Enpower Skill Lab - Your Admin Account'
+                email_body = f"""
+Dear {school_admin.full_name},
+
+You have been registered as a School Administrator for {school.school_name}.
+
+Your Login Credentials:
+- Username: {user.email}
+- Temporary Password: {temp_password}
+- Login URL: {request.build_absolute_uri('/')[:-1]}/login/
+
+IMPORTANT: Please change your password immediately after your first login for security reasons.
+
+If you have any questions, please contact support.
+
+Best regards,
+Enpower Skill Lab Team
+                """
+
+                send_mail(
+                    email_subject,
+                    email_body,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [school_admin.email],
+                    fail_silently=False,
+                )
+
+                messages.success(request, f'School Admin "{school_admin.full_name}" has been successfully onboarded! Credentials sent to {school_admin.email}.')
+            except Exception as email_error:
+                messages.warning(request, f'School Admin created but email failed to send: {str(email_error)}. Temporary password: {temp_password}')
+
+            return redirect('superadmin_dashboard')
+
+        except Exception as e:
+            messages.error(request, f'Error onboarding school admin: {str(e)}')
+            return render(request, 'superadmin/onboard-school-admin.html', {'schools': School.objects.all()})
+
+    # GET request - display the form with list of schools
+    schools = School.objects.all().order_by('school_name')
+    context = {
+        'schools': schools,
+    }
+    return render(request, 'superadmin/onboard-school-admin.html', context)

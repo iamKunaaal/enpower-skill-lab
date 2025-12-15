@@ -72,11 +72,11 @@
                         <span class="material-symbols-outlined dropdown-icon">expand_more</span>
                     </a>
                     <div class="sidebar-dropdown-menu">
-                        <a href="schooladmin-list.html" id="nav-school-admins">
+                        <a href="{% url 'school_admin_list' %}" id="nav-school-admins">
                             <span class="material-symbols-outlined">admin_panel_settings</span>
                             School Admins
                         </a>
-                        <a href="onboard-school-admin.html" id="nav-add-school-admins">
+                        <a href="{% url 'onboard_school_admin' %}" id="nav-add-school-admins">
                             <span class="material-symbols-outlined">person_add</span>
                             Onboard School Admins
                         </a>
@@ -381,6 +381,52 @@
                     </div>
                 </div>
             </header>
+
+            <!-- Django Messages Display -->
+            {% if messages %}
+            <div class="messages-container" style="position: fixed; top: 80px; right: 20px; z-index: 9999; max-width: 400px;">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}" style="margin-bottom: 10px; padding: 15px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: space-between; animation: slideIn 0.3s ease-out; background-color: {% if message.tags == 'success' %}#10b981{% elif message.tags == 'error' %}#ef4444{% elif message.tags == 'warning' %}#f59e0b{% else %}#3b82f6{% endif %}; color: white;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span class="material-symbols-outlined" style="font-size: 24px;">
+                            {% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}
+                        </span>
+                        <span>{{ message }}</span>
+                    </div>
+                    <button onclick="this.parentElement.remove()" style="background: none; border: none; color: white; cursor: pointer; font-size: 20px; padding: 0; margin-left: 10px;">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+            <style>
+                @keyframes slideIn {
+                    from {
+                        transform: translateX(400px);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+                .messages-container .alert {
+                    animation: slideIn 0.3s ease-out;
+                }
+            </style>
+            <script>
+                // Auto-dismiss messages after 5 seconds
+                setTimeout(function() {
+                    const messages = document.querySelectorAll('.messages-container .alert');
+                    messages.forEach(function(message) {
+                        message.style.animation = 'slideOut 0.3s ease-out';
+                        setTimeout(function() {
+                            message.remove();
+                        }, 300);
+                    });
+                }, 5000);
+            </script>
+            {% endif %}
 
             {% block content %}
             {% endblock %}

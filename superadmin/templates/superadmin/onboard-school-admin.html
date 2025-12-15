@@ -1,0 +1,227 @@
+{% extends 'superadmin/base.html' %}
+{% load static %}
+
+{% block title %}Onboard School Admin - Enpower Skill Lab{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/onboard-school-admin.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-page">
+    <div class="onboard-school-admin-container">
+        <div class="page-header">
+            <div class="header-content">
+                <div class="header-text">
+                    <h1>Onboard School Admin</h1>
+                    <p>Follow the steps to onboard a new school administrator.</p>
+                </div>
+                <button type="button" id="autoFillBtn" class="btn btn-secondary">
+                    <span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle;">auto_fix_high</span>
+                    Auto-Fill with Dummy Data
+                </button>
+            </div>
+        </div>
+
+        <!-- Progress Stepper -->
+        <div class="stepper">
+            <div class="step active">
+                <div class="step-icon">1</div>
+                <div class="step-label">Personal Details</div>
+            </div>
+            <div class="step">
+                <div class="step-icon">2</div>
+                <div class="step-label">Role & School</div>
+            </div>
+            <div class="step">
+                <div class="step-icon">3</div>
+                <div class="step-label">Additional Info</div>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <form id="schoolAdminForm" method="POST" action="{% url 'onboard_school_admin' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- Step 1: Admin Personal Details -->
+            <div class="form-section" id="step1">
+                <h2>Admin Personal Details</h2>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Full Name <span class="required">*</span></label>
+                        <input type="text" name="fullName" id="fullName" placeholder="Enter full name" required>
+                        <span class="error-message" id="fullNameError"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address ( Used For Log In ) <span class="required">*</span></label>
+                        <input type="email" name="email" id="email" placeholder="admin@example.com" required>
+                        <span class="error-message" id="emailError"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Phone Number <span class="required">*</span></label>
+                        <input type="tel" name="phone" id="phone" placeholder="+91 XXXXX XXXXX" required maxlength="10">
+                        <span class="error-message" id="phoneError"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Admin Role & School Mapping -->
+            <div class="form-section" id="step2" style="display: none;">
+                <h2>Admin Role & School Mapping</h2>
+
+                <div class="form-row full">
+                    <div class="form-group">
+                        <label>Search & Select School <span class="required">*</span></label>
+
+                        <!-- Selected School Display (hidden by default) -->
+                        <div class="selected-school-card" id="selectedSchoolCard" style="display: none;">
+                            <div class="selected-school-info">
+                                <div class="school-badge" id="selectedSchoolBadge"></div>
+                                <div class="school-details">
+                                    <h4 id="selectedSchoolName"></h4>
+                                    <p id="selectedSchoolLocation"></p>
+                                    <span class="school-code" id="selectedSchoolCode"></span>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-clear-selection" id="clearSchoolBtn">
+                                <span class="material-symbols-outlined">close</span>
+                            </button>
+                        </div>
+
+                        <!-- School Search Interface (visible by default) -->
+                        <div class="school-search-container" id="schoolSearchContainer">
+                            <div class="search-input-wrapper">
+                                <span class="material-symbols-outlined search-icon">search</span>
+                                <input
+                                    type="text"
+                                    id="schoolSearchInput"
+                                    placeholder="Search by school name, code, or city..."
+                                    autocomplete="off"
+                                >
+                                <button type="button" class="btn-search" id="searchSchoolBtn">
+                                    Search
+                                </button>
+                            </div>
+
+                            <!-- Search Results -->
+                            <div class="school-search-results" id="schoolSearchResults" style="display: none;">
+                                <div class="results-header">
+                                    <span id="resultsCount">0 schools found</span>
+                                </div>
+                                <div class="results-list" id="resultsList"></div>
+                            </div>
+
+                            <!-- No Results Message -->
+                            <div class="no-results" id="noResults" style="display: none;">
+                                <span class="material-symbols-outlined">search_off</span>
+                                <p>No schools found matching your search</p>
+                            </div>
+
+                            <!-- Loading Indicator -->
+                            <div class="search-loading" id="searchLoading" style="display: none;">
+                                <div class="spinner"></div>
+                                <p>Searching schools...</p>
+                            </div>
+                        </div>
+
+                        <!-- Hidden input to store selected school ID -->
+                        <input type="hidden" name="school" id="school" required>
+                        <span class="error-message" id="schoolError"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Additional Optional Fields -->
+            <div class="form-section" id="step3" style="display: none;">
+                <h2>Additional Information (Optional)</h2>
+
+                <div class="form-row full">
+                    <div class="form-group">
+                        <label>Profile Photo</label>
+                        <div class="photo-upload-container">
+                            <div class="photo-preview" id="photoPreview">
+                                <span class="material-symbols-outlined">add_a_photo</span>
+                                <span class="photo-preview-text">Upload Photo</span>
+                            </div>
+                            <input type="file" id="profilePhoto" name="profilePhoto" accept="image/*" class="photo-input">
+                            <button type="button" class="upload-photo-btn" id="uploadPhotoBtn">
+                                <span class="material-symbols-outlined">upload</span>
+                                Choose Photo
+                            </button>
+                            <p class="field-hint">Max size 2MB, recommended square image</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Gender <span class="required">*</span></label>
+                        <select name="gender" id="gender" required>
+                            <option value="" disabled hidden selected>Select gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                            <option value="prefer-not-to-say">Prefer not to say</option>
+                        </select>
+                        <span class="error-message" id="genderError"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Date of Birth</label>
+                        <input type="date" id="dateOfBirth" name="dateOfBirth">
+                        <span class="error-message" id="dateOfBirthError"></span>
+                    </div>
+                </div>
+
+                <div class="form-row full">
+                    <div class="form-group">
+                        <label>Address</label>
+                        <input type="text" name="address" id="address" placeholder="Enter complete address">
+                        <span class="error-message" id="addressError"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>City</label>
+                        <input type="text" id="city" name="city" placeholder="City">
+                    </div>
+                    <div class="form-group">
+                        <label>State</label>
+                        <input type="text" id="state" name="state" placeholder="State">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>PIN Code</label>
+                        <input type="text" id="pincode" name="pincode" placeholder="6-digit PIN code" maxlength="6">
+                        <span class="error-message" id="pincodeError"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn btn-back" id="backBtn" style="display: none;">
+                    <span class="arrow">←</span>
+                    Back
+                </button>
+                <button type="button" class="btn btn-next" id="nextBtn">
+                    Next
+                    <span class="arrow">→</span>
+                </button>
+                <button type="submit" class="btn btn-next" id="submitBtn" style="display: none;">
+                    Submit
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/onboard-school-admin.js' %}"></script>
+{% endblock %}
