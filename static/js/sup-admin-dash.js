@@ -38,17 +38,6 @@ function initializeHeader() {
         }
     });
 
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (confirm('Are you sure you want to logout?')) {
-                // Add logout logic here
-                // window.location.href = '/login';
-            }
-        });
-    }
-
     const fullscreenBtn = document.querySelector('.fullscreen-btn');
     if (fullscreenBtn) {
         fullscreenBtn.addEventListener('click', function() {
@@ -225,7 +214,9 @@ function initializeSidebar() {
             'billing.html': 'nav-billing',
 
             // My Account
+            '/super-admin/profile/': 'nav-profile',
             'profile.html': 'nav-profile',
+            '/super-admin/change-password/': 'nav-change-password',
             'change-password.html': 'nav-change-password'
         };
 
@@ -237,27 +228,60 @@ function initializeSidebar() {
             toggle.classList.remove('active');
         });
 
+        // Remove all active classes from dropdown menu links
+        document.querySelectorAll('.sidebar-dropdown-menu a').forEach(link => {
+            link.classList.remove('active');
+        });
+
         // Add active class to current page link
         // Try full path first, then fallback to filename
-        const currentPage = currentPath.split('/').pop();
-        const linkId = navLinks[currentPath] || navLinks[currentPage];
+        const pathParts = currentPath.split('/').filter(part => part !== '');
+        const currentPage = pathParts[pathParts.length - 1] || '';
         
+        console.log('=== Sidebar Active Link Debug ===');
         console.log('Current path:', currentPath);
-        console.log('Link ID found:', linkId);
+        console.log('Path parts:', pathParts);
+        console.log('Current page:', currentPage);
+        
+        let linkId = navLinks[currentPath];
+        console.log('Direct match linkId:', linkId);
+        
+        // If not found by full path, try with trailing slash variations
+        if (!linkId) {
+            const pathWithSlash = currentPath.endsWith('/') ? currentPath : currentPath + '/';
+            const pathWithoutSlash = currentPath.endsWith('/') ? currentPath.slice(0, -1) : currentPath;
+            console.log('Trying pathWithSlash:', pathWithSlash);
+            console.log('Trying pathWithoutSlash:', pathWithoutSlash);
+            linkId = navLinks[pathWithSlash] || navLinks[pathWithoutSlash];
+            console.log('Slash variation linkId:', linkId);
+        }
+        
+        // Still not found? Try matching by page name
+        if (!linkId && currentPage) {
+            console.log('Trying page name:', currentPage + '.html');
+            linkId = navLinks[currentPage + '.html'] || navLinks[currentPage];
+            console.log('Page name linkId:', linkId);
+        }
+        
+        console.log('Final linkId:', linkId);
         
         if (linkId) {
             const activeLink = document.getElementById(linkId);
             if (activeLink) {
                 activeLink.classList.add('active');
-                console.log('Active link found:', activeLink);
 
-                // Also add active class to parent dropdown toggle if link is inside a dropdown
-                const parentDropdown = activeLink.closest('.sidebar-dropdown');
-                if (parentDropdown) {
-                    const dropdownToggle = parentDropdown.querySelector('.sidebar-dropdown-toggle');
-                    if (dropdownToggle) {
-                        dropdownToggle.classList.add('active');
-                        console.log('Parent dropdown toggle activated:', dropdownToggle);
+                // Check if this is a submenu item (inside dropdown menu)
+                const parentDropdownMenu = activeLink.closest('.sidebar-dropdown-menu');
+                if (parentDropdownMenu) {
+                    // This is a submenu item - add active to parent dropdown toggle (purple)
+                    const parentDropdown = activeLink.closest('.sidebar-dropdown');
+                    if (parentDropdown) {
+                        const dropdownToggle = parentDropdown.querySelector('.sidebar-dropdown-toggle');
+                        if (dropdownToggle) {
+                            dropdownToggle.classList.add('active');
+                            // Also expand the dropdown
+                            parentDropdown.classList.add('active');
+                        }
                     }
                 }
             }

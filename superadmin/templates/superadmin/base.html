@@ -250,15 +250,15 @@
                         <span class="material-symbols-outlined dropdown-icon">expand_more</span>
                     </a>
                     <div class="sidebar-dropdown-menu">
-                        <a href="profile.html" id="nav-profile">
+                        <a href="{% url 'superadmin_profile' %}" id="nav-profile">
                             <span class="material-symbols-outlined">person</span>
                             Profile
                         </a>
-                        <a href="change-password.html" id="nav-change-password">
+                        <a href="{% url 'superadmin_change_password' %}" id="nav-change-password">
                             <span class="material-symbols-outlined">lock</span>
                             Change Password
                         </a>
-                        <a href="../auth/sign-in.html" id="nav-logout">
+                        <a href="{% url 'superadmin_logout' %}" id="nav-logout">
                             <span class="material-symbols-outlined">logout</span>
                             Logout
                         </a>
@@ -343,24 +343,36 @@
                     </div>
                     <div class="user-info-wrapper">
                         <div class="user-info" id="userInfoToggle">
-                            <img alt="Kunal's avatar" class="user-avatar"
-                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDcIJndixMoK4d7aUwjLNvUwGvQtwhoZp4zrBYHVGp_UbVoliCXsHU6Px_N4mBzfACwz3nJ2LpxL3Ws-XZbgIozb_cRIXJSxDOB2E2kzyb17yyplKyWeyRDLc-fj9vfq0_snyn1Sph7cn21sgjjyZvpAiuZIPF2nmJa_WqFLafr9reOBS1SXMU7f3XdOpsHE_wug6-xsGVmdXkOvYSvf5KdZDEIYmVUz-mfuhm5JroeQp4NP7_6_8NM9c77yCwB6A0DQSdxijqgA9Y" />
-                            <span class="user-name">kunal</span>
+                            {% if user.superadmin_profile and user.superadmin_profile.profile_photo %}
+                                <img alt="{{ user.get_full_name|default:user.username }}'s avatar" class="user-avatar"
+                                    src="{{ user.superadmin_profile.profile_photo.url }}" />
+                            {% else %}
+                                <img alt="{{ user.get_full_name|default:user.username }}'s avatar" class="user-avatar"
+                                    src="{% static 'assets/images/default-avatar.png' %}"
+                                    onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><rect fill=%22%236b277e%22 width=%22100%22 height=%22100%22/><text fill=%22white%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22 font-size=%2240%22 font-family=%22Arial%22>{{ user.first_name|first|default:user.username|first|upper }}</text></svg>'" />
+                            {% endif %}
+                            <span class="user-name">{% if user.superadmin_profile %}{{ user.superadmin_profile.full_name|default:user.get_full_name|default:user.username }}{% else %}{{ user.get_full_name|default:user.username }}{% endif %}</span>
                             <span class="material-symbols-outlined user-dropdown">expand_more</span>
                         </div>
 
                         <!-- User Dropdown Menu -->
-                        <div class="user-dropdown-menu" id="userDropdownMenu">
+                        <div class="user-dropdown-menu" id="userDropdownMenu" style="width: auto;">
                             <div class="dropdown-header">
-                                <img alt="Kunal's avatar" class="dropdown-avatar"
-                                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDcIJndixMoK4d7aUwjLNvUwGvQtwhoZp4zrBYHVGp_UbVoliCXsHU6Px_N4mBzfACwz3nJ2LpxL3Ws-XZbgIozb_cRIXJSxDOB2E2kzyb17yyplKyWeyRDLc-fj9vfq0_snyn1Sph7cn21sgjjyZvpAiuZIPF2nmJa_WqFLafr9reOBS1SXMU7f3XdOpsHE_wug6-xsGVmdXkOvYSvf5KdZDEIYmVUz-mfuhm5JroeQp4NP7_6_8NM9c77yCwB6A0DQSdxijqgA9Y" />
+                                {% if user.superadmin_profile and user.superadmin_profile.profile_photo %}
+                                    <img alt="{{ user.get_full_name|default:user.username }}'s avatar" class="dropdown-avatar"
+                                        src="{{ user.superadmin_profile.profile_photo.url }}" />
+                                {% else %}
+                                    <img alt="{{ user.get_full_name|default:user.username }}'s avatar" class="dropdown-avatar"
+                                        src="{% static 'assets/images/default-avatar.png' %}"
+                                        onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><rect fill=%22%236b277e%22 width=%22100%22 height=%22100%22/><text fill=%22white%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22 font-size=%2240%22 font-family=%22Arial%22>{{ user.first_name|first|default:user.username|first|upper }}</text></svg>'" />
+                                {% endif %}
                                 <div class="dropdown-user-info">
-                                    <h4 class="dropdown-user-name">Kunal</h4>
-                                    <p class="dropdown-user-email">kunal@student.com</p>
+                                    <h4 class="dropdown-user-name">{% if user.superadmin_profile %}{{ user.superadmin_profile.full_name|default:user.get_full_name|default:user.username }}{% else %}{{ user.get_full_name|default:user.username }}{% endif %}</h4>
+                                    <p class="dropdown-user-email">{{ user.email }}</p>
                                 </div>
                             </div>
                             <div class="dropdown-divider"></div>
-                            <a href="profile.html" class="dropdown-item" id="profileBtn">
+                            <a href="{% url 'superadmin_profile' %}" class="dropdown-item" id="profileBtn">
                                 <span class="material-symbols-outlined">account_circle</span>
                                 <span>My Profile</span>
                             </a>
@@ -373,7 +385,7 @@
                                 <span>Dashboard</span>
                             </a>
                             <div class="dropdown-divider"></div>
-                            <a href="#" class="dropdown-item logout-item" id="logoutBtn">
+                            <a href="{% url 'superadmin_logout' %}" class="dropdown-item logout-item" id="logoutBtn">
                                 <span class="material-symbols-outlined">logout</span>
                                 <span>Logout</span>
                             </a>
@@ -382,27 +394,185 @@
                 </div>
             </header>
 
-            <!-- Django Messages Display -->
+            <!-- Enhanced Django Messages Display -->
             {% if messages %}
-            <div class="messages-container" style="position: fixed; top: 80px; right: 20px; z-index: 9999; max-width: 400px;">
+            <div class="toast-container">
                 {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}" style="margin-bottom: 10px; padding: 15px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: space-between; animation: slideIn 0.3s ease-out; background-color: {% if message.tags == 'success' %}#10b981{% elif message.tags == 'error' %}#ef4444{% elif message.tags == 'warning' %}#f59e0b{% else %}#3b82f6{% endif %}; color: white;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span class="material-symbols-outlined" style="font-size: 24px;">
-                            {% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}
+                <div class="toast toast-{{ message.tags }}" data-toast>
+                    <div class="toast-icon">
+                        <span class="material-symbols-outlined">
+                            {% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}cancel{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}
                         </span>
-                        <span>{{ message }}</span>
                     </div>
-                    <button onclick="this.parentElement.remove()" style="background: none; border: none; color: white; cursor: pointer; font-size: 20px; padding: 0; margin-left: 10px;">
+                    <div class="toast-content">
+                        <div class="toast-title">
+                            {% if message.tags == 'success' %}Success{% elif message.tags == 'error' %}Error{% elif message.tags == 'warning' %}Warning{% else %}Info{% endif %}
+                        </div>
+                        <div class="toast-message">{{ message }}</div>
+                    </div>
+                    <button class="toast-close" onclick="closeToast(this)">
                         <span class="material-symbols-outlined">close</span>
                     </button>
+                    <div class="toast-progress">
+                        <div class="toast-progress-bar"></div>
+                    </div>
                 </div>
                 {% endfor %}
             </div>
             <style>
-                @keyframes slideIn {
+                .toast-container {
+                    position: fixed;
+                    top: 90px;
+                    right: 24px;
+                    z-index: 9999;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 12px;
+                    max-width: 420px;
+                    width: 100%;
+                }
+                
+                .toast {
+                    display: flex;
+                    align-items: flex-start;
+                    gap: 14px;
+                    padding: 16px 18px;
+                    background: #ffffff;
+                    border-radius: 12px;
+                    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
+                    position: relative;
+                    overflow: hidden;
+                    animation: toastSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+                    border-left: 4px solid;
+                }
+                
+                .toast-success {
+                    border-left-color: #10b981;
+                }
+                
+                .toast-error {
+                    border-left-color: #ef4444;
+                }
+                
+                .toast-warning {
+                    border-left-color: #f59e0b;
+                }
+                
+                .toast-info {
+                    border-left-color: #3b82f6;
+                }
+                
+                .toast-icon {
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 10px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+                }
+                
+                .toast-success .toast-icon {
+                    background: rgba(16, 185, 129, 0.12);
+                    color: #10b981;
+                }
+                
+                .toast-error .toast-icon {
+                    background: rgba(239, 68, 68, 0.12);
+                    color: #ef4444;
+                }
+                
+                .toast-warning .toast-icon {
+                    background: rgba(245, 158, 11, 0.12);
+                    color: #f59e0b;
+                }
+                
+                .toast-info .toast-icon {
+                    background: rgba(59, 130, 246, 0.12);
+                    color: #3b82f6;
+                }
+                
+                .toast-icon .material-symbols-outlined {
+                    font-size: 22px;
+                    font-variation-settings: 'FILL' 1;
+                }
+                
+                .toast-content {
+                    flex: 1;
+                    min-width: 0;
+                }
+                
+                .toast-title {
+                    font-weight: 600;
+                    font-size: 15px;
+                    color: #1f2937;
+                    margin-bottom: 4px;
+                }
+                
+                .toast-message {
+                    font-size: 14px;
+                    color: #6b7280;
+                    line-height: 1.5;
+                    word-wrap: break-word;
+                }
+                
+                .toast-close {
+                    background: none;
+                    border: none;
+                    padding: 4px;
+                    cursor: pointer;
+                    color: #9ca3af;
+                    border-radius: 6px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: all 0.2s ease;
+                    flex-shrink: 0;
+                }
+                
+                .toast-close:hover {
+                    background: #f3f4f6;
+                    color: #4b5563;
+                }
+                
+                .toast-close .material-symbols-outlined {
+                    font-size: 20px;
+                }
+                
+                .toast-progress {
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    height: 4px;
+                    background: rgba(0, 0, 0, 0.06);
+                }
+                
+                .toast-progress-bar {
+                    height: 100%;
+                    width: 100%;
+                    animation: progressShrink 5s linear forwards;
+                }
+                
+                .toast-success .toast-progress-bar {
+                    background: linear-gradient(90deg, #10b981, #34d399);
+                }
+                
+                .toast-error .toast-progress-bar {
+                    background: linear-gradient(90deg, #ef4444, #f87171);
+                }
+                
+                .toast-warning .toast-progress-bar {
+                    background: linear-gradient(90deg, #f59e0b, #fbbf24);
+                }
+                
+                .toast-info .toast-progress-bar {
+                    background: linear-gradient(90deg, #3b82f6, #60a5fa);
+                }
+                
+                @keyframes toastSlideIn {
                     from {
-                        transform: translateX(400px);
+                        transform: translateX(120%);
                         opacity: 0;
                     }
                     to {
@@ -410,21 +580,100 @@
                         opacity: 1;
                     }
                 }
-                .messages-container .alert {
-                    animation: slideIn 0.3s ease-out;
+                
+                @keyframes toastSlideOut {
+                    from {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                    to {
+                        transform: translateX(120%);
+                        opacity: 0;
+                    }
+                }
+                
+                @keyframes progressShrink {
+                    from {
+                        width: 100%;
+                    }
+                    to {
+                        width: 0%;
+                    }
+                }
+                
+                .toast.closing {
+                    animation: toastSlideOut 0.3s ease-out forwards;
+                }
+                
+                /* Dark mode support */
+                body.dark .toast {
+                    background: #1f2937;
+                    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+                }
+                
+                body.dark .toast-title {
+                    color: #f9fafb;
+                }
+                
+                body.dark .toast-message {
+                    color: #9ca3af;
+                }
+                
+                body.dark .toast-close {
+                    color: #6b7280;
+                }
+                
+                body.dark .toast-close:hover {
+                    background: #374151;
+                    color: #d1d5db;
+                }
+                
+                body.dark .toast-progress {
+                    background: rgba(255, 255, 255, 0.1);
+                }
+                
+                /* Mobile responsive */
+                @media (max-width: 480px) {
+                    .toast-container {
+                        right: 12px;
+                        left: 12px;
+                        max-width: none;
+                    }
                 }
             </style>
             <script>
-                // Auto-dismiss messages after 5 seconds
-                setTimeout(function() {
-                    const messages = document.querySelectorAll('.messages-container .alert');
-                    messages.forEach(function(message) {
-                        message.style.animation = 'slideOut 0.3s ease-out';
-                        setTimeout(function() {
-                            message.remove();
-                        }, 300);
+                function closeToast(button) {
+                    const toast = button.closest('.toast');
+                    toast.classList.add('closing');
+                    setTimeout(() => toast.remove(), 300);
+                }
+                
+                // Auto-dismiss toasts after 5 seconds
+                document.querySelectorAll('[data-toast]').forEach(function(toast, index) {
+                    setTimeout(function() {
+                        if (toast.parentElement) {
+                            toast.classList.add('closing');
+                            setTimeout(() => toast.remove(), 300);
+                        }
+                    }, 5000 + (index * 200)); // Stagger removal for multiple toasts
+                });
+                
+                // Pause progress bar on hover
+                document.querySelectorAll('.toast').forEach(function(toast) {
+                    const progressBar = toast.querySelector('.toast-progress-bar');
+                    
+                    toast.addEventListener('mouseenter', function() {
+                        if (progressBar) {
+                            progressBar.style.animationPlayState = 'paused';
+                        }
                     });
-                }, 5000);
+                    
+                    toast.addEventListener('mouseleave', function() {
+                        if (progressBar) {
+                            progressBar.style.animationPlayState = 'running';
+                        }
+                    });
+                });
             </script>
             {% endif %}
 
@@ -435,6 +684,67 @@
 
     <!-- JavaScript -->
     <script src="{% static 'js/sup-admin-dash.js' %}"></script>
+    
+    <!-- Universal Active State Handler -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get current URL path
+            const currentPath = window.location.pathname;
+            
+            // Find all sidebar links and check if their href matches current path
+            const allSidebarLinks = document.querySelectorAll('.sidebar-nav a[href], .sidebar-dropdown-menu a[href]');
+            
+            allSidebarLinks.forEach(link => {
+                const linkPath = link.getAttribute('href');
+                
+                // Check if link href matches current path
+                if (linkPath && (linkPath === currentPath || linkPath === currentPath.replace(/\/$/, '') || linkPath + '/' === currentPath)) {
+                    link.classList.add('active');
+                    
+                    // If inside dropdown menu, also activate parent
+                    const parentDropdown = link.closest('.sidebar-dropdown');
+                    if (parentDropdown) {
+                        parentDropdown.classList.add('active');
+                        const dropdownToggle = parentDropdown.querySelector('.sidebar-dropdown-toggle');
+                        if (dropdownToggle) {
+                            dropdownToggle.classList.add('active');
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+    
+    <!-- Logout Handler (inline to avoid caching issues) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const logoutUrl = '{% url "superadmin_logout" %}';
+            
+            // Header logout
+            const headerLogout = document.getElementById('logoutBtn');
+            if (headerLogout) {
+                headerLogout.onclick = function(e) {
+                    e.preventDefault();
+                    if (confirm('Are you sure you want to logout?')) {
+                        window.location.href = logoutUrl;
+                    }
+                    return false;
+                };
+            }
+            
+            // Sidebar logout
+            const sidebarLogout = document.getElementById('nav-logout');
+            if (sidebarLogout) {
+                sidebarLogout.onclick = function(e) {
+                    e.preventDefault();
+                    if (confirm('Are you sure you want to logout?')) {
+                        window.location.href = logoutUrl;
+                    }
+                    return false;
+                };
+            }
+        });
+    </script>
     {% block extra_js %}{% endblock %}
 </body>
 

@@ -68,7 +68,10 @@
                     {% if messages %}
                         <div class="mb-3">
                             {% for message in messages %}
-                                <div class="alert alert-{{ message.tags }} mb-2" role="alert">{{ message }}</div>
+                                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} mb-2 d-flex align-items-center" role="alert" style="border-radius: 10px; border-left: 4px solid {% if message.tags == 'success' %}#10b981{% elif message.tags == 'error' %}#ef4444{% elif message.tags == 'warning' %}#f59e0b{% else %}#3b82f6{% endif %};">
+                                    <i class="bi {% if message.tags == 'success' %}bi-check-circle-fill text-success{% elif message.tags == 'error' %}bi-x-circle-fill text-danger{% elif message.tags == 'warning' %}bi-exclamation-triangle-fill text-warning{% else %}bi-info-circle-fill text-info{% endif %} me-2" style="font-size: 18px;"></i>
+                                    {{ message }}
+                                </div>
                             {% endfor %}
                         </div>
                     {% endif %}

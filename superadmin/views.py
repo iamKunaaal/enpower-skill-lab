@@ -1,14 +1,16 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.http import JsonResponse
 from django.db.models import Q
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, logout
 from django.contrib.auth.hashers import make_password
 from django.core.mail import send_mail
 from django.conf import settings
+from django.utils import timezone
 from schools.models import School
 from school_admin.models import SchoolAdmin
+from .models import SuperAdmin
 import json
 import secrets
 import string
@@ -16,6 +18,26 @@ import string
 # Helper function to check role
 def is_superadmin(user):
     return user.is_authenticated and user.role == "SUPER_ADMIN"
+
+
+# Test view for previewing toast messages (remove in production)
+@login_required
+@user_passes_test(is_superadmin)
+def test_messages(request):
+    """Test view to preview all toast notification types"""
+    messages.success(request, 'This is a success message! Your operation completed successfully.')
+    messages.error(request, 'This is an error message! Something went wrong.')
+    messages.warning(request, 'This is a warning message! Please be careful.')
+    messages.info(request, 'This is an info message! Here is some information for you.')
+    return redirect('superadmin_dashboard')
+
+
+@login_required
+def superadmin_logout(request):
+    """Logout view for super admin"""
+    logout(request)
+    messages.success(request, 'You have been logged out successfully.')
+    return redirect('login')  # Redirect to login page
 
 
 @login_required
@@ -383,3 +405,168 @@ Enpower Skill Lab Team
         'schools': schools,
     }
     return render(request, 'superadmin/onboard-school-admin.html', context)
+
+
+@login_required
+@user_passes_test(is_superadmin)
+def profile(request):
+    """
+    View to display the super admin profile page.
+    """
+    # Get or create SuperAdmin profile for the current user
+    try:
+        profile = SuperAdmin.objects.get(user=request.user)
+    except SuperAdmin.DoesNotExist:
+        profile = None
+
+    context = {
+        'profile': profile,
+        'user': request.user,
+    }
+    return render(request, 'superadmin/profile.html', context)
+
+
+@login_required
+@user_passes_test(is_superadmin)
+def profile_update(request):
+    """
+    View to handle super admin profile updates.
+    """
+    if request.method == 'POST':
+        try:
+            # Get or create SuperAdmin profile for the current user
+            profile, created = SuperAdmin.objects.get_or_create(
+                user=request.user,
+                defaults={
+                    'email': request.user.email,
+                    'full_name': request.user.get_full_name() or request.user.username,
+                    'phone': '',
+                }
+            )
+
+            # Update profile fields from form data
+            profile.full_name = request.POST.get('full_name', profile.full_name)
+            profile.email = request.POST.get('email', profile.email)
+            profile.phone = request.POST.get('phone', profile.phone)
+            profile.alternate_phone = request.POST.get('alternate_phone', '')
+            profile.gender = request.POST.get('gender', '')
+
+            # Handle date of birth
+            date_of_birth = request.POST.get('date_of_birth', '')
+            if date_of_birth:
+                profile.date_of_birth = date_of_birth
+
+            # Handle profile photo upload
+            if 'profile_photo' in request.FILES:
+                profile.profile_photo = request.FILES['profile_photo']
+
+            # Update last login time
+            profile.last_login = timezone.now()
+
+            # Save the profile
+            profile.save()
+
+            # Also update the User model
+            request.user.email = profile.email
+            if profile.full_name:
+                name_parts = profile.full_name.split(maxsplit=1)
+                request.user.first_name = name_parts[0]
+                request.user.last_name = name_parts[1] if len(name_parts) > 1 else ''
+            request.user.save()
+
+            messages.success(request, 'Your profile has been updated successfully!')
+            return redirect('superadmin_profile')
+
+        except Exception as e:
+            messages.error(request, f'Error updating profile: {str(e)}')
+            return redirect('superadmin_profile')
+
+    # If not POST, redirect to profile page
+    return redirect('superadmin_profile')
+
+
+@login_required
+@user_passes_test(is_superadmin)
+def change_password(request):
+    """
+    View to handle password change for super admin.
+    """
+    if request.method == 'POST':
+        current_password = request.POST.get('current_password', '')
+        new_password = request.POST.get('new_password', '')
+        confirm_password = request.POST.get('confirm_password', '')
+        
+        # Validate current password
+        if not request.user.check_password(current_password):
+            messages.error(request, 'Current password is incorrect.')
+            return redirect('superadmin_change_password')
+        
+        # Validate new password
+        if not new_password:
+            messages.error(request, 'New password is required.')
+            return redirect('superadmin_change_password')
+        
+        # Check password requirements
+        if len(new_password) < 8:
+            messages.error(request, 'Password must be at least 8 characters long.')
+            return redirect('superadmin_change_password')
+        
+        # Validate confirm password
+        if new_password != confirm_password:
+            messages.error(request, 'New passwords do not match.')
+            return redirect('superadmin_change_password')
+        
+        # Check if new password is same as current
+        if current_password == new_password:
+            messages.error(request, 'New password must be different from current password.')
+            return redirect('superadmin_change_password')
+        
+        try:
+            # Update password
+            request.user.set_password(new_password)
+            request.user.save()
+            
+            # Update last_password_change in SuperAdmin profile
+            try:
+                profile = SuperAdmin.objects.get(user=request.user)
+                profile.last_password_change = timezone.now()
+                profile.save()
+            except SuperAdmin.DoesNotExist:
+                pass
+            
+            # Send email notification
+            try:
+                send_mail(
+                    subject='Password Changed - ENpower Skill Lab',
+                    message=f'''Hello {request.user.get_full_name() or request.user.username},
+
+Your password for ENpower Skill Lab Super Admin account has been changed successfully.
+
+If you did not make this change, please contact the administrator immediately.
+
+Date & Time: {timezone.now().strftime("%B %d, %Y at %I:%M %p")}
+
+Best regards,
+ENpower Skill Lab Team''',
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[request.user.email],
+                    fail_silently=True,
+                )
+            except Exception as email_error:
+                # Log email error but don't fail the password change
+                print(f"Email notification failed: {email_error}")
+            
+            messages.success(request, 'Your password has been changed successfully. A confirmation email has been sent to your registered email address.')
+            
+            # Re-authenticate user to prevent logout
+            from django.contrib.auth import update_session_auth_hash
+            update_session_auth_hash(request, request.user)
+            
+            return redirect('superadmin_change_password')
+            
+        except Exception as e:
+            messages.error(request, f'Error changing password: {str(e)}')
+            return redirect('superadmin_change_password')
+    
+    # GET request - render the change password page
+    return render(request, 'superadmin/change-password.html')
