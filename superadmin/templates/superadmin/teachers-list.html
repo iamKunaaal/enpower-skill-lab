@@ -1,0 +1,100 @@
+{% extends 'superadmin/base.html' %}
+{% load static %}
+
+{% block title %}Teacher List - Enpower Skill Lab{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="{% static 'css/teacher-list.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="teacher-list-page">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>Teacher List</h1>
+        <div class="header-actions">
+            <button class="btn-action btn-download">
+                <span class="material-symbols-outlined">download</span>
+                Download Sample CSV
+            </button>
+            <button class="btn-action btn-upload">
+                <span class="material-symbols-outlined">upload</span>
+                Upload CSV
+            </button>
+            <a href="{% url 'onboard_teacher' %}" class="btn-action btn-add">
+                <span class="material-symbols-outlined">add</span>
+                Add New Teacher
+            </a>
+        </div>
+    </div>
+
+    <!-- Table Card -->
+    <div class="table-card">
+        <table id="teacherTable" class="display teacher-table" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Teacher ID</th>
+                    <th>Name</th>
+                    <th>Designation</th>
+                    <th>Contact Information</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for teacher in teachers %}
+                <tr>
+                    <td>{{ teacher.employee_id }}</td>
+                    <td>
+                        <div class="teacher-name-cell">
+                            {% if teacher.profile_photo %}
+                            <img src="{{ teacher.profile_photo.url }}" alt="{{ teacher.full_name }}" class="teacher-avatar">
+                            {% else %}
+                            <div class="initial-badge" style="background-color: {{ teacher.badge_color }};">{{ teacher.initials }}</div>
+                            {% endif %}
+                            <span class="teacher-name">{{ teacher.full_name }}</span>
+                        </div>
+                    </td>
+                    <td>{{ teacher.get_designation_display }}</td>
+                    <td>{{ teacher.official_email }}</td>
+                    <td>
+                        {% if teacher.attendance_status == 'present' %}
+                        <span class="status-badge status-present">Present</span>
+                        {% elif teacher.attendance_status == 'on-leave' %}
+                        <span class="status-badge status-leave">On Leave</span>
+                        {% else %}
+                        <span class="status-badge status-absent">Absent</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="{% url 'edit_teacher' teacher.id %}" class="action-btn" title="Edit">
+                                <span class="material-symbols-outlined">edit</span>
+                            </a>
+                            <a href="{% url 'view_teacher' teacher.id %}" class="action-btn" title="View">
+                                <span class="material-symbols-outlined">visibility</span>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="empty-state">
+                        <span class="material-symbols-outlined">person_off</span>
+                        <p>No teachers found. <a href="{% url 'onboard_teacher' %}">Add a new teacher</a></p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="{% static 'js/teacher-list.js' %}"></script>
+{% endblock %}

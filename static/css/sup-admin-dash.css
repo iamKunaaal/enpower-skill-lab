@@ -2310,6 +2310,10 @@ div#sidebar-container{
     display: flex;
     flex-direction: column;
     overflow-y: auto;
+    overflow-x: hidden;
+    height: 100vh;
+    position: sticky;
+    top: 0;
     transition: width 0.3s ease-in-out, margin-left 0.3s ease-in-out;
 }
 
@@ -2355,9 +2359,11 @@ body.dark .sidebar-close {
 .sidebar-nav {
     flex: 1;
     padding: 20px 16px;
+    padding-bottom: 40px;
     display: flex;
     flex-direction: column;
     gap: 12px;
+    overflow-y: auto;
 }
 
 .sidebar-nav .menu-label {
@@ -2498,10 +2504,11 @@ body.dark .sidebar-dropdown-toggle.active {
 }
 
 .sidebar-dropdown.active .sidebar-dropdown-menu {
-    max-height: 600px;
+    max-height: 650px;
     display: flex;
     flex-direction: column;
     gap: 6px;
+    overflow: visible;
 }
 
 .sidebar-dropdown-menu a {

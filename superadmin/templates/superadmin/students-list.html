@@ -1,0 +1,119 @@
+{% extends 'superadmin/base.html' %}
+{% load static %}
+
+{% block title %}Student List - Enpower Skill Lab{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="{% static 'css/student-list.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="student-list-page py-4 py-sm-5 py-lg-5">
+    <div class="container-xl" style="max-width: 1200px;">
+        <!-- Page Header -->
+        <header class="page-header mb-4 d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-3">
+            <h1 class="h4 mb-0 fw-bold text-dark">Student List</h1>
+            <div class="d-flex flex-wrap gap-2 align-items-center justify-content-start justify-content-lg-end">
+                <button class="btn-gradient btn-download" onclick="downloadSampleCSV()">
+                    <span class="material-symbols-outlined">download</span>
+                    Download Sample CSV
+                </button>
+
+                <label class="btn-gradient btn-upload" style="cursor: pointer;">
+                    <span class="material-symbols-outlined">upload</span>
+                    Upload CSV
+                    <input type="file" accept=".csv" onchange="handleCSVUpload(event)" style="display: none;">
+                </label>
+
+                <a href="{% url 'onboard_student' %}" class="btn-gradient btn-add text-decoration-none">
+                    <span class="material-symbols-outlined">add</span>
+                    Add New Student
+                </a>
+            </div>
+        </header>
+
+        <!-- Student Table Card -->
+        <main class="card">
+            <div class="table-wrapper-outer">
+                <div class="table-responsive">
+                    <table id="studentTable" class="table mb-0 align-middle">
+                        <thead>
+                            <tr>
+                                <th scope="col">Student ID</th>
+                                <th scope="col">
+                                    <div class="d-inline-flex align-items-center gap-1">
+                                        Name
+                                    </div>
+                                </th>
+                                <th scope="col">Class</th>
+                                <th scope="col">School</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in students %}
+                            <tr>
+                                <td class="text-muted text-monospace">{{ student.skill_lab_id|default:student.id }}</td>
+                                <td class="fw-semibold">
+                                    <div class="d-flex align-items-center gap-3">
+                                        {% if student.student_photo %}
+                                        <img src="{{ student.student_photo.url }}" alt="{{ student.first_name }}" 
+                                             class="rounded-circle" style="width: 36px; height: 36px; object-fit: cover;">
+                                        {% else %}
+                                        <div class="initial-badge" style="background-color: {{ student.badge_color|default:'#6B21A8' }};">
+                                            {{ student.first_name|slice:":1"|upper }}{{ student.last_name|slice:":1"|upper }}
+                                        </div>
+                                        {% endif %}
+                                        <span>{{ student.first_name }} {{ student.last_name }}</span>
+                                    </div>
+                                </td>
+                                <td class="text-muted">Class {{ student.student_class }}-{{ student.division }}</td>
+                                <td class="text-muted">{{ student.school_name|default:"-" }}</td>
+                                <td>
+                                    {% if student.attendance_status == 'active' %}
+                                    <span class="control-pill status-active">Active</span>
+                                    {% elif student.attendance_status == 'inactive' %}
+                                    <span class="control-pill status-inactive">Inactive</span>
+                                    {% else %}
+                                    <span class="control-pill status-pending">Pending</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <a href="{% url 'edit_student' student.id %}" class="action-btn" title="Edit Student">
+                                            <span class="material-symbols-outlined">edit</span>
+                                        </a>
+                                        <a href="{% url 'view_student' student.id %}" class="action-btn" title="View Student">
+                                            <span class="material-symbols-outlined">visibility</span>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center py-5">
+                                    <div class="text-muted">
+                                        <span class="material-symbols-outlined" style="font-size: 48px; opacity: 0.5;">school</span>
+                                        <p class="mt-2 mb-0">No students found</p>
+                                        <a href="{% url 'onboard_student' %}" class="btn btn-primary mt-3">Add First Student</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="{% static 'js/student-list.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,321 @@
+{% extends 'superadmin/base.html' %}
+{% load static %}
+
+{% block title %}{{ student.full_name }} - Student Details{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/student-list.css' %}">
+<style>
+    .student-profile {
+        padding: 1.5rem;
+    }
+    
+    .profile-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 2rem;
+        margin-bottom: 2rem;
+        padding: 2rem;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .profile-photo {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid #f3f4f6;
+    }
+    
+    .profile-photo-placeholder {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #7E22CE, #6B21A8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 2.5rem;
+        font-weight: 700;
+    }
+    
+    .profile-info h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin: 0 0 0.5rem 0;
+    }
+    
+    .profile-info .student-id {
+        color: #6b7280;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+    
+    .profile-actions {
+        margin-left: auto;
+        display: flex;
+        gap: 0.75rem;
+    }
+    
+    .info-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1.5rem;
+    }
+    
+    .info-card-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .info-card-header h2 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0;
+    }
+    
+    .info-card-header .material-symbols-outlined {
+        color: #6B21A8;
+        font-size: 24px;
+    }
+    
+    .info-card-body {
+        padding: 1.5rem;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .info-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    
+    .info-value {
+        font-size: 0.95rem;
+        color: #1f2937;
+    }
+    
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #6b7280;
+        text-decoration: none;
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+        transition: color 0.2s;
+    }
+    
+    .back-link:hover {
+        color: #6B21A8;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="student-profile">
+    <a href="{% url 'student_list' %}" class="back-link">
+        <span class="material-symbols-outlined">arrow_back</span>
+        Back to Student List
+    </a>
+    
+    <!-- Profile Header -->
+    <div class="profile-header">
+        {% if student.student_photo %}
+        <img src="{{ student.student_photo.url }}" alt="{{ student.full_name }}" class="profile-photo">
+        {% else %}
+        <div class="profile-photo-placeholder">
+            {{ student.first_name|slice:":1"|upper }}{{ student.last_name|slice:":1"|upper }}
+        </div>
+        {% endif %}
+        
+        <div class="profile-info">
+            <h1>{{ student.full_name }}</h1>
+            <p class="student-id">
+                <strong>Skill Lab ID:</strong> {{ student.skill_lab_id|default:"-" }} | 
+                <strong>GR Number:</strong> {{ student.gr_number|default:"-" }}
+            </p>
+            <span class="control-pill {% if student.attendance_status == 'active' %}status-active{% elif student.attendance_status == 'inactive' %}status-inactive{% else %}status-pending{% endif %}">
+                {{ student.attendance_status|default:"Pending"|title }}
+            </span>
+        </div>
+        
+        <div class="profile-actions">
+            <a href="{% url 'edit_student' student.id %}" class="btn-gradient btn-add">
+                <span class="material-symbols-outlined">edit</span>
+                Edit Student
+            </a>
+        </div>
+    </div>
+    
+    <!-- Basic Information -->
+    <div class="info-card">
+        <div class="info-card-header">
+            <span class="material-symbols-outlined">person</span>
+            <h2>Basic Information</h2>
+        </div>
+        <div class="info-card-body">
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">First Name</span>
+                    <span class="info-value">{{ student.first_name }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Middle Name</span>
+                    <span class="info-value">{{ student.middle_name|default:"-" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Last Name</span>
+                    <span class="info-value">{{ student.last_name }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Gender</span>
+                    <span class="info-value">{{ student.gender|title }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Date of Birth</span>
+                    <span class="info-value">{{ student.date_of_birth|date:"d M Y"|default:"-" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Nationality</span>
+                    <span class="info-value">{{ student.nationality|default:"-" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Mother Tongue</span>
+                    <span class="info-value">{{ student.mother_tongue|default:"-" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Blood Group</span>
+                    <span class="info-value">{{ student.blood_group|default:"-" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Aadhar Number</span>
+                    <span class="info-value">{{ student.aadhar_number|default:"-" }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Academic Details -->
+    <div class="info-card">
+        <div class="info-card-header">
+            <span class="material-symbols-outlined">school</span>
+            <h2>Academic Details</h2>
+        </div>
+        <div class="info-card-body">
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">School Name</span>
+                    <span class="info-value">{{ student.school_name|default:"-" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">School Branch</span>
+                    <span class="info-value">{{ student.school_branch|default:"-" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Class</span>
+                    <span class="info-value">{{ student.student_class|default:"-" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Division</span>
+                    <span class="info-value">{{ student.division|default:"-" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Roll Number</span>
+                    <span class="info-value">{{ student.roll_number|default:"-" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Academic Year</span>
+                    <span class="info-value">{{ student.academic_year|default:"-" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">School Board</span>
+                    <span class="info-value">{{ student.school_board|default:"-" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Stream</span>
+                    <span class="info-value">{{ student.stream|default:"-"|title }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Contact Details -->
+    <div class="info-card">
+        <div class="info-card-header">
+            <span class="material-symbols-outlined">contact_phone</span>
+            <h2>Contact Details</h2>
+        </div>
+        <div class="info-card-body">
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Student Mobile</span>
+                    <span class="info-value">{{ student.student_mobile|default:"-" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">School Email</span>
+                    <span class="info-value">{{ student.school_email|default:"-" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Personal Email</span>
+                    <span class="info-value">{{ student.personal_email|default:"-" }}</span>
+                </div>
+                <div class="info-item" style="grid-column: 1 / -1;">
+                    <span class="info-label">Address</span>
+                    <span class="info-value">{{ student.address|default:"-" }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Emergency Contact -->
+    <div class="info-card">
+        <div class="info-card-header">
+            <span class="material-symbols-outlined">emergency</span>
+            <h2>Emergency Contact</h2>
+        </div>
+        <div class="info-card-body">
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Contact Name</span>
+                    <span class="info-value">{{ student.emergency_contact_name|default:"-" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Relationship</span>
+                    <span class="info-value">{{ student.emergency_contact_relationship|default:"-"|title }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Mobile</span>
+                    <span class="info-value">{{ student.emergency_contact_mobile|default:"-" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Alternate Mobile</span>
+                    <span class="info-value">{{ student.emergency_contact_alt_mobile|default:"-" }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

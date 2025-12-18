@@ -1,0 +1,616 @@
+{% extends 'superadmin/base.html' %}
+{% load static %}
+
+{% block title %}Add New Teacher - Enpower Skill Lab{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/onboard-teacher.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="add-teacher-page">
+    <form class="add-teacher-form" id="teacherForm" method="POST" enctype="multipart/form-data" action="{% url 'onboard_teacher' %}">
+        {% csrf_token %}
+        
+        <div id="dummy-data-btn">
+            <div class="form-header">
+                <h1 class="page-title">Add New Teacher</h1>
+                <p class="page-subtitle">Fill in the teacher information below to add a new teacher to the system</p>
+            </div>
+            <div class="dummydata-btn">
+                <button type="button" id="autoFillBtn" class="btn-autofill">
+                    <span class="material-symbols-outlined">auto_fix_high</span>
+                    Auto-Fill with Dummy Data
+                </button>
+            </div>
+        </div>
+
+        <!-- Progress Stepper -->
+        <div class="stepper-container">
+            <div class="stepper">
+                <div class="step active" data-step="1">
+                    <div class="step-icon">1</div>
+                    <div class="step-label">Basic Info</div>
+                </div>
+                <div class="step" data-step="2">
+                    <div class="step-icon">2</div>
+                    <div class="step-label">Professional</div>
+                </div>
+                <div class="step" data-step="3">
+                    <div class="step-icon">3</div>
+                    <div class="step-label">Contact</div>
+                </div>
+                <div class="step" data-step="4">
+                    <div class="step-icon">4</div>
+                    <div class="step-label">Address</div>
+                </div>
+                <div class="step" data-step="5">
+                    <div class="step-icon">5</div>
+                    <div class="step-label">Skill Lab</div>
+                </div>
+                <div class="step" data-step="6">
+                    <div class="step-icon">6</div>
+                    <div class="step-label">Emergency</div>
+                </div>
+                <div class="step" data-step="7">
+                    <div class="step-icon">7</div>
+                    <div class="step-label">Compliance</div>
+                </div>
+                <div class="step" data-step="8">
+                    <div class="step-icon">8</div>
+                    <div class="step-label">Additional</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 1: Basic Information -->
+        <div class="form-section step-content" id="step1">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="material-symbols-outlined">badge</span>
+                    A. Basic Information
+                </h2>
+            </div>
+
+            <div class="form-group full-width">
+                <label for="profilePhoto" class="form-label">Profile Photo</label>
+                <div class="photo-upload-container">
+                    <div class="photo-preview" id="photoPreview">
+                        <span class="material-symbols-outlined">add_a_photo</span>
+                        <span class="photo-preview-text">Upload Photo</span>
+                    </div>
+                    <input type="file" id="profilePhoto" name="profile_photo" accept="image/*" class="photo-input">
+                    <button type="button" class="upload-photo-btn" id="uploadPhotoBtn">
+                        <span class="material-symbols-outlined">upload</span>
+                        Choose Photo
+                    </button>
+                    <p class="field-hint">Recommended: Square image, max 2MB</p>
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="employeeId" class="form-label">Employee / Coach ID</label>
+                    <input type="text" id="employeeId" name="employee_id" class="form-input" placeholder="Auto-generated" readonly>
+                    <p class="field-hint">Auto-generated upon submission</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="fullName" class="form-label">Full Name (as per Aadhar card) <span class="required">*</span></label>
+                    <input type="text" id="fullName" name="full_name" class="form-input" placeholder="Enter full name as per Aadhar" required>
+                    <span class="error-message" id="fullNameError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="gender" class="form-label">Gender <span class="required">*</span></label>
+                    <select id="gender" name="gender" class="form-input" required>
+                        <option value="" disabled selected hidden>Select gender</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <span class="error-message" id="genderError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="dateOfBirth" class="form-label">Date of Birth <span class="required">*</span></label>
+                    <input type="date" id="dateOfBirth" name="date_of_birth" class="form-input" required>
+                    <span class="error-message" id="dateOfBirthError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="age" class="form-label">Age</label>
+                    <input type="text" id="age" name="age" class="form-input" placeholder="Auto-calculated" readonly>
+                    <p class="field-hint">Auto-calculated from Date of Birth</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="bloodGroup" class="form-label">Blood Group</label>
+                    <select id="bloodGroup" name="blood_group" class="form-input">
+                        <option value="" disabled selected hidden>Select blood group</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="nationality" class="form-label">Nationality <span class="required">*</span></label>
+                    <input type="text" id="nationality" name="nationality" class="form-input" placeholder="Enter nationality" value="Indian" required>
+                    <span class="error-message" id="nationalityError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="aadharNumber" class="form-label">Aadhar Number</label>
+                    <input type="text" id="aadharNumber" name="aadhar_number" class="form-input" placeholder="XXXX XXXX XXXX" maxlength="14">
+                </div>
+
+                <div class="form-group">
+                    <label for="panNumber" class="form-label">PAN Number</label>
+                    <input type="text" id="panNumber" name="pan_number" class="form-input" placeholder="e.g., ABCDE1234F" maxlength="10">
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Professional Details -->
+        <div class="form-section step-content" id="step2" style="display: none;">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="material-symbols-outlined">work</span>
+                    B. Professional Details
+                </h2>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="designation" class="form-label">Designation <span class="required">*</span></label>
+                    <select id="designation" name="designation" class="form-input" required>
+                        <option value="" disabled selected hidden>Select designation</option>
+                        <option value="enpower-trainer">ENpower Trainer</option>
+                        <option value="school-teacher">School Teacher</option>
+                        <option value="head-teacher">Head Teacher</option>
+                        <option value="assistant-teacher">Assistant Teacher</option>
+                        <option value="principal">Principal</option>
+                        <option value="coordinator">Program Coordinator</option>
+                    </select>
+                    <span class="error-message" id="designationError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="qualification" class="form-label">Qualification <span class="required">*</span></label>
+                    <input type="text" id="qualification" name="qualification" class="form-input" placeholder="e.g., M.A., B.Ed., Ph.D." required>
+                    <span class="error-message" id="qualificationError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="specialization" class="form-label">Specialization</label>
+                    <input type="text" id="specialization" name="specialization" class="form-input" placeholder="e.g., Mathematics, Physics">
+                </div>
+
+                <div class="form-group">
+                    <label for="totalExperience" class="form-label">Total Experience (Years/Months) <span class="required">*</span></label>
+                    <input type="text" id="totalExperience" name="total_experience" class="form-input" placeholder="e.g., 5 years 3 months" required>
+                    <span class="error-message" id="totalExperienceError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="skillTrainingExperience" class="form-label">Experience in Skill-Based Training (Optional)</label>
+                    <input type="text" id="skillTrainingExperience" name="skill_training_experience" class="form-input" placeholder="e.g., 2 years">
+                </div>
+
+                <div class="form-group">
+                    <label for="previousOrganizations" class="form-label">Previous Organizations</label>
+                    <input type="text" id="previousOrganizations" name="previous_organizations" class="form-input" placeholder="List previous workplaces">
+                </div>
+
+                <div class="form-group">
+                    <label for="certifications" class="form-label">Certifications</label>
+                    <input type="text" id="certifications" name="certifications" class="form-input" placeholder="e.g., TET, CTET, B.Ed.">
+                </div>
+
+                <div class="form-group">
+                    <label for="languagesKnown" class="form-label">Languages Known</label>
+                    <input type="text" id="languagesKnown" name="languages_known" class="form-input" placeholder="e.g., English, Hindi, Marathi">
+                </div>
+
+                <div class="form-group">
+                    <label for="gradesTaught" class="form-label">Grades Taught</label>
+                    <input type="text" id="gradesTaught" name="grades_taught" class="form-input" placeholder="e.g., 5th to 10th">
+                </div>
+
+                <div class="form-group">
+                    <label for="trainingStyle" class="form-label">Training Style</label>
+                    <select id="trainingStyle" name="training_style" class="form-input">
+                        <option value="" disabled selected hidden>Select training style</option>
+                        <option value="interactive">Interactive</option>
+                        <option value="conceptual">Conceptual</option>
+                        <option value="activity-based">Activity-Based</option>
+                        <option value="mixed">Mixed Approach</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Contact Information -->
+        <div class="form-section step-content" id="step3" style="display: none;">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="material-symbols-outlined">phone</span>
+                    C. Contact Information
+                </h2>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="mobileNumber" class="form-label">Mobile Number <span class="required">*</span></label>
+                    <input type="tel" id="mobileNumber" name="mobile_number" class="form-input" placeholder="+91 XXXXX XXXXX" required maxlength="10">
+                    <span class="error-message" id="mobileNumberError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="alternateNumber" class="form-label">Alternate Number</label>
+                    <input type="tel" id="alternateNumber" name="alternate_number" class="form-input" placeholder="+91 XXXXX XXXXX" maxlength="10">
+                </div>
+
+                <div class="form-group">
+                    <label for="officialEmail" class="form-label">Official Email ID <span class="required">*</span></label>
+                    <input type="email" id="officialEmail" name="official_email" class="form-input" placeholder="coach@example.com" required>
+                    <p class="field-hint">Used for login</p>
+                    <span class="error-message" id="officialEmailError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="personalEmail" class="form-label">Personal Email (Optional)</label>
+                    <input type="email" id="personalEmail" name="personal_email" class="form-input" placeholder="personal@example.com">
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 4: Address Details -->
+        <div class="form-section step-content" id="step4" style="display: none;">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="material-symbols-outlined">home</span>
+                    D. Address Details
+                </h2>
+            </div>
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label for="currentAddress" class="form-label">Current Residential Address <span class="required">*</span></label>
+                    <input type="text" id="currentAddress" name="current_address" class="form-input" placeholder="House No., Street, Area" required>
+                    <span class="error-message" id="currentAddressError"></span>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="permanentAddress" class="form-label">Permanent Address</label>
+                    <input type="text" id="permanentAddress" name="permanent_address" class="form-input" placeholder="Enter if different from current address">
+                </div>
+
+                <div class="form-group">
+                    <label for="city" class="form-label">City <span class="required">*</span></label>
+                    <input type="text" id="city" name="city" class="form-input" placeholder="Enter city" required>
+                    <span class="error-message" id="cityError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="state" class="form-label">State <span class="required">*</span></label>
+                    <input type="text" id="state" name="state" class="form-input" placeholder="Enter state" required>
+                    <span class="error-message" id="stateError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="pinCode" class="form-label">Pin Code <span class="required">*</span></label>
+                    <input type="text" id="pinCode" name="pin_code" class="form-input" placeholder="6-digit PIN" maxlength="6" required>
+                    <span class="error-message" id="pinCodeError"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 5: Skill Lab Work Details -->
+        <div class="form-section step-content" id="step5" style="display: none;">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="material-symbols-outlined">science</span>
+                    E. Skill Lab Work Details
+                </h2>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="skillLabCenter" class="form-label">Skill Lab Center / School Assigned</label>
+                    <input type="text" id="skillLabCenter" name="skill_lab_center" class="form-input" placeholder="Enter assigned center/school">
+                </div>
+
+                <div class="form-group">
+                    <label for="branchLocation" class="form-label">Branch Location</label>
+                    <input type="text" id="branchLocation" name="branch_location" class="form-input" placeholder="Enter branch location">
+                </div>
+
+                <div class="form-group">
+                    <label for="batchTimings" class="form-label">Batch Timings</label>
+                    <input type="text" id="batchTimings" name="batch_timings" class="form-input" placeholder="e.g., 9:00 AM - 12:00 PM">
+                </div>
+
+                <div class="form-group">
+                    <label for="weeklyTimetable" class="form-label">Weekly Timetable</label>
+                    <input type="text" id="weeklyTimetable" name="weekly_timetable" class="form-input" placeholder="e.g., Mon-Fri, 9 AM - 3 PM">
+                </div>
+
+                <div class="form-group">
+                    <label for="studentGroups" class="form-label">Student Groups Assigned</label>
+                    <input type="text" id="studentGroups" name="student_groups" class="form-input" placeholder="e.g., Group A, Group B">
+                </div>
+
+                <div class="form-group">
+                    <label for="modulesAssigned" class="form-label">Modules Assigned to Teach</label>
+                    <input type="text" id="modulesAssigned" name="modules_assigned" class="form-input" placeholder="e.g., Critical Thinking, Communication">
+                </div>
+
+                <div class="form-group">
+                    <label for="activeClasses" class="form-label">Active Classes List</label>
+                    <input type="text" id="activeClasses" name="active_classes" class="form-input" placeholder="e.g., 5A, 6B, 7C">
+                </div>
+
+                <div class="form-group">
+                    <label for="totalStudents" class="form-label">Total Students Under the Coach</label>
+                    <input type="number" id="totalStudents" name="total_students" class="form-input" placeholder="Enter number" min="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="dashboardRole" class="form-label">Dashboard Login Role & Permissions</label>
+                    <select id="dashboardRole" name="dashboard_role" class="form-input">
+                        <option value="" disabled selected hidden>Select role</option>
+                        <option value="coach">Thinking Coach</option>
+                        <option value="senior-coach">Senior Coach</option>
+                        <option value="coordinator">Program Coordinator</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="joiningDate" class="form-label">Joining Date <span class="required">*</span></label>
+                    <input type="date" id="joiningDate" name="joining_date" class="form-input" required>
+                    <span class="error-message" id="joiningDateError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="contractEndDate" class="form-label">Contract End Date</label>
+                    <input type="date" id="contractEndDate" name="contract_end_date" class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label for="employmentType" class="form-label">Employment Type <span class="required">*</span></label>
+                    <select id="employmentType" name="employment_type" class="form-input" required>
+                        <option value="" disabled selected hidden>Select type</option>
+                        <option value="full-time">Full-time</option>
+                        <option value="part-time">Part-time</option>
+                        <option value="visiting">Visiting</option>
+                        <option value="contract">Contract</option>
+                    </select>
+                    <span class="error-message" id="employmentTypeError"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 6: Emergency Information -->
+        <div class="form-section step-content" id="step6" style="display: none;">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="material-symbols-outlined">emergency</span>
+                    F. Emergency Information
+                </h2>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="emergencyContactName" class="form-label">Emergency Contact Name <span class="required">*</span></label>
+                    <input type="text" id="emergencyContactName" name="emergency_contact_name" class="form-input" placeholder="Enter contact name" required>
+                    <span class="error-message" id="emergencyContactNameError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="emergencyRelation" class="form-label">Relation <span class="required">*</span></label>
+                    <select id="emergencyRelation" name="emergency_relation" class="form-input" required>
+                        <option value="" disabled selected hidden>Select relation</option>
+                        <option value="spouse">Spouse</option>
+                        <option value="parent">Parent</option>
+                        <option value="sibling">Sibling</option>
+                        <option value="child">Child</option>
+                        <option value="friend">Friend</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <span class="error-message" id="emergencyRelationError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="emergencyMobile" class="form-label">Mobile Number <span class="required">*</span></label>
+                    <input type="tel" id="emergencyMobile" name="emergency_mobile" class="form-input" placeholder="+91 XXXXX XXXXX" required maxlength="10">
+                    <span class="error-message" id="emergencyMobileError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="emergencySecondary" class="form-label">Secondary Number</label>
+                    <input type="tel" id="emergencySecondary" name="emergency_secondary" class="form-input" placeholder="+91 XXXXX XXXXX" maxlength="10">
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="healthNotes" class="form-label">Health Notes (if any)</label>
+                    <textarea id="healthNotes" name="health_notes" class="form-input" placeholder="Any health conditions, allergies, or medical notes" rows="3"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 7: Compliance & Documentation -->
+        <div class="form-section step-content" id="step7" style="display: none;">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="material-symbols-outlined">folder</span>
+                    G. Compliance & Documentation
+                </h2>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="idProofSubmitted" class="form-label">ID Proof Submitted (Aadhar / PAN)</label>
+                    <select id="idProofSubmitted" name="id_proof_submitted" class="form-input">
+                        <option value="" disabled selected hidden>Select status</option>
+                        <option value="aadhar">Aadhar Card</option>
+                        <option value="pan">PAN Card</option>
+                        <option value="both">Both</option>
+                        <option value="pending">Pending</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="addressProofSubmitted" class="form-label">Address Proof Submitted</label>
+                    <select id="addressProofSubmitted" name="address_proof_submitted" class="form-input">
+                        <option value="" disabled selected hidden>Select status</option>
+                        <option value="yes">Yes</option>
+                        <option value="no">No</option>
+                        <option value="pending">Pending</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="policeVerification" class="form-label">Police Verification Status</label>
+                    <select id="policeVerification" name="police_verification" class="form-input">
+                        <option value="" disabled selected hidden>Select status</option>
+                        <option value="verified">Verified</option>
+                        <option value="pending">Pending</option>
+                        <option value="not-required">Not Required</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="contractUploaded" class="form-label">Contract Uploaded</label>
+                    <select id="contractUploaded" name="contract_uploaded" class="form-input">
+                        <option value="" disabled selected hidden>Select status</option>
+                        <option value="yes">Yes</option>
+                        <option value="no">No</option>
+                        <option value="pending">Pending</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="passportPhoto" class="form-label">Passport Size Photo</label>
+                    <input type="file" id="passportPhoto" name="passport_photo" class="form-input" accept="image/*">
+                </div>
+
+                <div class="form-group">
+                    <label for="panAadharLinked" class="form-label">Is PAN Card Linked to Aadhar Card?</label>
+                    <select id="panAadharLinked" name="pan_aadhar_linked" class="form-input">
+                        <option value="" disabled selected hidden>Select</option>
+                        <option value="yes">Yes</option>
+                        <option value="no">No</option>
+                        <option value="not-sure">Not Sure</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="resumeUpload" class="form-label">Upload Resume (PDF / Word)</label>
+                    <input type="file" id="resumeUpload" name="resume" class="form-input" accept=".pdf,.doc,.docx">
+                    <p class="field-hint">Accepted formats: PDF, DOC, DOCX</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="bankDetailsSubmitted" class="form-label">Bank Details Submitted (for salary)</label>
+                    <select id="bankDetailsSubmitted" name="bank_details_submitted" class="form-input">
+                        <option value="" disabled selected hidden>Select status</option>
+                        <option value="yes">Yes</option>
+                        <option value="no">No</option>
+                        <option value="pending">Pending</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="ifscCode" class="form-label">IFSC Code</label>
+                    <input type="text" id="ifscCode" name="ifsc_code" class="form-input" placeholder="e.g., SBIN0001234" maxlength="11">
+                </div>
+
+                <div class="form-group">
+                    <label for="bankAccountNumber" class="form-label">Bank Account Number</label>
+                    <input type="text" id="bankAccountNumber" name="bank_account_number" class="form-input" placeholder="Enter account number">
+                </div>
+
+                <div class="form-group">
+                    <label for="bankName" class="form-label">Bank Name</label>
+                    <input type="text" id="bankName" name="bank_name" class="form-input" placeholder="Enter bank name">
+                </div>
+
+                <div class="form-group">
+                    <label for="branchName" class="form-label">Branch Name</label>
+                    <input type="text" id="branchName" name="branch_name" class="form-input" placeholder="Enter branch name">
+                </div>
+
+                <div class="form-group">
+                    <label for="passbookCopy" class="form-label">Bank Passbook Copy</label>
+                    <input type="file" id="passbookCopy" name="passbook_copy" class="form-input" accept="image/*,.pdf">
+                    <p class="field-hint">First page with account details</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 8: Additional Optional Data -->
+        <div class="form-section step-content" id="step8" style="display: none;">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="material-symbols-outlined">more_horiz</span>
+                    H. Additional Optional Data
+                </h2>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="hobbies" class="form-label">Hobbies / Interests</label>
+                    <input type="text" id="hobbies" name="hobbies" class="form-input" placeholder="e.g., Reading, Music, Sports">
+                </div>
+
+                <div class="form-group">
+                    <label for="strengthAreas" class="form-label">Strength Areas</label>
+                    <input type="text" id="strengthAreas" name="strength_areas" class="form-input" placeholder="e.g., Communication, Problem Solving">
+                </div>
+
+                <div class="form-group">
+                    <label for="improvementAreas" class="form-label">Areas for Improvement</label>
+                    <input type="text" id="improvementAreas" name="improvement_areas" class="form-input" placeholder="e.g., Time Management">
+                </div>
+
+                <div class="form-group">
+                    <label for="trainingResources" class="form-label">Preferred Training Resources</label>
+                    <input type="text" id="trainingResources" name="training_resources" class="form-input" placeholder="e.g., Videos, Books, Workshops">
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="achievements" class="form-label">Achievements & Recognition</label>
+                    <textarea id="achievements" name="achievements" class="form-input" placeholder="List any awards, recognitions, or notable achievements" rows="3"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <button type="button" class="btn-cancel" id="cancelBtn">
+                <span class="material-symbols-outlined">close</span>
+                Cancel
+            </button>
+            <div class="action-buttons-right">
+                <button type="button" class="btn-back" id="backBtn" style="display: none;">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                    Back
+                </button>
+                <button type="button" class="btn-next" id="nextBtn">
+                    Next
+                    <span class="material-symbols-outlined">arrow_forward</span>
+                </button>
+                <button type="submit" class="btn-submit" id="submitBtn" style="display: none;">
+                    <span class="material-symbols-outlined">check_circle</span>
+                    Submit
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/onboard-teacher.js' %}"></script>
+{% endblock %}

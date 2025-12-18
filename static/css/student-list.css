@@ -1,0 +1,490 @@
+/* Student List Page Styles */
+
+/* Page Container */
+.student-list-page {
+    padding: 1rem;
+    max-width: 100%;
+    width: 100%;
+}
+
+.student-list-page .container-xl {
+    max-width: 100% !important;
+    padding: 0;
+}
+
+/* Page Header */
+.student-list-page .page-header {
+    margin-bottom: 1.5rem;
+    padding: 0;
+}
+
+.student-list-page .page-header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+}
+
+body.dark .student-list-page .page-header h1 {
+    color: #f9fafb;
+}
+
+/* Card Styles */
+.student-list-page .card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    overflow: hidden;
+}
+
+body.dark .student-list-page .card {
+    background-color: #1f2937;
+    border-color: #374151;
+}
+
+/* Unified Modern Gradient Buttons */
+.btn-gradient {
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #fff !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.2s ease-in-out;
+    text-decoration: none;
+}
+
+.btn-gradient:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Individual Gradient Styles */
+.btn-download {
+    background: linear-gradient(135deg, #0EA5E9, #0284C7);
+}
+
+.btn-upload {
+    background: linear-gradient(135deg, #F59E0B, #D97706);
+}
+
+.btn-add {
+    background: linear-gradient(135deg, #7E22CE, #6B21A8);
+}
+
+.btn-gradient .material-symbols-outlined {
+    font-size: 18px;
+    font-weight: 500;
+}
+
+/* Status Pills */
+.control-pill {
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.35rem 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 70px;
+}
+
+.status-active {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.status-pending {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.status-inactive {
+    background-color: #fce7f3;
+    color: #9d174d;
+}
+
+body.dark .status-active {
+    background-color: rgba(16, 185, 129, 0.2);
+    color: #34d399;
+}
+
+body.dark .status-pending {
+    background-color: rgba(234, 179, 8, 0.2);
+    color: #fcd34d;
+}
+
+body.dark .status-inactive {
+    background-color: rgba(248, 113, 113, 0.2);
+    color: #fca5a5;
+}
+
+/* Initial Badge */
+.initial-badge {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: #fff;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+}
+
+/* Table Styles */
+.student-list-page .table {
+    margin: 0;
+    width: 100%;
+}
+
+.student-list-page .table > :not(caption) > * > * {
+    padding: 1rem 1.25rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.student-list-page .table thead th {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: #6b7280;
+    text-transform: uppercase;
+    border-bottom: 1px solid #e5e7eb;
+    background: #fff;
+    padding: 1rem 1.25rem;
+    white-space: nowrap;
+}
+
+body.dark .student-list-page .table thead th {
+    color: #9ca3af;
+    background: #1f2937;
+    border-color: #374151;
+}
+
+.student-list-page .table tbody tr {
+    transition: background-color 0.15s ease;
+}
+
+.student-list-page .table tbody tr:hover {
+    background-color: #f9fafb;
+}
+
+body.dark .student-list-page .table tbody tr:hover {
+    background-color: #374151;
+}
+
+.student-list-page .table tbody td {
+    color: #374151;
+    font-size: 0.9rem;
+}
+
+.student-list-page .table tbody td.text-muted {
+    color: #6b7280;
+}
+
+body.dark .student-list-page .table tbody td {
+    color: #e5e7eb;
+}
+
+/* Student Name Column */
+.student-list-page .table tbody td .fw-semibold,
+.student-list-page .table tbody td span:not(.material-symbols-outlined):not(.control-pill) {
+    color: #1f2937;
+    font-weight: 600;
+}
+
+body.dark .student-list-page .table tbody td .fw-semibold {
+    color: #f9fafb;
+}
+
+/* Action Buttons */
+.student-list-page .action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    padding: 0;
+}
+
+.student-list-page .action-btn:hover {
+    background-color: #f3f4f6;
+    color: #6B21A8;
+}
+
+.student-list-page .action-btn .material-symbols-outlined {
+    font-size: 20px;
+}
+
+body.dark .student-list-page .action-btn:hover {
+    background-color: #374151;
+    color: #a855f7;
+}
+
+/* DataTables Customization */
+.student-list-page .dataTables_wrapper {
+    padding: 0;
+}
+
+.student-list-page .datatable-header {
+    padding: 1rem 1.25rem;
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+body.dark .student-list-page .datatable-header {
+    background: #1f2937;
+    border-color: #374151;
+}
+
+.student-list-page .dataTables_length {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #374151;
+}
+
+.student-list-page .dataTables_length label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+}
+
+.student-list-page .dataTables_length select {
+    padding: 0.5rem 2rem 0.5rem 0.75rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background-color: #fff;
+    font-size: 0.875rem;
+    color: #374151;
+    cursor: pointer;
+    min-width: 70px;
+}
+
+body.dark .student-list-page .dataTables_length select {
+    background-color: #374151;
+    border-color: #4b5563;
+    color: #e5e7eb;
+}
+
+.student-list-page .dataTables_filter {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.student-list-page .dataTables_filter label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    font-size: 0.875rem;
+    color: #374151;
+}
+
+.student-list-page .dataTables_filter input {
+    padding: 0.5rem 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    min-width: 200px;
+    background: #fff;
+}
+
+.student-list-page .dataTables_filter input:focus {
+    outline: none;
+    border-color: #6B21A8;
+    box-shadow: 0 0 0 3px rgba(107, 33, 168, 0.1);
+}
+
+body.dark .student-list-page .dataTables_filter input {
+    background-color: #374151;
+    border-color: #4b5563;
+    color: #e5e7eb;
+}
+
+.student-list-page .datatable-footer {
+    padding: 1rem 1.25rem;
+    background: #fff;
+    border-top: 1px solid #e5e7eb;
+}
+
+body.dark .student-list-page .datatable-footer {
+    background: #1f2937;
+    border-color: #374151;
+}
+
+.student-list-page .dataTables_info {
+    font-size: 0.875rem;
+    color: #6b7280;
+    float: left;
+    padding-top: 0.5rem;
+}
+
+/* Fix DataTables pagination wrapper */
+.student-list-page .dataTables_wrapper .dataTables_paginate {
+    float: right;
+    text-align: right;
+    padding-top: 0;
+}
+
+/* Pagination */
+.student-list-page .dataTables_paginate .paginate_button {
+    display: inline-block;
+    padding: 0.4rem 0.75rem;
+    margin-left: 0.25rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    color: #6b7280;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none !important;
+    box-sizing: border-box;
+}
+
+.student-list-page .dataTables_paginate .paginate_button:hover:not(.disabled):not(.current) {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.student-list-page .dataTables_paginate .paginate_button.current {
+    background: #6B21A8;
+    color: #fff !important;
+    font-weight: 600;
+}
+
+.student-list-page .dataTables_paginate .paginate_button.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    color: #9ca3af;
+}
+
+.student-list-page .dataTables_paginate .paginate_button.previous,
+.student-list-page .dataTables_paginate .paginate_button.next {
+    color: #374151;
+    font-weight: 500;
+}
+
+/* Clear floats */
+.student-list-page .datatable-footer::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+body.dark .student-list-page .dataTables_paginate .paginate_button {
+    color: #9ca3af;
+}
+
+body.dark .student-list-page .dataTables_paginate .paginate_button:hover:not(.disabled):not(.current) {
+    background: #374151;
+    color: #e5e7eb;
+}
+
+body.dark .student-list-page .dataTables_paginate .paginate_button.current {
+    background: #6B21A8;
+    color: #fff;
+}
+
+/* Table wrapper */
+.table-wrapper-outer {
+    width: 100%;
+    overflow: visible;
+}
+
+.student-list-page .table-responsive {
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Custom scrollbar */
+.student-list-page .table-responsive::-webkit-scrollbar {
+    height: 6px;
+}
+
+.student-list-page .table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.student-list-page .table-responsive::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.student-list-page .table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Table scroll wrapper */
+.table-scroll-wrapper {
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Empty state */
+.student-list-page .empty-state {
+    padding: 4rem 2rem;
+    text-align: center;
+}
+
+.student-list-page .empty-state .material-symbols-outlined {
+    font-size: 64px;
+    color: #d1d5db;
+    margin-bottom: 1rem;
+}
+
+.student-list-page .empty-state p {
+    color: #6b7280;
+    margin-bottom: 1.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .student-list-page {
+        padding: 1rem;
+    }
+    
+    .student-list-page .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .btn-gradient {
+        padding: 8px 16px;
+        font-size: 0.8rem;
+    }
+    
+    .student-list-page .datatable-header,
+    .student-list-page .datatable-footer {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

@@ -1,0 +1,219 @@
+{% extends 'superadmin/base.html' %}
+{% load static %}
+
+{% block title %}Edit Teacher - {{ teacher.full_name }} - Enpower Skill Lab{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/onboard-teacher.css' %}">
+<style>
+    .edit-teacher-page {
+        padding: 1rem;
+        width: 100%;
+    }
+    
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #6b277e;
+        text-decoration: none;
+        font-weight: 500;
+        margin-bottom: 1rem;
+        padding-left: 0.5rem;
+    }
+    
+    .back-link:hover {
+        color: #A67DB1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="edit-teacher-page">
+    <a href="{% url 'teacher_list' %}" class="back-link">
+        <span class="material-symbols-outlined">arrow_back</span>
+        Back to Teacher List
+    </a>
+
+    <div class="add-teacher-page">
+        <form class="add-teacher-form" id="editTeacherForm" method="POST" enctype="multipart/form-data" action="{% url 'edit_teacher' teacher.id %}">
+            {% csrf_token %}
+            
+            <div class="form-header">
+                <h1 class="page-title">Edit Teacher</h1>
+                <p class="page-subtitle">Update the teacher information below</p>
+            </div>
+
+            <!-- All form sections in one page for editing -->
+            <!-- Basic Information -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="material-symbols-outlined">badge</span>
+                        A. Basic Information
+                    </h2>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="employeeId" class="form-label">Employee ID</label>
+                        <input type="text" id="employeeId" name="employee_id" class="form-input" value="{{ teacher.employee_id }}" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fullName" class="form-label">Full Name <span class="required">*</span></label>
+                        <input type="text" id="fullName" name="full_name" class="form-input" value="{{ teacher.full_name }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gender" class="form-label">Gender <span class="required">*</span></label>
+                        <select id="gender" name="gender" class="form-input" required>
+                            <option value="male" {% if teacher.gender == 'male' %}selected{% endif %}>Male</option>
+                            <option value="female" {% if teacher.gender == 'female' %}selected{% endif %}>Female</option>
+                            <option value="other" {% if teacher.gender == 'other' %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dateOfBirth" class="form-label">Date of Birth <span class="required">*</span></label>
+                        <input type="date" id="dateOfBirth" name="date_of_birth" class="form-input" value="{{ teacher.date_of_birth|date:'Y-m-d' }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bloodGroup" class="form-label">Blood Group</label>
+                        <select id="bloodGroup" name="blood_group" class="form-input">
+                            <option value="">Select blood group</option>
+                            <option value="A+" {% if teacher.blood_group == 'A+' %}selected{% endif %}>A+</option>
+                            <option value="A-" {% if teacher.blood_group == 'A-' %}selected{% endif %}>A-</option>
+                            <option value="B+" {% if teacher.blood_group == 'B+' %}selected{% endif %}>B+</option>
+                            <option value="B-" {% if teacher.blood_group == 'B-' %}selected{% endif %}>B-</option>
+                            <option value="AB+" {% if teacher.blood_group == 'AB+' %}selected{% endif %}>AB+</option>
+                            <option value="AB-" {% if teacher.blood_group == 'AB-' %}selected{% endif %}>AB-</option>
+                            <option value="O+" {% if teacher.blood_group == 'O+' %}selected{% endif %}>O+</option>
+                            <option value="O-" {% if teacher.blood_group == 'O-' %}selected{% endif %}>O-</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nationality" class="form-label">Nationality</label>
+                        <input type="text" id="nationality" name="nationality" class="form-input" value="{{ teacher.nationality }}">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Professional Details -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="material-symbols-outlined">work</span>
+                        B. Professional Details
+                    </h2>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="designation" class="form-label">Designation <span class="required">*</span></label>
+                        <select id="designation" name="designation" class="form-input" required>
+                            <option value="enpower-trainer" {% if teacher.designation == 'enpower-trainer' %}selected{% endif %}>ENpower Trainer</option>
+                            <option value="school-teacher" {% if teacher.designation == 'school-teacher' %}selected{% endif %}>School Teacher</option>
+                            <option value="head-teacher" {% if teacher.designation == 'head-teacher' %}selected{% endif %}>Head Teacher</option>
+                            <option value="assistant-teacher" {% if teacher.designation == 'assistant-teacher' %}selected{% endif %}>Assistant Teacher</option>
+                            <option value="principal" {% if teacher.designation == 'principal' %}selected{% endif %}>Principal</option>
+                            <option value="coordinator" {% if teacher.designation == 'coordinator' %}selected{% endif %}>Program Coordinator</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="qualification" class="form-label">Qualification <span class="required">*</span></label>
+                        <input type="text" id="qualification" name="qualification" class="form-input" value="{{ teacher.qualification }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="totalExperience" class="form-label">Total Experience</label>
+                        <input type="text" id="totalExperience" name="total_experience" class="form-input" value="{{ teacher.total_experience }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="employmentType" class="form-label">Employment Type <span class="required">*</span></label>
+                        <select id="employmentType" name="employment_type" class="form-input" required>
+                            <option value="full-time" {% if teacher.employment_type == 'full-time' %}selected{% endif %}>Full-time</option>
+                            <option value="part-time" {% if teacher.employment_type == 'part-time' %}selected{% endif %}>Part-time</option>
+                            <option value="visiting" {% if teacher.employment_type == 'visiting' %}selected{% endif %}>Visiting</option>
+                            <option value="contract" {% if teacher.employment_type == 'contract' %}selected{% endif %}>Contract</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="material-symbols-outlined">phone</span>
+                        C. Contact Information
+                    </h2>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="mobileNumber" class="form-label">Mobile Number <span class="required">*</span></label>
+                        <input type="tel" id="mobileNumber" name="mobile_number" class="form-input" value="{{ teacher.mobile_number }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="officialEmail" class="form-label">Official Email <span class="required">*</span></label>
+                        <input type="email" id="officialEmail" name="official_email" class="form-input" value="{{ teacher.official_email }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="city" class="form-label">City</label>
+                        <input type="text" id="city" name="city" class="form-input" value="{{ teacher.city }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="state" class="form-label">State</label>
+                        <input type="text" id="state" name="state" class="form-input" value="{{ teacher.state }}">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="material-symbols-outlined">toggle_on</span>
+                        D. Status
+                    </h2>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="attendanceStatus" class="form-label">Attendance Status</label>
+                        <select id="attendanceStatus" name="attendance_status" class="form-input">
+                            <option value="present" {% if teacher.attendance_status == 'present' %}selected{% endif %}>Present</option>
+                            <option value="absent" {% if teacher.attendance_status == 'absent' %}selected{% endif %}>Absent</option>
+                            <option value="on-leave" {% if teacher.attendance_status == 'on-leave' %}selected{% endif %}>On Leave</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="isActive" class="form-label">Active Status</label>
+                        <select id="isActive" name="is_active" class="form-input">
+                            <option value="true" {% if teacher.is_active %}selected{% endif %}>Active</option>
+                            <option value="false" {% if not teacher.is_active %}selected{% endif %}>Inactive</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <a href="{% url 'teacher_list' %}" class="btn-cancel">
+                    <span class="material-symbols-outlined">close</span>
+                    Cancel
+                </a>
+                <button type="submit" class="btn-submit">
+                    <span class="material-symbols-outlined">check_circle</span>
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

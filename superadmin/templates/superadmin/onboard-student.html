@@ -1,0 +1,618 @@
+{% extends 'superadmin/base.html' %}
+{% load static %}
+
+{% block title %}Add New Student - Enpower Skill Lab{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/add-student.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="add-student-page">
+    <form class="add-student-form" id="addStudentForm" method="POST" enctype="multipart/form-data" action="{% url 'onboard_student' %}">
+        {% csrf_token %}
+        
+        <div id="dummy-data-btn">
+        <div class="form-header">
+            <h1 class="page-title">Add New Student</h1>
+            <p class="page-subtitle">Fill in the student information below to add a new student to the system</p>
+
+        </div>
+        <div class="dummydata-btn">
+            <button type="button" id="autoFillBtn" class="btn-autofill">
+                <span class="material-symbols-outlined">auto_fix_high</span>
+                Auto-Fill with Dummy Data
+            </button>
+        </div>    
+
+    </div>
+
+        <div class="stepper-container">
+            <div class="stepper">
+                <div class="step active" data-step="1">
+                    <div class="step-icon">1</div>
+                    <div class="step-label">Basic Info</div>
+                </div>
+                <div class="step" data-step="2">
+                    <div class="step-icon">2</div>
+                    <div class="step-label">Academic</div>
+                </div>
+                <div class="step" data-step="3">
+                    <div class="step-icon">3</div>
+                    <div class="step-label">Contact</div>
+                </div>
+                <div class="step" data-step="4">
+                    <div class="step-icon">4</div>
+                    <div class="step-label">Skill Lab</div>
+                </div>
+                <div class="step" data-step="5">
+                    <div class="step-icon">5</div>
+                    <div class="step-label">Health</div>
+                </div>
+                <div class="step" data-step="6">
+                    <div class="step-icon">6</div>
+                    <div class="step-label">Emergency</div>
+                </div>
+                <div class="step" data-step="7">
+                    <div class="step-icon">7</div>
+                    <div class="step-label">Family</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section step-content" id="step1">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="material-symbols-outlined">person</span>
+                    A. Basic Information
+                </h2>
+            </div>
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label for="studentPhoto" class="form-label">Student Photo</label>
+                    <div class="photo-upload-container">
+                        <div class="photo-preview" id="photoPreview">
+                            <span class="material-symbols-outlined">photo_camera</span>
+                            <span class="photo-preview-text">Upload Photo</span>
+                        </div>
+                        <input type="file" id="studentPhoto" name="student_photo" accept="image/*" class="photo-input">
+                        <button type="button" class="upload-photo-btn" id="uploadPhotoBtn">
+                            <span class="material-symbols-outlined">upload</span>
+                            Choose Photo
+                        </button>
+                        <span class="field-hint">Recommended: Square Image, max 2MB</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="firstName" class="form-label">First Name <span class="required">*</span></label>
+                    <input type="text" id="firstName" name="first_name" class="form-input" placeholder="Enter first name" required>
+                    <span class="error-message" id="firstNameError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="middleName" class="form-label">Middle Name</label>
+                    <input type="text" id="middleName" name="middle_name" class="form-input" placeholder="Enter middle name">
+                    <span class="error-message" id="middleNameError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="lastName" class="form-label">Last Name <span class="required">*</span></label>
+                    <input type="text" id="lastName" name="last_name" class="form-input" placeholder="Enter last name" required>
+                    <span class="error-message" id="lastNameError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="gender" class="form-label">Gender <span class="required">*</span></label>
+                    <select id="gender" name="gender" class="form-input" required>
+                        <option value="" disabled selected hidden>Select gender</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <span class="error-message" id="genderError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="dateOfBirth" class="form-label">Date of Birth <span class="required">*</span></label>
+                    <input type="date" id="dateOfBirth" name="date_of_birth" class="form-input" required>
+                    <span class="error-message" id="dateOfBirthError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="age" class="form-label">Age</label>
+                    <input type="text" id="age" name="age" class="form-input" placeholder="Auto-calculated" readonly>
+                    <p class="field-hint">Auto-calculated from Date of Birth</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="nationality" class="form-label">Nationality <span class="required">*</span></label>
+                    <input type="text" id="nationality" name="nationality" class="form-input" placeholder="Enter nationality" required value="Indian">
+                    <span class="error-message" id="nationalityError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="motherTongue" class="form-label">Mother Tongue</label>
+                    <input type="text" id="motherTongue" name="mother_tongue" class="form-input" placeholder="Enter mother tongue">
+                    <span class="error-message" id="motherTongueError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="bloodGroup" class="form-label">Blood Group</label>
+                    <select id="bloodGroup" name="blood_group" class="form-input">
+                        <option value="" disabled selected hidden>Select blood group</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                    </select>
+                    <span class="error-message" id="bloodGroupError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="aadharNumber" class="form-label">Aadhar Number (Optional)</label>
+                    <input type="text" id="aadharNumber" name="aadhar_number" class="form-input" placeholder="XXXX XXXX XXXX" maxlength="14">
+                    <span class="error-message" id="aadharNumberError"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section step-content" id="step2" style="display: none;">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="material-symbols-outlined">school</span>
+                    B. Academic Details
+                </h2>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="schoolName" class="form-label">School Name <span class="required">*</span></label>
+                    <select id="schoolName" name="school_name" class="form-input" required>
+                        <option value="" disabled selected hidden>Select school</option>
+                        {% for school in schools %}
+                        <option value="{{ school.school_name }}">{{ school.school_name }}</option>
+                        {% empty %}
+                        <option value="greenwood">Greenwood High School</option>
+                        <option value="springfield">Springfield Academy</option>
+                        <option value="riverside">Riverside School</option>
+                        {% endfor %}
+                    </select>
+                    <span class="error-message" id="schoolNameError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="schoolBranch" class="form-label">School Branch</label>
+                    <input type="text" id="schoolBranch" name="school_branch" class="form-input" placeholder="Enter branch (if multiple)">
+                    <span class="error-message" id="schoolBranchError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="class" class="form-label">Class <span class="required">*</span></label>
+                    <select id="class" name="student_class" class="form-input" required>
+                        <option value="" disabled selected hidden>Select class</option>
+                        <option value="1">Class 1</option>
+                        <option value="2">Class 2</option>
+                        <option value="3">Class 3</option>
+                        <option value="4">Class 4</option>
+                        <option value="5">Class 5</option>
+                        <option value="6">Class 6</option>
+                        <option value="7">Class 7</option>
+                        <option value="8">Class 8</option>
+                        <option value="9">Class 9</option>
+                        <option value="10">Class 10</option>
+                        <option value="11">Class 11</option>
+                        <option value="12">Class 12</option>
+                    </select>
+                    <span class="error-message" id="classError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="division" class="form-label">Division <span class="required">*</span></label>
+                    <select id="division" name="division" class="form-input" required>
+                        <option value="" disabled selected hidden>Select division</option>
+                        <option value="A">Division A</option>
+                        <option value="B">Division B</option>
+                        <option value="C">Division C</option>
+                        <option value="D">Division D</option>
+                    </select>
+                    <span class="error-message" id="divisionError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="rollNumber" class="form-label">Roll Number <span class="required">*</span></label>
+                    <input type="text" id="rollNumber" name="roll_number" class="form-input" placeholder="Enter roll number" required>
+                    <span class="error-message" id="rollNumberError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="academicYear" class="form-label">Academic Year <span class="required">*</span></label>
+                    <select id="academicYear" name="academic_year" class="form-input" required>
+                        <option value="" disabled selected hidden>Select academic year</option>
+                        <option value="2024-2025">2024-2025</option>
+                        <option value="2025-2026">2025-2026</option>
+                        <option value="2026-2027">2026-2027</option>
+                    </select>
+                    <span class="error-message" id="academicYearError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="grNumber" class="form-label">GR Number / Admission Number <span class="required">*</span></label>
+                    <input type="text" id="grNumber" name="gr_number" class="form-input" placeholder="Enter GR/Admission number" required>
+                    <span class="error-message" id="grNumberError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="previousSchool" class="form-label">Previous School (if applicable)</label>
+                    <input type="text" id="previousSchool" name="previous_school" class="form-input" placeholder="Enter previous school name">
+                    <span class="error-message" id="previousSchoolError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="stream" class="form-label">Stream (for higher grades)</label>
+                    <select id="stream" name="stream" class="form-input">
+                        <option value="" disabled selected hidden>Select stream</option>
+                        <option value="science">Science</option>
+                        <option value="commerce">Commerce</option>
+                        <option value="arts">Arts/Humanities</option>
+                        <option value="na">Not Applicable</option>
+                    </select>
+                    <span class="error-message" id="streamError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="schoolBoard" class="form-label">School Board <span class="required">*</span></label>
+                    <select id="schoolBoard" name="school_board" class="form-input" required>
+                        <option value="" disabled selected hidden>Select board</option>
+                        <option value="CBSE">CBSE</option>
+                        <option value="ICSE">ICSE</option>
+                        <option value="SSC">SSC (State Board)</option>
+                        <option value="IB">IB (International Baccalaureate)</option>
+                        <option value="IGCSE">IGCSE</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <span class="error-message" id="schoolBoardError"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section step-content" id="step3" style="display: none;">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="material-symbols-outlined">contact_phone</span>
+                    C. Contact Details
+                </h2>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="studentMobile" class="form-label">Mobile Number (Student)</label>
+                    <input type="tel" id="studentMobile" name="student_mobile" class="form-input" placeholder="+91 XXXXX XXXXX">
+                    <span class="error-message" id="studentMobileError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="schoolEmail" class="form-label">School Email ID <span class="required">*</span></label>
+                    <input type="email" id="schoolEmail" name="school_email" class="form-input" placeholder="student@school.edu" required>
+                    <span class="error-message" id="schoolEmailError"></span>
+                    <p class="field-hint">Used for login</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="personalEmail" class="form-label">Personal Email ID (Optional)</label>
+                    <input type="email" id="personalEmail" name="personal_email" class="form-input" placeholder="student@gmail.com">
+                    <span class="error-message" id="personalEmailError"></span>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="address" class="form-label">Address</label>
+                    <textarea id="address" name="address" class="form-textarea" rows="3" placeholder="Auto-linked from parent details" readonly></textarea>
+                    <p class="field-hint">Address is auto-linked from parent/guardian details</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section step-content" id="step4" style="display: none;">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="material-symbols-outlined">psychology</span>
+                    D. Skill Lab Specific Details
+                </h2>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="skillLabRegId" class="form-label">Skill Lab Registration ID</label>
+                    <input type="text" id="skillLabRegId" name="skill_lab_reg_id" class="form-input" placeholder="Auto-generated" readonly>
+                    <p class="field-hint">Auto-generated upon submission</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="enrollmentDate" class="form-label">Enrollment Date <span class="required">*</span></label>
+                    <input type="date" id="enrollmentDate" name="enrollment_date" class="form-input" required>
+                    <span class="error-message" id="enrollmentDateError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="skillsEnrolled" class="form-label">Skills Enrolled</label>
+                    <input type="text" id="skillsEnrolled" name="skills_enrolled" class="form-input" placeholder="e.g., Critical Thinking, Problem Solving">
+                    <span class="error-message" id="skillsEnrolledError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="currentSkillLevel" class="form-label">Current Skill Level</label>
+                    <select id="currentSkillLevel" name="current_skill_level" class="form-input">
+                        <option value="" disabled selected hidden>Select skill level</option>
+                        <option value="beginner">Beginner</option>
+                        <option value="intermediate">Intermediate</option>
+                        <option value="advanced">Advanced</option>
+                    </select>
+                    <span class="error-message" id="currentSkillLevelError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="assignedTrainer" class="form-label">Assigned Trainer</label>
+                    <select id="assignedTrainer" name="assigned_trainer" class="form-input">
+                        <option value="" disabled selected hidden>Select trainer</option>
+                        <option value="trainer1">John Doe</option>
+                        <option value="trainer2">Jane Smith</option>
+                        <option value="trainer3">Mike Johnson</option>
+                    </select>
+                    <span class="error-message" id="assignedTrainerError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="batchTiming" class="form-label">Batch / Session Timings</label>
+                    <input type="text" id="batchTiming" name="batch_timing" class="form-input" placeholder="e.g., Mon-Wed 10:00 AM - 12:00 PM">
+                    <span class="error-message" id="batchTimingError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="learningStyle" class="form-label">Learning Style (Optional)</label>
+                    <select id="learningStyle" name="learning_style" class="form-input">
+                        <option value="" disabled selected hidden>Select learning style</option>
+                        <option value="visual">Visual</option>
+                        <option value="auditory">Auditory</option>
+                        <option value="kinesthetic">Kinesthetic</option>
+                        <option value="mixed">Mixed</option>
+                    </select>
+                    <span class="error-message" id="learningStyleError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="interestsAptitude" class="form-label">Interests / Aptitude Areas</label>
+                    <input type="text" id="interestsAptitude" name="interests_aptitude" class="form-input" placeholder="e.g., Mathematics, Science, Arts">
+                    <span class="error-message" id="interestsAptitudeError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="preferredLanguage" class="form-label">Preferred Language of Instruction</label>
+                    <select id="preferredLanguage" name="preferred_language" class="form-input">
+                        <option value="" disabled selected hidden>Select language</option>
+                        <option value="english">English</option>
+                        <option value="hindi">Hindi</option>
+                        <option value="marathi">Marathi</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <span class="error-message" id="preferredLanguageError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="attendanceStatus" class="form-label">Attendance Status</label>
+                    <select id="attendanceStatus" name="attendance_status" class="form-input">
+                        <option value="" disabled selected hidden>Select status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                        <option value="on-leave">On Leave</option>
+                    </select>
+                    <span class="error-message" id="attendanceStatusError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="practiceHours" class="form-label">Practice Hours Logged</label>
+                    <input type="number" id="practiceHours" name="practice_hours" class="form-input" placeholder="0" min="0" value="0" readonly>
+                    <p class="field-hint">Auto-tracked from system</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="certificatesEarned" class="form-label">Certificates Earned</label>
+                    <input type="text" id="certificatesEarned" name="certificates_earned" class="form-input" placeholder="None" readonly>
+                    <p class="field-hint">Auto-updated from achievements</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="badgesEarned" class="form-label">Badges Earned</label>
+                    <input type="text" id="badgesEarned" name="badges_earned" class="form-input" placeholder="None" readonly>
+                    <p class="field-hint">Auto-updated from achievements</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section step-content" id="step5" style="display: none;">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="material-symbols-outlined">medical_information</span>
+                    E. Health and Safety
+                </h2>
+            </div>
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label for="medicalConditions" class="form-label">Medical Conditions (if any)</label>
+                    <textarea id="medicalConditions" name="medical_conditions" class="form-textarea" rows="3" placeholder="List any known medical conditions"></textarea>
+                    <span class="error-message" id="medicalConditionsError"></span>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="allergies" class="form-label">Allergies</label>
+                    <textarea id="allergies" name="allergies" class="form-textarea" rows="2" placeholder="List any known allergies (food, medicine, environmental)"></textarea>
+                    <span class="error-message" id="allergiesError"></span>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="emergencyInstructions" class="form-label">Emergency Instructions</label>
+                    <textarea id="emergencyInstructions" name="emergency_instructions" class="form-textarea" rows="3" placeholder="Special instructions in case of emergency"></textarea>
+                    <span class="error-message" id="emergencyInstructionsError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="doctorName" class="form-label">Doctor Name (Optional)</label>
+                    <input type="text" id="doctorName" name="doctor_name" class="form-input" placeholder="Enter doctor's name">
+                    <span class="error-message" id="doctorNameError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="doctorContact" class="form-label">Doctor Contact (Optional)</label>
+                    <input type="tel" id="doctorContact" name="doctor_contact" class="form-input" placeholder="+91 XXXXX XXXXX">
+                    <span class="error-message" id="doctorContactError"></span>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="physicalLimitations" class="form-label">Physical Limitations</label>
+                    <textarea id="physicalLimitations" name="physical_limitations" class="form-textarea" rows="3" placeholder="Important for skill lab activities - list any physical limitations"></textarea>
+                    <span class="error-message" id="physicalLimitationsError"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section step-content" id="step6" style="display: none;">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="material-symbols-outlined">emergency</span>
+                    F. Emergency Contact
+                </h2>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="emergencyName" class="form-label">Contact Name <span class="required">*</span></label>
+                    <input type="text" id="emergencyName" name="emergency_name" class="form-input" placeholder="Enter emergency contact name" required>
+                    <span class="error-message" id="emergencyNameError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="emergencyRelationship" class="form-label">Relationship <span class="required">*</span></label>
+                    <select id="emergencyRelationship" name="emergency_relationship" class="form-input" required>
+                        <option value="" disabled selected hidden>Select relationship</option>
+                        <option value="father">Father</option>
+                        <option value="mother">Mother</option>
+                        <option value="guardian">Guardian</option>
+                        <option value="uncle">Uncle</option>
+                        <option value="aunt">Aunt</option>
+                        <option value="grandparent">Grandparent</option>
+                        <option value="sibling">Sibling</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <span class="error-message" id="emergencyRelationshipError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="emergencyMobile" class="form-label">Mobile Number <span class="required">*</span></label>
+                    <input type="tel" id="emergencyMobile" name="emergency_mobile" class="form-input" placeholder="+91 XXXXX XXXXX" required>
+                    <span class="error-message" id="emergencyMobileError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="emergencyAltMobile" class="form-label">Alternate Mobile</label>
+                    <input type="tel" id="emergencyAltMobile" name="emergency_alt_mobile" class="form-input" placeholder="+91 XXXXX XXXXX">
+                    <span class="error-message" id="emergencyAltMobileError"></span>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="emergencyAddress" class="form-label">Address (if different from student)</label>
+                    <textarea id="emergencyAddress" name="emergency_address" class="form-textarea" rows="3" placeholder="Enter address if different from student's address"></textarea>
+                    <span class="error-message" id="emergencyAddressError"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section step-content" id="step7" style="display: none;">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="material-symbols-outlined">family_restroom</span>
+                    G. Family Details (Optional)
+                </h2>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="sibling1Name" class="form-label">Sibling 1 Name</label>
+                    <input type="text" id="sibling1Name" name="sibling_1_name" class="form-input" placeholder="Enter sibling name">
+                    <span class="error-message" id="sibling1NameError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="sibling1ClassSchool" class="form-label">Sibling 1 Class / School</label>
+                    <input type="text" id="sibling1ClassSchool" name="sibling_1_class_school" class="form-input" placeholder="e.g., Class 5, ABC School">
+                    <span class="error-message" id="sibling1ClassSchoolError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="sibling1SkillLabId" class="form-label">Sibling 1 Skill Lab ID (if enrolled)</label>
+                    <input type="text" id="sibling1SkillLabId" name="sibling_1_skill_lab_id" class="form-input" placeholder="Enter Skill Lab ID">
+                    <span class="error-message" id="sibling1SkillLabIdError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="sibling2Name" class="form-label">Sibling 2 Name</label>
+                    <input type="text" id="sibling2Name" name="sibling_2_name" class="form-input" placeholder="Enter sibling name">
+                    <span class="error-message" id="sibling2NameError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="sibling2ClassSchool" class="form-label">Sibling 2 Class / School</label>
+                    <input type="text" id="sibling2ClassSchool" name="sibling_2_class_school" class="form-input" placeholder="e.g., Class 8, XYZ School">
+                    <span class="error-message" id="sibling2ClassSchoolError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="sibling2SkillLabId" class="form-label">Sibling 2 Skill Lab ID (if enrolled)</label>
+                    <input type="text" id="sibling2SkillLabId" name="sibling_2_skill_lab_id" class="form-input" placeholder="Enter Skill Lab ID">
+                    <span class="error-message" id="sibling2SkillLabIdError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="sibling3Name" class="form-label">Sibling 3 Name</label>
+                    <input type="text" id="sibling3Name" name="sibling_3_name" class="form-input" placeholder="Enter sibling name">
+                    <span class="error-message" id="sibling3NameError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="sibling3ClassSchool" class="form-label">Sibling 3 Class / School</label>
+                    <input type="text" id="sibling3ClassSchool" name="sibling_3_class_school" class="form-input" placeholder="e.g., Class 10, PQR School">
+                    <span class="error-message" id="sibling3ClassSchoolError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="sibling3SkillLabId" class="form-label">Sibling 3 Skill Lab ID (if enrolled)</label>
+                    <input type="text" id="sibling3SkillLabId" name="sibling_3_skill_lab_id" class="form-input" placeholder="Enter Skill Lab ID">
+                    <span class="error-message" id="sibling3SkillLabIdError"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="button" class="btn-cancel" id="cancelBtn">
+                <span class="material-symbols-outlined">close</span>
+                Cancel
+            </button>
+            <div class="action-buttons-right">
+                <button type="button" class="btn-back" id="backBtn" style="display: none;">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                    Back
+                </button>
+                <button type="button" class="btn-next" id="nextBtn">
+                    Next
+                    <span class="material-symbols-outlined">arrow_forward</span>
+                </button>
+                <button type="submit" class="btn-submit" id="submitBtn" style="display: none;">
+                    <span class="material-symbols-outlined">check_circle</span>
+                    Submit
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/add-student.js' %}"></script>
+{% endblock %}

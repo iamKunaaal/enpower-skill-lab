@@ -1,4 +1,4 @@
-
+﻿
 """
 Django settings for enpower_skill_lab project.
 
@@ -159,18 +159,15 @@ AUTH_USER_MODEL = 'accounts.User'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Email Configuration
-# For development, emails will be printed to console
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-# For production, uncomment and configure the settings below:
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'  # Or your SMTP server
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = 'your-email@gmail.com'  # Your email address
-# EMAIL_HOST_PASSWORD = 'your-app-password'  # Your email app password
-# DEFAULT_FROM_EMAIL = 'Enpower Skill Lab <your-email@gmail.com>'
-
-# For development/testing - emails shown in console
+# Email Configuration - Mailtrap (Testing)
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
+EMAIL_PORT = 2525
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+EMAIL_HOST_USER = '2ca19f495669cb'
+EMAIL_HOST_PASSWORD = 'f4d75ebe3ce319'  # Replace with your complete Mailtrap password
 DEFAULT_FROM_EMAIL = 'Enpower Skill Lab <noreply@enpowerskilllab.com>'
+
+# For console testing (emails printed to terminal), uncomment this:
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

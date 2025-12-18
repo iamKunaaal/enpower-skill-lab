@@ -1,0 +1,248 @@
+{% extends 'superadmin/base.html' %}
+{% load static %}
+
+{% block title %}View Teacher - {{ teacher.full_name }} - Enpower Skill Lab{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/view-teacher.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="view-teacher-page">
+    <div class="container-xl">
+        <!-- Back Link -->
+        <a href="{% url 'teacher_list' %}" class="back-link">
+            <span class="material-symbols-outlined">arrow_back</span>
+            Back to Teacher List
+        </a>
+
+        <!-- Teacher Profile Card -->
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-photo-container">
+                    {% if teacher.profile_photo %}
+                    <img src="{{ teacher.profile_photo.url }}" alt="{{ teacher.full_name }}" class="profile-photo">
+                    {% else %}
+                    <div class="profile-photo-placeholder" style="background-color: {{ teacher.badge_color|default:'#6b277e' }};">
+                        {{ teacher.initials }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="profile-info">
+                    <h1 class="teacher-name">{{ teacher.full_name }}</h1>
+                    <p class="teacher-id">Employee ID: {{ teacher.employee_id }}</p>
+                    <p class="teacher-designation">{{ teacher.get_designation_display }}</p>
+                    <div class="status-badge {% if teacher.attendance_status == 'present' %}status-present{% elif teacher.attendance_status == 'on-leave' %}status-leave{% else %}status-absent{% endif %}">
+                        {{ teacher.get_attendance_status_display }}
+                    </div>
+                </div>
+                <div class="profile-actions">
+                    <a href="{% url 'edit_teacher' teacher.id %}" class="btn-edit">
+                        <span class="material-symbols-outlined">edit</span>
+                        Edit Teacher
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Details Sections -->
+        <div class="details-grid">
+            <!-- Basic Information -->
+            <div class="details-card">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">badge</span>
+                    <h2>Basic Information</h2>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <span class="label">Full Name</span>
+                        <span class="value">{{ teacher.full_name }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Gender</span>
+                        <span class="value">{{ teacher.get_gender_display }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Date of Birth</span>
+                        <span class="value">{{ teacher.date_of_birth|date:"d M Y" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Age</span>
+                        <span class="value">{{ teacher.age }} years</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Blood Group</span>
+                        <span class="value">{{ teacher.blood_group|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Nationality</span>
+                        <span class="value">{{ teacher.nationality }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Aadhar Number</span>
+                        <span class="value">{{ teacher.aadhar_number|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">PAN Number</span>
+                        <span class="value">{{ teacher.pan_number|default:"-" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Professional Details -->
+            <div class="details-card">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">work</span>
+                    <h2>Professional Details</h2>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <span class="label">Designation</span>
+                        <span class="value">{{ teacher.get_designation_display }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Qualification</span>
+                        <span class="value">{{ teacher.qualification }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Specialization</span>
+                        <span class="value">{{ teacher.specialization|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Total Experience</span>
+                        <span class="value">{{ teacher.total_experience }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Training Style</span>
+                        <span class="value">{{ teacher.get_training_style_display|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Languages Known</span>
+                        <span class="value">{{ teacher.languages_known|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Certifications</span>
+                        <span class="value">{{ teacher.certifications|default:"-" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="details-card">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">phone</span>
+                    <h2>Contact Information</h2>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <span class="label">Mobile Number</span>
+                        <span class="value">{{ teacher.mobile_number }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Alternate Number</span>
+                        <span class="value">{{ teacher.alternate_number|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Official Email</span>
+                        <span class="value">{{ teacher.official_email }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Personal Email</span>
+                        <span class="value">{{ teacher.personal_email|default:"-" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Address Details -->
+            <div class="details-card">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">home</span>
+                    <h2>Address Details</h2>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <span class="label">Current Address</span>
+                        <span class="value">{{ teacher.current_address }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Permanent Address</span>
+                        <span class="value">{{ teacher.permanent_address|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">City</span>
+                        <span class="value">{{ teacher.city }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">State</span>
+                        <span class="value">{{ teacher.state }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Pin Code</span>
+                        <span class="value">{{ teacher.pin_code }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Skill Lab Work Details -->
+            <div class="details-card">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">science</span>
+                    <h2>Skill Lab Work Details</h2>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <span class="label">Skill Lab Center</span>
+                        <span class="value">{{ teacher.skill_lab_center|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Branch Location</span>
+                        <span class="value">{{ teacher.branch_location|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Joining Date</span>
+                        <span class="value">{{ teacher.joining_date|date:"d M Y" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Employment Type</span>
+                        <span class="value">{{ teacher.get_employment_type_display }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Dashboard Role</span>
+                        <span class="value">{{ teacher.get_dashboard_role_display|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Total Students</span>
+                        <span class="value">{{ teacher.total_students|default:"0" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Emergency Contact -->
+            <div class="details-card">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">emergency</span>
+                    <h2>Emergency Contact</h2>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <span class="label">Contact Name</span>
+                        <span class="value">{{ teacher.emergency_contact_name }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Relation</span>
+                        <span class="value">{{ teacher.get_emergency_relation_display }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Mobile Number</span>
+                        <span class="value">{{ teacher.emergency_mobile }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Secondary Number</span>
+                        <span class="value">{{ teacher.emergency_secondary|default:"-" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
