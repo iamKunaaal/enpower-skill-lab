@@ -7,11 +7,40 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>{% block title %}Super Admin - Enpower Skill Lab{% endblock %}</title>
 
+    <!-- Preload critical fonts for faster loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
         rel="stylesheet" />
+
+    <!-- Prevent FOUC (Flash of Unstyled Content) for Material Icons -->
+    <style>
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+            font-feature-settings: 'liga';
+            /* Hide text until font loads */
+            overflow: hidden;
+            width: 24px;
+            height: 24px;
+        }
+    </style>
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'css/sup-admin-dash.css' %}">
@@ -104,17 +133,44 @@
                             <span class="material-symbols-outlined">person_add</span>
                             Onboard Student
                         </a>
-                        <a href="parent-list.html" id="nav-parent-list">
+                        <a href="{% url 'parent_list' %}" id="nav-parent-list">
                             <span class="material-symbols-outlined">family_restroom</span>
                             Parent List
                         </a>
-                        <a href="onboard-parent.html" id="nav-add-parent">
+                        <a href="{% url 'onboard_parent' %}" id="nav-add-parent">
                             <span class="material-symbols-outlined">person_add</span>
                             Onboard Parent
                         </a>
                         <a href="bulk-upload.html" id="nav-bulk-upload">
                             <span class="material-symbols-outlined">upload_file</span>
                             Bulk Upload / Manage Users
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Classes -->
+                <div class="sidebar-dropdown">
+                    <a href="#" class="sidebar-dropdown-toggle" id="classes-dropdown">
+                        <span class="material-symbols-outlined">class</span>
+                        Classes
+                        <span class="material-symbols-outlined dropdown-icon">expand_more</span>
+                    </a>
+                    <div class="sidebar-dropdown-menu">
+                        <a href="class-list.html" id="nav-class-list">
+                            <span class="material-symbols-outlined">list</span>
+                            Class List
+                        </a>
+                        <a href="add-class.html" id="nav-add-class">
+                            <span class="material-symbols-outlined">add</span>
+                            Add Class
+                        </a>
+                        <a href="bulk-import-classes.html" id="nav-bulk-import-classes">
+                            <span class="material-symbols-outlined">upload_file</span>
+                            Bulk Import Classes
+                        </a>
+                        <a href="archive-classes.html" id="nav-archive-classes">
+                            <span class="material-symbols-outlined">archive</span>
+                            Archive Classes
                         </a>
                     </div>
                 </div>

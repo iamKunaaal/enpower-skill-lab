@@ -1,0 +1,324 @@
+{% extends 'superadmin/base.html' %}
+{% load static %}
+
+{% block title %}Edit Parent - {{ parent.full_name }} - Enpower Skill Lab{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/edit-teacher.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="edit-teacher-page">
+    <div class="edit-teacher-container">
+        <!-- Header -->
+        <div class="edit-header">
+            <div class="header-left">
+                <a href="{% url 'parent_list' %}" class="back-btn">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                </a>
+                <div class="header-info">
+                    <h1 class="page-title">Edit Parent</h1>
+                    <p class="page-subtitle">Update information for {{ parent.full_name }}</p>
+                </div>
+            </div>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="edit-form">
+            {% csrf_token %}
+
+            <!-- Primary Parent Information -->
+            <div class="form-section">
+                <div class="section-header">
+                    <span class="material-symbols-outlined">person</span>
+                    <h2>Primary Parent Information</h2>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="full_name">Full Name <span class="required">*</span></label>
+                        <input type="text" id="full_name" name="full_name" value="{{ parent.full_name }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="relation_to_student">Relation to Student <span class="required">*</span></label>
+                        <select id="relation_to_student" name="relation_to_student" required>
+                            <option value="mother" {% if parent.relation_to_student == 'mother' %}selected{% endif %}>Mother</option>
+                            <option value="father" {% if parent.relation_to_student == 'father' %}selected{% endif %}>Father</option>
+                            <option value="guardian" {% if parent.relation_to_student == 'guardian' %}selected{% endif %}>Guardian</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="mobile_number">Mobile Number <span class="required">*</span></label>
+                        <input type="tel" id="mobile_number" name="mobile_number" value="{{ parent.mobile_number }}" required maxlength="10">
+                    </div>
+                    <div class="form-group">
+                        <label for="alternate_mobile">Alternate Mobile</label>
+                        <input type="tel" id="alternate_mobile" name="alternate_mobile" value="{{ parent.alternate_mobile|default:'' }}" maxlength="10">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email <span class="required">*</span></label>
+                        <input type="email" id="email" name="email" value="{{ parent.email }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="occupation">Occupation</label>
+                        <input type="text" id="occupation" name="occupation" value="{{ parent.occupation|default:'' }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="organization">Organization</label>
+                        <input type="text" id="organization" name="organization" value="{{ parent.organization|default:'' }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="education_level">Education Level</label>
+                        <select id="education_level" name="education_level">
+                            <option value="">Select education level</option>
+                            <option value="high-school" {% if parent.education_level == 'high-school' %}selected{% endif %}>High School</option>
+                            <option value="diploma" {% if parent.education_level == 'diploma' %}selected{% endif %}>Diploma</option>
+                            <option value="graduate" {% if parent.education_level == 'graduate' %}selected{% endif %}>Graduate</option>
+                            <option value="post-graduate" {% if parent.education_level == 'post-graduate' %}selected{% endif %}>Post Graduate</option>
+                            <option value="doctorate" {% if parent.education_level == 'doctorate' %}selected{% endif %}>Doctorate</option>
+                            <option value="other" {% if parent.education_level == 'other' %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_proof">ID Proof (Aadhar/PAN)</label>
+                        <input type="text" id="id_proof" name="id_proof" value="{{ parent.id_proof|default:'' }}">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Secondary Parent Information -->
+            <div class="form-section">
+                <div class="section-header">
+                    <span class="material-symbols-outlined">people</span>
+                    <h2>Secondary Parent Information</h2>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="secondary_full_name">Full Name</label>
+                        <input type="text" id="secondary_full_name" name="secondary_full_name" value="{{ parent.secondary_full_name|default:'' }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="secondary_relation">Relation</label>
+                        <select id="secondary_relation" name="secondary_relation">
+                            <option value="">Select relation</option>
+                            <option value="mother" {% if parent.secondary_relation == 'mother' %}selected{% endif %}>Mother</option>
+                            <option value="father" {% if parent.secondary_relation == 'father' %}selected{% endif %}>Father</option>
+                            <option value="guardian" {% if parent.secondary_relation == 'guardian' %}selected{% endif %}>Guardian</option>
+                            <option value="grandparent" {% if parent.secondary_relation == 'grandparent' %}selected{% endif %}>Grandparent</option>
+                            <option value="uncle" {% if parent.secondary_relation == 'uncle' %}selected{% endif %}>Uncle</option>
+                            <option value="aunt" {% if parent.secondary_relation == 'aunt' %}selected{% endif %}>Aunt</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="secondary_mobile">Mobile Number</label>
+                        <input type="tel" id="secondary_mobile" name="secondary_mobile" value="{{ parent.secondary_mobile|default:'' }}" maxlength="10">
+                    </div>
+                    <div class="form-group">
+                        <label for="secondary_email">Email</label>
+                        <input type="email" id="secondary_email" name="secondary_email" value="{{ parent.secondary_email|default:'' }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="secondary_occupation">Occupation</label>
+                        <input type="text" id="secondary_occupation" name="secondary_occupation" value="{{ parent.secondary_occupation|default:'' }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="preferred_contact">Preferred Contact</label>
+                        <select id="preferred_contact" name="preferred_contact">
+                            <option value="primary" {% if parent.preferred_contact == 'primary' %}selected{% endif %}>Primary Parent</option>
+                            <option value="secondary" {% if parent.preferred_contact == 'secondary' %}selected{% endif %}>Secondary Parent</option>
+                            <option value="both" {% if parent.preferred_contact == 'both' %}selected{% endif %}>Both</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Address -->
+            <div class="form-section">
+                <div class="section-header">
+                    <span class="material-symbols-outlined">home</span>
+                    <h2>Address Information</h2>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label for="residential_address">Residential Address <span class="required">*</span></label>
+                        <textarea id="residential_address" name="residential_address" rows="3" required>{{ parent.residential_address }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="landmark">Landmark</label>
+                        <input type="text" id="landmark" name="landmark" value="{{ parent.landmark|default:'' }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="city">City <span class="required">*</span></label>
+                        <input type="text" id="city" name="city" value="{{ parent.city }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="state">State <span class="required">*</span></label>
+                        <input type="text" id="state" name="state" value="{{ parent.state }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="pin_code">PIN Code <span class="required">*</span></label>
+                        <input type="text" id="pin_code" name="pin_code" value="{{ parent.pin_code }}" required maxlength="6">
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="permanent_address">Permanent Address</label>
+                        <textarea id="permanent_address" name="permanent_address" rows="3">{{ parent.permanent_address|default:'' }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Communication Preferences -->
+            <div class="form-section">
+                <div class="section-header">
+                    <span class="material-symbols-outlined">chat</span>
+                    <h2>Communication Preferences</h2>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="contact_method">Preferred Contact Method</label>
+                        <select id="contact_method" name="contact_method">
+                            <option value="call" {% if parent.contact_method == 'call' %}selected{% endif %}>Phone Call</option>
+                            <option value="whatsapp" {% if parent.contact_method == 'whatsapp' %}selected{% endif %}>WhatsApp</option>
+                            <option value="sms" {% if parent.contact_method == 'sms' %}selected{% endif %}>SMS</option>
+                            <option value="email" {% if parent.contact_method == 'email' %}selected{% endif %}>Email</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="preferred_language">Preferred Language</label>
+                        <select id="preferred_language" name="preferred_language">
+                            <option value="english" {% if parent.preferred_language == 'english' %}selected{% endif %}>English</option>
+                            <option value="hindi" {% if parent.preferred_language == 'hindi' %}selected{% endif %}>Hindi</option>
+                            <option value="marathi" {% if parent.preferred_language == 'marathi' %}selected{% endif %}>Marathi</option>
+                            <option value="gujarati" {% if parent.preferred_language == 'gujarati' %}selected{% endif %}>Gujarati</option>
+                            <option value="tamil" {% if parent.preferred_language == 'tamil' %}selected{% endif %}>Tamil</option>
+                            <option value="telugu" {% if parent.preferred_language == 'telugu' %}selected{% endif %}>Telugu</option>
+                            <option value="kannada" {% if parent.preferred_language == 'kannada' %}selected{% endif %}>Kannada</option>
+                            <option value="other" {% if parent.preferred_language == 'other' %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="dnd_timings">DND Timings</label>
+                        <input type="text" id="dnd_timings" name="dnd_timings" value="{{ parent.dnd_timings|default:'' }}" placeholder="e.g., 10:00 PM - 7:00 AM">
+                    </div>
+                    <div class="form-group">
+                        <label for="whatsapp_consent">WhatsApp Consent</label>
+                        <select id="whatsapp_consent" name="whatsapp_consent">
+                            <option value="yes" {% if parent.whatsapp_consent %}selected{% endif %}>Yes</option>
+                            <option value="no" {% if not parent.whatsapp_consent %}selected{% endif %}>No</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="photo_consent">Photo Sharing Consent</label>
+                        <select id="photo_consent" name="photo_consent">
+                            <option value="yes" {% if parent.photo_consent %}selected{% endif %}>Yes</option>
+                            <option value="no" {% if not parent.photo_consent %}selected{% endif %}>No</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financial -->
+            <div class="form-section">
+                <div class="section-header">
+                    <span class="material-symbols-outlined">payments</span>
+                    <h2>Financial Information</h2>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="fee_category">Fee Category</label>
+                        <select id="fee_category" name="fee_category">
+                            <option value="regular" {% if parent.fee_category == 'regular' %}selected{% endif %}>Regular</option>
+                            <option value="scholarship" {% if parent.fee_category == 'scholarship' %}selected{% endif %}>Scholarship</option>
+                            <option value="concession" {% if parent.fee_category == 'concession' %}selected{% endif %}>Concession</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="payment_mode">Payment Mode</label>
+                        <select id="payment_mode" name="payment_mode">
+                            <option value="">Select payment mode</option>
+                            <option value="online" {% if parent.payment_mode == 'online' %}selected{% endif %}>Online Payment</option>
+                            <option value="bank-transfer" {% if parent.payment_mode == 'bank-transfer' %}selected{% endif %}>Bank Transfer</option>
+                            <option value="cheque" {% if parent.payment_mode == 'cheque' %}selected{% endif %}>Cheque</option>
+                            <option value="cash" {% if parent.payment_mode == 'cash' %}selected{% endif %}>Cash</option>
+                            <option value="upi" {% if parent.payment_mode == 'upi' %}selected{% endif %}>UPI</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="billing_email">Billing Email</label>
+                        <input type="email" id="billing_email" name="billing_email" value="{{ parent.billing_email|default:'' }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="gst_number">GST Number</label>
+                        <input type="text" id="gst_number" name="gst_number" value="{{ parent.gst_number|default:'' }}">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Emergency Contact -->
+            <div class="form-section">
+                <div class="section-header">
+                    <span class="material-symbols-outlined">emergency</span>
+                    <h2>Emergency Contact</h2>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="emergency_name">Contact Name <span class="required">*</span></label>
+                        <input type="text" id="emergency_name" name="emergency_name" value="{{ parent.emergency_name }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="emergency_relation">Relation <span class="required">*</span></label>
+                        <select id="emergency_relation" name="emergency_relation" required>
+                            <option value="grandparent" {% if parent.emergency_relation == 'grandparent' %}selected{% endif %}>Grandparent</option>
+                            <option value="uncle" {% if parent.emergency_relation == 'uncle' %}selected{% endif %}>Uncle</option>
+                            <option value="aunt" {% if parent.emergency_relation == 'aunt' %}selected{% endif %}>Aunt</option>
+                            <option value="sibling" {% if parent.emergency_relation == 'sibling' %}selected{% endif %}>Sibling</option>
+                            <option value="neighbor" {% if parent.emergency_relation == 'neighbor' %}selected{% endif %}>Neighbor</option>
+                            <option value="family-friend" {% if parent.emergency_relation == 'family-friend' %}selected{% endif %}>Family Friend</option>
+                            <option value="other" {% if parent.emergency_relation == 'other' %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="emergency_phone">Phone Number <span class="required">*</span></label>
+                        <input type="tel" id="emergency_phone" name="emergency_phone" value="{{ parent.emergency_phone }}" required maxlength="10">
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="emergency_address">Address</label>
+                        <textarea id="emergency_address" name="emergency_address" rows="3">{{ parent.emergency_address|default:'' }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Status -->
+            <div class="form-section">
+                <div class="section-header">
+                    <span class="material-symbols-outlined">settings</span>
+                    <h2>Account Status</h2>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="account_status">Account Status</label>
+                        <select id="account_status" name="account_status">
+                            <option value="active" {% if parent.account_status == 'active' %}selected{% endif %}>Active</option>
+                            <option value="pending" {% if parent.account_status == 'pending' %}selected{% endif %}>Pending</option>
+                            <option value="inactive" {% if parent.account_status == 'inactive' %}selected{% endif %}>Inactive</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="is_active">Is Active</label>
+                        <select id="is_active" name="is_active">
+                            <option value="true" {% if parent.is_active %}selected{% endif %}>Yes</option>
+                            <option value="false" {% if not parent.is_active %}selected{% endif %}>No</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <a href="{% url 'parent_list' %}" class="btn-cancel">Cancel</a>
+                <button type="submit" class="btn-save">
+                    <span class="material-symbols-outlined">save</span>
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

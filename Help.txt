@@ -3,7 +3,7 @@
 
 git status
 git add .
-git commit -m "Added backend authentication on the super admin and some style fixes."
+git commit -m "Added users for onboard"
 git push origin main
 
 

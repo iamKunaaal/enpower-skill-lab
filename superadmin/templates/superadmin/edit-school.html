@@ -1,0 +1,202 @@
+{% extends 'superadmin/base.html' %}
+{% load static %}
+
+{% block title %}Edit School - {{ school.school_name }} - Enpower Skill Lab{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/onboard-teacher.css' %}">
+<style>
+    .edit-school-page {
+        padding: 1rem;
+        width: 100%;
+    }
+    
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #6b277e;
+        text-decoration: none;
+        font-weight: 500;
+        margin-bottom: 1rem;
+        padding-left: 0.5rem;
+    }
+    
+    .back-link:hover {
+        color: #A67DB1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="edit-school-page">
+    <a href="{% url 'school_list' %}" class="back-link">
+        <span class="material-symbols-outlined">arrow_back</span>
+        Back to School List
+    </a>
+
+    <div class="add-teacher-page">
+        <form class="add-teacher-form" id="editSchoolForm" method="POST" action="{% url 'edit_school' school.id %}">
+            {% csrf_token %}
+            
+            <div class="form-header">
+                <h1 class="page-title">Edit School</h1>
+                <p class="page-subtitle">Update the school information below</p>
+            </div>
+
+            <!-- Basic Information -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="material-symbols-outlined">school</span>
+                        A. Basic Information
+                    </h2>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="schoolCode" class="form-label">School Code</label>
+                        <input type="text" id="schoolCode" name="school_code" class="form-input" value="{{ school.school_code }}" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="schoolName" class="form-label">School Name <span class="required">*</span></label>
+                        <input type="text" id="schoolName" name="school_name" class="form-input" value="{{ school.school_name }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="board" class="form-label">Board</label>
+                        <select id="board" name="board" class="form-input">
+                            <option value="">Select Board</option>
+                            <option value="CBSE" {% if school.board == 'CBSE' %}selected{% endif %}>CBSE</option>
+                            <option value="ICSE" {% if school.board == 'ICSE' %}selected{% endif %}>ICSE</option>
+                            <option value="State Board" {% if school.board == 'State Board' %}selected{% endif %}>State Board</option>
+                            <option value="IB" {% if school.board == 'IB' %}selected{% endif %}>IB</option>
+                            <option value="Other" {% if school.board == 'Other' %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="schoolType" class="form-label">School Type</label>
+                        <select id="schoolType" name="school_type" class="form-input">
+                            <option value="">Select Type</option>
+                            <option value="Government" {% if school.school_type == 'Government' %}selected{% endif %}>Government</option>
+                            <option value="Private" {% if school.school_type == 'Private' %}selected{% endif %}>Private</option>
+                            <option value="Semi-Government" {% if school.school_type == 'Semi-Government' %}selected{% endif %}>Semi-Government</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="medium" class="form-label">Medium</label>
+                        <select id="medium" name="medium" class="form-input">
+                            <option value="">Select Medium</option>
+                            <option value="English" {% if school.medium == 'English' %}selected{% endif %}>English</option>
+                            <option value="Hindi" {% if school.medium == 'Hindi' %}selected{% endif %}>Hindi</option>
+                            <option value="Regional" {% if school.medium == 'Regional' %}selected{% endif %}>Regional</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="isActive" class="form-label">Status</label>
+                        <select id="isActive" name="is_active" class="form-input">
+                            <option value="true" {% if school.is_active %}selected{% endif %}>Active</option>
+                            <option value="false" {% if not school.is_active %}selected{% endif %}>Inactive</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="material-symbols-outlined">contact_phone</span>
+                        B. Contact Information
+                    </h2>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="schoolEmail" class="form-label">School Email</label>
+                        <input type="email" id="schoolEmail" name="school_email" class="form-input" value="{{ school.school_email }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="schoolPhone" class="form-label">School Phone</label>
+                        <input type="text" id="schoolPhone" name="school_phone" class="form-input" value="{{ school.school_phone }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="website" class="form-label">Website</label>
+                        <input type="url" id="website" name="website" class="form-input" value="{{ school.website }}">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Principal Details -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="material-symbols-outlined">person</span>
+                        C. Principal Details
+                    </h2>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="principalName" class="form-label">Principal Name</label>
+                        <input type="text" id="principalName" name="principal_name" class="form-input" value="{{ school.principal_name }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="principalPhone" class="form-label">Principal Phone</label>
+                        <input type="text" id="principalPhone" name="principal_phone" class="form-input" value="{{ school.principal_phone }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="principalEmail" class="form-label">Principal Email</label>
+                        <input type="email" id="principalEmail" name="principal_email" class="form-input" value="{{ school.principal_email }}">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Address -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="material-symbols-outlined">location_on</span>
+                        D. Address
+                    </h2>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label for="branchAddress" class="form-label">Address</label>
+                        <textarea id="branchAddress" name="branch_address" class="form-input" rows="2">{{ school.branch_address }}</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="city" class="form-label">City</label>
+                        <input type="text" id="city" name="city" class="form-input" value="{{ school.city }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="state" class="form-label">State</label>
+                        <input type="text" id="state" name="state" class="form-input" value="{{ school.state }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pincode" class="form-label">Pincode</label>
+                        <input type="text" id="pincode" name="pincode" class="form-input" value="{{ school.pincode }}">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <a href="{% url 'school_list' %}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                    <span class="material-symbols-outlined">save</span>
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

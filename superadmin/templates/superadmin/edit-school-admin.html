@@ -1,0 +1,150 @@
+{% extends 'superadmin/base.html' %}
+{% load static %}
+
+{% block title %}Edit School Admin - {{ admin.full_name }} - Enpower Skill Lab{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/onboard-teacher.css' %}">
+<style>
+    .edit-admin-page {
+        padding: 1rem;
+        width: 100%;
+    }
+    
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #6b277e;
+        text-decoration: none;
+        font-weight: 500;
+        margin-bottom: 1rem;
+        padding-left: 0.5rem;
+    }
+    
+    .back-link:hover {
+        color: #A67DB1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="edit-admin-page">
+    <a href="{% url 'school_admin_list' %}" class="back-link">
+        <span class="material-symbols-outlined">arrow_back</span>
+        Back to School Admin List
+    </a>
+
+    <div class="add-teacher-page">
+        <form class="add-teacher-form" id="editAdminForm" method="POST" action="{% url 'edit_school_admin' admin.id %}">
+            {% csrf_token %}
+            
+            <div class="form-header">
+                <h1 class="page-title">Edit School Admin</h1>
+                <p class="page-subtitle">Update the school admin information below</p>
+            </div>
+
+            <!-- Basic Information -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="material-symbols-outlined">badge</span>
+                        A. Basic Information
+                    </h2>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="adminId" class="form-label">Admin ID</label>
+                        <input type="text" id="adminId" class="form-input" value="{{ admin.id }}" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fullName" class="form-label">Full Name <span class="required">*</span></label>
+                        <input type="text" id="fullName" name="full_name" class="form-input" value="{{ admin.full_name }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gender" class="form-label">Gender</label>
+                        <select id="gender" name="gender" class="form-input">
+                            <option value="">Select Gender</option>
+                            <option value="male" {% if admin.gender == 'male' %}selected{% endif %}>Male</option>
+                            <option value="female" {% if admin.gender == 'female' %}selected{% endif %}>Female</option>
+                            <option value="other" {% if admin.gender == 'other' %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="material-symbols-outlined">contact_phone</span>
+                        B. Contact Information
+                    </h2>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email <span class="required">*</span></label>
+                        <input type="email" id="email" name="email" class="form-input" value="{{ admin.email }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone" class="form-label">Phone</label>
+                        <input type="text" id="phone" name="phone" class="form-input" value="{{ admin.phone }}">
+                    </div>
+                </div>
+            </div>
+
+            <!-- School Assignment -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="material-symbols-outlined">school</span>
+                        C. School Assignment
+                    </h2>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="school" class="form-label">Assigned School</label>
+                        <select id="school" name="school" class="form-input">
+                            <option value="">Select School</option>
+                            {% for school in schools %}
+                            <option value="{{ school.id }}" {% if admin.school_id == school.id %}selected{% endif %}>
+                                {{ school.school_name }} ({{ school.school_code }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="accountStatus" class="form-label">Account Status</label>
+                        <select id="accountStatus" name="account_status" class="form-input">
+                            <option value="active" {% if admin.account_status == 'active' %}selected{% endif %}>Active</option>
+                            <option value="pending" {% if admin.account_status == 'pending' %}selected{% endif %}>Pending</option>
+                            <option value="inactive" {% if admin.account_status == 'inactive' %}selected{% endif %}>Inactive</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="isActive" class="form-label">Is Active</label>
+                        <select id="isActive" name="is_active" class="form-input">
+                            <option value="true" {% if admin.is_active %}selected{% endif %}>Yes</option>
+                            <option value="false" {% if not admin.is_active %}selected{% endif %}>No</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <a href="{% url 'school_admin_list' %}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                    <span class="material-symbols-outlined">save</span>
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

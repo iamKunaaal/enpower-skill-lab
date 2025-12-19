@@ -1,0 +1,192 @@
+{% extends 'school_admin/base.html' %}
+{% load static %}
+
+{% block title %}My Profile - School Admin{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/school-admin-profile.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- Page Content -->
+<div class="dashboard-page">
+    <div class="profile-container">
+        <div class="profile-page-header">
+            <h1>My Profile</h1>
+            <p>Manage your personal information and account settings</p>
+        </div>
+
+        <div class="profile-grid">
+            <!-- Personal Information Card -->
+            <div class="profile-card full-width">
+                <div class="profile-card-header">
+                    <span class="material-symbols-outlined">person</span>
+                    <h2>Personal Information</h2>
+                </div>
+
+                <form id="profileForm" method="POST" enctype="multipart/form-data" action="{% url 'school_admin_profile_update' %}">
+                    {% csrf_token %}
+
+                    <!-- Photo Upload Section -->
+                    <div class="profile-photo-section">
+                        <div class="profile-photo-wrapper">
+                            <div class="profile-photo" id="profilePhotoPreview">
+                                {% if profile and profile.profile_photo %}
+                                    <img src="{{ profile.profile_photo.url }}" alt="Profile Photo">
+                                {% else %}
+                                    <span class="material-symbols-outlined">account_circle</span>
+                                {% endif %}
+                            </div>
+                            <label class="profile-photo-upload-btn" for="profilePhotoInput">
+                                <span class="material-symbols-outlined">photo_camera</span>
+                            </label>
+                            <input type="file" id="profilePhotoInput" name="profile_photo" class="profile-photo-input" accept="image/*">
+                        </div>
+                        <p class="profile-photo-hint">Upload a profile photo (Max 2MB, JPG, PNG)</p>
+                    </div>
+
+                    <!-- Personal Details -->
+                    <div class="profile-form-grid">
+                        <div class="profile-form-group">
+                            <label class="profile-form-label">Full Name <span class="profile-required">*</span></label>
+                            <input type="text" id="fullName" name="full_name" class="profile-form-input" value="{{ profile.full_name|default:'' }}" readonly required>
+                            <span class="profile-error-message" id="fullNameError"></span>
+                        </div>
+
+                        <div class="profile-form-group">
+                            <label class="profile-form-label">Email Address <span class="profile-required">*</span></label>
+                            <input type="email" id="email" name="email" class="profile-form-input" value="{{ profile.email|default:user.email }}" readonly required>
+                            <span class="profile-error-message" id="emailError"></span>
+                        </div>
+
+                        <div class="profile-form-group">
+                            <label class="profile-form-label">Phone Number <span class="profile-required">*</span></label>
+                            <input type="tel" id="phone" name="phone" class="profile-form-input" value="{{ profile.phone|default:'' }}" readonly required>
+                            <span class="profile-error-message" id="phoneError"></span>
+                        </div>
+
+                        <div class="profile-form-group">
+                            <label class="profile-form-label">Alternate Phone Number</label>
+                            <input type="tel" id="alternatePhone" name="alternate_phone" class="profile-form-input" value="{{ profile.alternate_phone|default:'' }}" placeholder="Enter alternate phone" readonly>
+                            <span class="profile-error-message" id="alternatePhoneError"></span>
+                        </div>
+
+                        <div class="profile-form-group">
+                            <label class="profile-form-label">Gender</label>
+                            <select id="gender" name="gender" class="profile-form-select" disabled>
+                                <option value="">Select gender</option>
+                                <option value="male" {% if profile.gender == 'male' %}selected{% endif %}>Male</option>
+                                <option value="female" {% if profile.gender == 'female' %}selected{% endif %}>Female</option>
+                                <option value="other" {% if profile.gender == 'other' %}selected{% endif %}>Other</option>
+                                <option value="prefer-not-to-say" {% if profile.gender == 'prefer-not-to-say' %}selected{% endif %}>Prefer not to say</option>
+                            </select>
+                            <span class="profile-error-message" id="genderError"></span>
+                        </div>
+
+                        <div class="profile-form-group">
+                            <label class="profile-form-label">Date of Birth</label>
+                            <input type="date" id="dateOfBirth" name="date_of_birth" class="profile-form-input" value="{{ profile.date_of_birth|date:'Y-m-d' }}" readonly>
+                            <span class="profile-error-message" id="dateOfBirthError"></span>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="profile-form-actions">
+                        <button type="button" class="profile-btn profile-btn-cancel" id="cancelBtn" style="display: none;">
+                            <span class="material-symbols-outlined">close</span>
+                            Cancel
+                        </button>
+                        <button type="button" class="profile-btn profile-btn-edit-profile" id="editBtn">
+                            <span class="material-symbols-outlined">edit</span>
+                            Edit Profile
+                        </button>
+                        <button type="submit" class="profile-btn profile-btn-save" id="saveBtn" style="display: none;">
+                            <span class="material-symbols-outlined">save</span>
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Role Information Card -->
+            <div class="profile-card">
+                <div class="profile-card-header">
+                    <span class="material-symbols-outlined">admin_panel_settings</span>
+                    <h2>Role Information</h2>
+                </div>
+
+                <div class="profile-role-info-grid">
+                    <div class="profile-info-item">
+                        <span class="profile-info-label">Role</span>
+                        <div class="profile-role-badge">
+                            <span class="material-symbols-outlined">verified</span>
+                            School Admin
+                        </div>
+                    </div>
+
+                    <div class="profile-info-item">
+                        <span class="profile-info-label">Account Created On</span>
+                        <span class="profile-info-value">{{ user.date_joined|date:"F d, Y" }}</span>
+                    </div>
+
+                    <div class="profile-info-item">
+                        <span class="profile-info-label">Last Login</span>
+                        <span class="profile-info-value">
+                            {% if user.last_login %}
+                                Today at {{ user.last_login|date:"g:i A" }}
+                            {% else %}
+                                Never
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    <div class="profile-info-item">
+                        <span class="profile-info-label">Assigned School</span>
+                        <div class="profile-permission-badge">
+                            <span class="material-symbols-outlined">domain</span>
+                            {% if school %}{{ school.school_name }}{% else %}Not Assigned{% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Security Card -->
+            <div class="profile-card">
+                <div class="profile-card-header">
+                    <span class="material-symbols-outlined">lock</span>
+                    <h2>Account Security</h2>
+                </div>
+
+                <div class="profile-role-info-grid">
+                    <div class="profile-info-item">
+                        <span class="profile-info-label">Password</span>
+                        <span class="profile-info-value">••••••••••</span>
+                    </div>
+
+                    <div class="profile-info-item">
+                        <span class="profile-info-label">Last Password Change</span>
+                        <span class="profile-info-value">
+                            {% if profile and profile.last_password_change %}
+                                {{ profile.last_password_change|date:"F d, Y" }}
+                            {% else %}
+                                Never changed
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="profile-form-actions">
+                    <a href="{% url 'school_admin_change_password' %}" class="profile-btn profile-btn-edit-profile">
+                        <span class="material-symbols-outlined">key</span>
+                        Change Password
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/school-admin-profile.js' %}"></script>
+{% endblock %}

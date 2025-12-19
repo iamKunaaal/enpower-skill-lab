@@ -5,7 +5,7 @@
 
 // Multi-Step Form Navigation
 let currentStep = 1;
-const totalSteps = 8;
+const totalSteps = 9;
 const formData = {};
 
 // Initialize when DOM is ready

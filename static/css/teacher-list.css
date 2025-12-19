@@ -32,50 +32,104 @@ body.dark .teacher-list-page .page-header h1 {
     flex-wrap: wrap;
 }
 
-/* Action Buttons in Header */
+/* Unified Modern Gradient Buttons */
 .btn-action {
+    border: none;
+    border-radius: 10px;
+    padding: 10px 22px;
+    font-weight: 600;
+    color: #fff !important;
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.625rem 1.25rem;
-    border: none;
-    border-radius: 0.5rem;
-    font-size: 0.875rem;
-    font-weight: 600;
-    cursor: pointer;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    transition: all 0.2s ease-in-out;
     text-decoration: none;
-    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.btn-action:hover {
+    opacity: 0.95;
+    color: #fff !important;
 }
 
 .btn-action .material-symbols-outlined {
-    font-size: 1.125rem;
+    font-size: 20px;
+    font-weight: 600;
 }
 
+/* Individual Gradient Styles */
 .btn-download {
-    background-color: #0891B2;
-    color: #fff;
-}
-
-.btn-download:hover {
-    background-color: #0E7490;
+    background: linear-gradient(90deg, #0EA5E9, #0284C7);
 }
 
 .btn-upload {
-    background-color: #F59E0B;
-    color: #fff;
-}
-
-.btn-upload:hover {
-    background-color: #D97706;
+    background: linear-gradient(90deg, #10B981, #059669);
 }
 
 .btn-add {
-    background-color: #6b277e;
-    color: #fff;
+    background: linear-gradient(90deg, #7E22CE, #6B21A8);
 }
 
-.btn-add:hover {
-    background-color: #5a2069;
+/* Status Pills */
+.control-pill {
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.6rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.status-active,
+.status-present {
+    background-color: #d1fae5;
+    color: #166534;
+}
+
+.status-pending,
+.status-leave {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.status-inactive,
+.status-absent {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+body.dark .status-active,
+body.dark .status-present {
+    background-color: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+}
+
+body.dark .status-pending,
+body.dark .status-leave {
+    background-color: rgba(234, 179, 8, 0.18);
+    color: #fcd34d;
+}
+
+body.dark .status-inactive,
+body.dark .status-absent {
+    background-color: rgba(248, 113, 113, 0.18);
+    color: #fca5a5;
+}
+
+/* Initial Badge */
+.initial-badge {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: #fff;
+    font-size: 0.8rem;
+    flex-shrink: 0;
 }
 
 /* Table Card */
@@ -185,48 +239,58 @@ body.dark .dataTables_wrapper .dataTables_filter input[type="search"] {
 }
 
 /* Table Styles */
-.teacher-table {
+.teacher-table,
+.table {
     width: 100% !important;
     border-collapse: collapse;
 }
 
-.teacher-table thead th {
-    background: #F9FAFB;
-    padding: 0.875rem 1.25rem;
+.teacher-table > :not(caption) > * > *,
+.table > :not(caption) > * > * {
+    padding: 0.85rem 1.25rem;
+    vertical-align: middle;
+}
+
+.teacher-table thead th,
+.table thead th {
     font-size: 0.75rem;
-    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: #6b7280;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #6B7280;
-    border-bottom: 1px solid #E5E7EB;
+    border-bottom: 1px solid #e5e7eb;
+    background: #f9fafb;
+    font-weight: 600;
     text-align: left;
     white-space: nowrap;
 }
 
-body.dark .teacher-table thead th {
-    background: rgba(55, 65, 81, 0.5);
-    color: #9CA3AF;
+body.dark .teacher-table thead th,
+body.dark .table thead th {
+    color: #9ca3af;
+    background: rgba(55, 65, 81, 0.7);
     border-color: #374151;
 }
 
-.teacher-table tbody td {
-    padding: 1rem 1.25rem;
+.teacher-table tbody td,
+.table tbody td {
+    color: #111827;
     font-size: 0.875rem;
-    color: #374151;
-    border-bottom: 1px solid #E5E7EB;
-    vertical-align: middle;
+    border-bottom: 1px solid #e5e7eb;
 }
 
-body.dark .teacher-table tbody td {
-    color: #E5E7EB;
+body.dark .teacher-table tbody td,
+body.dark .table tbody td {
+    color: #e5e7eb;
     border-color: #374151;
 }
 
-.teacher-table tbody tr:hover {
-    background-color: #F9FAFB;
+.teacher-table tbody tr:hover,
+.table tbody tr:hover {
+    background-color: #f9fafb;
 }
 
-body.dark .teacher-table tbody tr:hover {
+body.dark .teacher-table tbody tr:hover,
+body.dark .table tbody tr:hover {
     background-color: rgba(55, 65, 81, 0.3);
 }
 
@@ -313,27 +377,40 @@ body.dark .status-absent {
 }
 
 .action-btn {
-    color: #6B7280;
-    text-decoration: none;
-    transition: color 0.2s;
-    display: flex;
+    display: inline-flex;
     align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    padding: 0.25rem;
 }
 
 .action-btn:hover {
-    color: #6b277e;
-}
-
-body.dark .action-btn {
-    color: #9CA3AF;
-}
-
-body.dark .action-btn:hover {
-    color: #A67DB1;
+    color: #6B21A8;
 }
 
 .action-btn .material-symbols-outlined {
-    font-size: 1.25rem;
+    font-size: 20px;
+}
+
+.action-btn-delete:hover {
+    color: #dc2626;
+}
+
+body.dark .action-btn {
+    color: #6b7280;
+}
+
+body.dark .action-btn:hover {
+    color: #a855f7;
+}
+
+body.dark .action-btn-delete:hover {
+    color: #f87171;
 }
 
 /* DataTables Footer - Info and Pagination */
@@ -345,12 +422,12 @@ body.dark .action-btn:hover {
 .dataTables_wrapper .dataTables_info {
     float: left;
     font-size: 0.875rem;
-    color: #6B7280;
-    padding-top: 1.25rem;
+    color: #0891b2;
+    padding-top: 0.75rem;
 }
 
 body.dark .dataTables_wrapper .dataTables_info {
-    color: #9CA3AF;
+    color: #22d3ee;
 }
 
 .dataTables_wrapper .dataTables_paginate {
@@ -383,21 +460,22 @@ body.dark .dataTables_wrapper .dataTables_paginate .paginate_button {
     color: #E5E7EB !important;
 }
 
-.dataTables_wrapper .dataTables_paginate .paginate_button:hover:not(.disabled) {
-    background: #F3F4F6;
-    border-color: #6b277e;
-    color: #6b277e !important;
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover:not(.disabled):not(.current) {
+    background: #f9fafb;
+    border-color: #d1d5db;
+    color: #374151 !important;
 }
 
-body.dark .dataTables_wrapper .dataTables_paginate .paginate_button:hover:not(.disabled) {
+body.dark .dataTables_wrapper .dataTables_paginate .paginate_button:hover:not(.disabled):not(.current) {
     background: #4B5563;
-    color: #A67DB1 !important;
+    color: #e5e7eb !important;
 }
 
 .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-    background: #6b277e;
-    border-color: #6b277e;
+    background: #6B21A8;
+    border-color: #6B21A8;
     color: #fff !important;
+    font-weight: 500;
 }
 
 .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {

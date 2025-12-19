@@ -30,7 +30,7 @@ urlpatterns = [
     # path('reports/', include('reports.urls')),
     path('super-admin/', include('superadmin.urls')),
     # path('coordinator/', include('coordinator.urls')),
-    # path('school-admin/', include('school_admin.urls')),
+    path('school-admin/', include('school_admin.urls')),
     # path('teacher/', include('teacher.urls')),
     # path('parent/', include('parent.urls')),
     # path('student/', include('student.urls')),

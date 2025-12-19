@@ -1,0 +1,140 @@
+{% extends 'superadmin/base.html' %}
+{% load static %}
+
+{% block title %}View School Admin - {{ admin.full_name }} - Enpower Skill Lab{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/view-teacher.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="view-teacher-page">
+    <div class="container-xl">
+        <!-- Back Link -->
+        <a href="{% url 'school_admin_list' %}" class="back-link">
+            <span class="material-symbols-outlined">arrow_back</span>
+            Back to School Admin List
+        </a>
+
+        <!-- Admin Profile Card -->
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-photo-container">
+                    {% if admin.has_photo %}
+                    <img src="{{ admin.profile_photo.url }}" alt="{{ admin.full_name }}" class="profile-photo">
+                    {% else %}
+                    <div class="profile-photo-placeholder" style="background-color: {{ admin.badge_color|default:'#6b277e' }};">
+                        {{ admin.initials }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="profile-info">
+                    <h1 class="teacher-name">{{ admin.full_name }}</h1>
+                    <p class="teacher-id">Admin ID: {{ admin.id }}</p>
+                    <p class="teacher-designation">{{ admin.school.school_name|default:"Not Assigned" }}</p>
+                    <div class="status-badge {% if admin.account_status == 'active' %}status-present{% elif admin.account_status == 'pending' %}status-leave{% else %}status-absent{% endif %}">
+                        {{ admin.account_status|title }}
+                    </div>
+                </div>
+                <div class="profile-actions">
+                    <a href="{% url 'edit_school_admin' admin.id %}" class="btn-edit">
+                        <span class="material-symbols-outlined">edit</span>
+                        Edit Admin
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Details Sections -->
+        <div class="details-grid">
+            <!-- Basic Information -->
+            <div class="details-card">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">badge</span>
+                    <h2>Basic Information</h2>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <span class="label">Full Name</span>
+                        <span class="value">{{ admin.full_name }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Gender</span>
+                        <span class="value">{{ admin.gender|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Date of Birth</span>
+                        <span class="value">{{ admin.date_of_birth|date:"d M Y"|default:"-" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="details-card">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">contact_phone</span>
+                    <h2>Contact Information</h2>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <span class="label">Email</span>
+                        <span class="value">{{ admin.email }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Phone</span>
+                        <span class="value">{{ admin.phone|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Address</span>
+                        <span class="value">{{ admin.address|default:"-" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- School Assignment -->
+            <div class="details-card">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">school</span>
+                    <h2>School Assignment</h2>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <span class="label">School Name</span>
+                        <span class="value">{{ admin.school.school_name|default:"Not Assigned" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">School Code</span>
+                        <span class="value">{{ admin.school.school_code|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">School Location</span>
+                        <span class="value">{% if admin.school %}{{ admin.school.city }}, {{ admin.school.state }}{% else %}-{% endif %}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Status -->
+            <div class="details-card">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">admin_panel_settings</span>
+                    <h2>Account Status</h2>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <span class="label">Status</span>
+                        <span class="value">{{ admin.account_status|title }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Is Active</span>
+                        <span class="value">{% if admin.is_active %}Yes{% else %}No{% endif %}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Created At</span>
+                        <span class="value">{{ admin.created_at|date:"d M Y, H:i"|default:"-" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

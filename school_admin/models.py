@@ -138,6 +138,13 @@ class SchoolAdmin(models.Model):
         help_text="Whether user has changed from temporary password"
     )
 
+    last_password_change = models.DateTimeField(
+        blank=True,
+        null=True,
+        verbose_name="Last Password Change",
+        help_text="Timestamp of last password change"
+    )
+
     # ==================== TRACKING & METADATA ====================
     created_at = models.DateTimeField(
         auto_now_add=True,

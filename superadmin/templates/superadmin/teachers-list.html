@@ -68,12 +68,15 @@
                         {% endif %}
                     </td>
                     <td>
-                        <div class="action-buttons">
+                        <div class="d-flex align-items-center gap-2">
                             <a href="{% url 'edit_teacher' teacher.id %}" class="action-btn" title="Edit">
                                 <span class="material-symbols-outlined">edit</span>
                             </a>
                             <a href="{% url 'view_teacher' teacher.id %}" class="action-btn" title="View">
                                 <span class="material-symbols-outlined">visibility</span>
+                            </a>
+                            <a href="{% url 'delete_teacher' teacher.id %}" class="action-btn action-btn-delete" title="Delete" onclick="return confirm('Are you sure you want to delete this teacher?');">
+                                <span class="material-symbols-outlined">delete</span>
                             </a>
                         </div>
                     </td>

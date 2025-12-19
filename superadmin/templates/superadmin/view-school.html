@@ -1,0 +1,152 @@
+{% extends 'superadmin/base.html' %}
+{% load static %}
+
+{% block title %}View School - {{ school.school_name }} - Enpower Skill Lab{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/view-teacher.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="view-teacher-page">
+    <div class="container-xl">
+        <!-- Back Link -->
+        <a href="{% url 'school_list' %}" class="back-link">
+            <span class="material-symbols-outlined">arrow_back</span>
+            Back to School List
+        </a>
+
+        <!-- School Profile Card -->
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-photo-container">
+                    <div class="profile-photo-placeholder" style="background-color: {{ school.badge_color|default:'#6b277e' }};">
+                        {{ school.initials }}
+                    </div>
+                </div>
+                <div class="profile-info">
+                    <h1 class="teacher-name">{{ school.school_name }}</h1>
+                    <p class="teacher-id">School Code: {{ school.school_code }}</p>
+                    <p class="teacher-designation">{{ school.city }}, {{ school.state }}</p>
+                    <div class="status-badge {% if school.is_active %}status-present{% else %}status-absent{% endif %}">
+                        {% if school.is_active %}Active{% else %}Inactive{% endif %}
+                    </div>
+                </div>
+                <div class="profile-actions">
+                    <a href="{% url 'edit_school' school.id %}" class="btn-edit">
+                        <span class="material-symbols-outlined">edit</span>
+                        Edit School
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Details Sections -->
+        <div class="details-grid">
+            <!-- Basic Information -->
+            <div class="details-card">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">school</span>
+                    <h2>Basic Information</h2>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <span class="label">School Name</span>
+                        <span class="value">{{ school.school_name }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">School Code</span>
+                        <span class="value">{{ school.school_code }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Board</span>
+                        <span class="value">{{ school.board|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">School Type</span>
+                        <span class="value">{{ school.school_type|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Medium</span>
+                        <span class="value">{{ school.medium|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Year Established</span>
+                        <span class="value">{{ school.year_established|default:"-" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="details-card">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">contact_phone</span>
+                    <h2>Contact Information</h2>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <span class="label">Email</span>
+                        <span class="value">{{ school.school_email|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Phone</span>
+                        <span class="value">{{ school.school_phone|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Website</span>
+                        <span class="value">{{ school.website|default:"-" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Principal Details -->
+            <div class="details-card">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">person</span>
+                    <h2>Principal Details</h2>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <span class="label">Principal Name</span>
+                        <span class="value">{{ school.principal_name|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Principal Phone</span>
+                        <span class="value">{{ school.principal_phone|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Principal Email</span>
+                        <span class="value">{{ school.principal_email|default:"-" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Address -->
+            <div class="details-card">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">location_on</span>
+                    <h2>Address</h2>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <span class="label">Address</span>
+                        <span class="value">{{ school.branch_address|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">City</span>
+                        <span class="value">{{ school.city|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">State</span>
+                        <span class="value">{{ school.state|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Pincode</span>
+                        <span class="value">{{ school.pincode|default:"-" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

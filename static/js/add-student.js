@@ -23,7 +23,9 @@ function generateRandomPhone() {
 function generateRandomEmail(name) {
     const domains = ['gmail.com', 'yahoo.com', 'outlook.com', 'school.edu'];
     const domain = domains[Math.floor(Math.random() * domains.length)];
-    return name.toLowerCase().replace(/\s/g, '') + Math.floor(Math.random() * 999) + '@' + domain;
+    const timestamp = Date.now().toString().slice(-6);
+    const randomNum = Math.floor(Math.random() * 9999);
+    return name.toLowerCase().replace(/\s/g, '') + timestamp + randomNum + '@' + domain;
 }
 
 function generateRandomDate(startYear, endYear) {
@@ -83,7 +85,7 @@ function autoFillForm() {
     document.getElementById('division').value = ['A', 'B', 'C', 'D'][Math.floor(Math.random() * 4)];
     document.getElementById('rollNumber').value = Math.floor(1 + Math.random() * 50).toString();
     document.getElementById('academicYear').value = ['2024-2025', '2025-2026'][Math.floor(Math.random() * 2)];
-    document.getElementById('grNumber').value = 'GR' + Math.floor(100000 + Math.random() * 900000);
+    document.getElementById('grNumber').value = 'GR' + Date.now().toString().slice(-8) + Math.floor(Math.random() * 99);
     document.getElementById('previousSchool').value = ['ABC School', 'XYZ Academy', 'PQR Public School', ''][Math.floor(Math.random() * 4)];
     document.getElementById('stream').value = ['science', 'commerce', 'arts', 'na'][Math.floor(Math.random() * 4)];
     document.getElementById('schoolBoard').value = ['CBSE', 'ICSE', 'SSC', 'IB'][Math.floor(Math.random() * 4)];
@@ -91,7 +93,7 @@ function autoFillForm() {
     // Step 3: Contact Details
     document.getElementById('studentMobile').value = generateRandomPhone();
     document.getElementById('schoolEmail').value = generateRandomEmail(fullName);
-    document.getElementById('personalEmail').value = fullName.toLowerCase().replace(/\s/g, '.') + '@gmail.com';
+    document.getElementById('personalEmail').value = fullName.toLowerCase().replace(/\s/g, '.') + Math.floor(Math.random() * 9999) + '@gmail.com';
     
     // Handle address field - temporarily remove readonly if needed
     const addressField = document.getElementById('address');
@@ -160,7 +162,7 @@ function autoFillForm() {
 document.addEventListener('DOMContentLoaded', function() {
     // State management
     let currentStep = 1;
-    const totalSteps = 7;
+    const totalSteps = 8;
 
     // Get all elements
     const form = document.getElementById('addStudentForm');

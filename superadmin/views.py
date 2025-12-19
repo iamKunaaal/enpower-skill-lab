@@ -214,6 +214,94 @@ def school_list(request):
 
 @login_required
 @user_passes_test(is_superadmin)
+def view_school(request, school_id):
+    """
+    View to display school details.
+    """
+    school = get_object_or_404(School, id=school_id)
+    
+    # Get initials and badge color
+    colors = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#06b6d4']
+    words = school.school_name.strip().split()
+    if len(words) >= 2:
+        school.initials = (words[0][0] + words[1][0]).upper()
+    else:
+        school.initials = school.school_name[:2].upper()
+    school.badge_color = colors[ord(school.school_name[0]) % len(colors)]
+    
+    context = {
+        'school': school,
+    }
+    return render(request, 'superadmin/view-school.html', context)
+
+
+@login_required
+@user_passes_test(is_superadmin)
+def edit_school(request, school_id):
+    """
+    View to edit school details.
+    """
+    school = get_object_or_404(School, id=school_id)
+    
+    if request.method == 'POST':
+        try:
+            data = request.POST
+            
+            # Update basic info
+            school.school_name = data.get('school_name', school.school_name)
+            school.school_code = data.get('school_code', school.school_code)
+            school.board = data.get('board', school.board)
+            school.school_type = data.get('school_type', school.school_type)
+            school.medium = data.get('medium', school.medium)
+            school.school_email = data.get('school_email', school.school_email)
+            school.school_phone = data.get('school_phone', school.school_phone)
+            school.website = data.get('website', school.website) or None
+            school.principal_name = data.get('principal_name', school.principal_name)
+            school.principal_phone = data.get('principal_phone', school.principal_phone)
+            school.principal_email = data.get('principal_email', school.principal_email)
+            
+            # Update address
+            school.city = data.get('city', school.city)
+            school.state = data.get('state', school.state)
+            school.pincode = data.get('pincode', school.pincode)
+            school.branch_address = data.get('branch_address', school.branch_address)
+            
+            # Update status
+            is_active = data.get('is_active', 'true')
+            school.is_active = is_active == 'true'
+            
+            school.save()
+            messages.success(request, f'School "{school.school_name}" updated successfully!')
+            return redirect('school_list')
+        except Exception as e:
+            messages.error(request, f'Error updating school: {str(e)}')
+    
+    context = {
+        'school': school,
+    }
+    return render(request, 'superadmin/edit-school.html', context)
+
+
+@login_required
+@user_passes_test(is_superadmin)
+def delete_school(request, school_id):
+    """
+    View to delete a school.
+    """
+    school = get_object_or_404(School, id=school_id)
+    school_name = school.school_name
+    
+    try:
+        school.delete()
+        messages.success(request, f'School "{school_name}" deleted successfully!')
+    except Exception as e:
+        messages.error(request, f'Error deleting school: {str(e)}')
+    
+    return redirect('school_list')
+
+
+@login_required
+@user_passes_test(is_superadmin)
 def search_schools(request):
     """
     AJAX endpoint to search schools by name, code, or city.
@@ -272,6 +360,93 @@ def school_admin_list(request):
         'pending_admins': school_admins.filter(account_status='pending').count(),
     }
     return render(request, 'superadmin/school-admin-list.html', context)
+
+
+@login_required
+@user_passes_test(is_superadmin)
+def view_school_admin(request, admin_id):
+    """
+    View to display school admin details.
+    """
+    admin = get_object_or_404(SchoolAdmin, id=admin_id)
+    
+    # Get initials and badge color
+    colors = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#06b6d4']
+    words = admin.full_name.strip().split()
+    if len(words) >= 2:
+        admin.initials = (words[0][0] + words[1][0]).upper()
+    else:
+        admin.initials = admin.full_name[:2].upper()
+    admin.badge_color = colors[ord(admin.full_name[0]) % len(colors)]
+    admin.has_photo = bool(admin.profile_photo and admin.profile_photo.name)
+    
+    context = {
+        'admin': admin,
+    }
+    return render(request, 'superadmin/view-school-admin.html', context)
+
+
+@login_required
+@user_passes_test(is_superadmin)
+def edit_school_admin(request, admin_id):
+    """
+    View to edit school admin details.
+    """
+    admin = get_object_or_404(SchoolAdmin, id=admin_id)
+    schools = School.objects.all().order_by('school_name')
+    
+    if request.method == 'POST':
+        try:
+            data = request.POST
+            
+            # Update basic info
+            admin.full_name = data.get('full_name', admin.full_name)
+            admin.email = data.get('email', admin.email)
+            admin.phone = data.get('phone', admin.phone)
+            admin.gender = data.get('gender', admin.gender)
+            
+            # Update school assignment
+            school_id = data.get('school')
+            if school_id:
+                admin.school_id = school_id
+            
+            # Update status
+            admin.account_status = data.get('account_status', admin.account_status)
+            is_active = data.get('is_active', 'true')
+            admin.is_active = is_active == 'true'
+            
+            admin.save()
+            messages.success(request, f'School Admin "{admin.full_name}" updated successfully!')
+            return redirect('school_admin_list')
+        except Exception as e:
+            messages.error(request, f'Error updating school admin: {str(e)}')
+    
+    context = {
+        'admin': admin,
+        'schools': schools,
+    }
+    return render(request, 'superadmin/edit-school-admin.html', context)
+
+
+@login_required
+@user_passes_test(is_superadmin)
+def delete_school_admin(request, admin_id):
+    """
+    View to delete a school admin.
+    """
+    admin = get_object_or_404(SchoolAdmin, id=admin_id)
+    admin_name = admin.full_name
+    
+    try:
+        # Also delete associated user if exists
+        if admin.user:
+            admin.user.delete()
+        admin.delete()
+        messages.success(request, f'School Admin "{admin_name}" deleted successfully!')
+    except Exception as e:
+        messages.error(request, f'Error deleting school admin: {str(e)}')
+    
+    return redirect('school_admin_list')
 
 
 @login_required
@@ -592,6 +767,12 @@ def onboard_student(request):
             # Create student instance
             student = Student()
 
+            # School Assignment
+            school_id = request.POST.get('school', '')
+            if school_id:
+                from schools.models import School
+                student.school = School.objects.get(id=school_id)
+
             # A. Basic Information
             if 'student_photo' in request.FILES:
                 student.student_photo = request.FILES['student_photo']
@@ -664,18 +845,85 @@ def onboard_student(request):
             # Set metadata
             student.created_by = request.user
 
+            # Create User account for student login
+            User = get_user_model()
+            email = student.school_email
+            
+            # Check if user already exists
+            if User.objects.filter(email=email).exists():
+                messages.error(request, f'A user with email {email} already exists.')
+                return redirect('onboard_student')
+            
+            # Generate temporary password
+            import secrets
+            import string
+            temp_password = ''.join(secrets.choice(string.ascii_letters + string.digits + '!@#$%') for _ in range(12))
+            
+            # Create User with STUDENT role
+            user = User.objects.create_user(
+                username=email,
+                email=email,
+                password=temp_password,
+                first_name=student.first_name,
+                last_name=student.last_name,
+                is_active=True,
+                role='STUDENT'
+            )
+            
+            # Link user to student
+            student.user = user
+
             # Save the student
             student.save()
+            
+            # Send welcome email with credentials
+            try:
+                email_subject = 'Welcome to ENpower Skill Lab - Your Login Credentials'
+                email_body = f"""
+Dear {student.full_name},
 
-            messages.success(request, f'Student {student.full_name} added successfully! Skill Lab ID: {skill_lab_reg_id}')
-            return redirect('onboard_student')
+Welcome to ENpower Skill Lab! Your student account has been created successfully.
+
+Here are your login credentials:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📧 Email: {email}
+🔑 Temporary Password: {temp_password}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔗 Login URL: http://127.0.0.1:8000/login/
+
+Skill Lab ID: {skill_lab_reg_id}
+Class: {student.student_class} - {student.division}
+Role: Student
+
+⚠️ IMPORTANT: Please change your password after your first login for security purposes.
+
+If you have any questions, please contact your teacher or the administration.
+
+Best regards,
+ENpower Skill Lab Team
+                """
+                
+                send_mail(
+                    email_subject,
+                    email_body,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [email],
+                    fail_silently=False,
+                )
+                messages.success(request, f'Student {student.full_name} added successfully! Credentials sent to {email}')
+            except Exception as mail_error:
+                messages.warning(request, f'Student added but email failed: {str(mail_error)}. Password: {temp_password}')
+            
+            return redirect('student_list')
 
         except Exception as e:
             messages.error(request, f'Error adding student: {str(e)}')
             return redirect('onboard_student')
 
     # GET request - render the onboarding form
-    schools = School.objects.filter(is_active=True)
+    from schools.models import School
+    schools = School.objects.filter(is_active=True).order_by('school_name')
     context = {
         'schools': schools
     }
@@ -770,6 +1018,12 @@ def onboard_teacher(request):
             # Create teacher instance
             teacher = Teacher()
 
+            # School Assignment
+            school_id = request.POST.get('school', '')
+            if school_id:
+                from schools.models import School
+                teacher.school = School.objects.get(id=school_id)
+
             # A. Basic Information
             if 'profile_photo' in request.FILES:
                 teacher.profile_photo = request.FILES['profile_photo']
@@ -858,10 +1112,73 @@ def onboard_teacher(request):
             # Set metadata
             teacher.created_by = request.user
 
+            # Create User account for teacher login
+            User = get_user_model()
+            email = teacher.official_email
+            
+            # Check if user already exists
+            if User.objects.filter(email=email).exists():
+                messages.error(request, f'A user with email {email} already exists.')
+                return redirect('onboard_teacher')
+            
+            # Generate temporary password
+            temp_password = ''.join(secrets.choice(string.ascii_letters + string.digits + '!@#$%') for _ in range(12))
+            
+            # Create User with THINKING_COACH role
+            user = User.objects.create_user(
+                username=email,
+                email=email,
+                password=temp_password,
+                first_name=teacher.full_name.split()[0] if teacher.full_name else '',
+                last_name=' '.join(teacher.full_name.split()[1:]) if len(teacher.full_name.split()) > 1 else '',
+                is_active=True,
+                role='THINKING_COACH'
+            )
+            
+            # Link user to teacher
+            teacher.user = user
+
             # Save the teacher
             teacher.save()
+            
+            # Send welcome email with credentials
+            try:
+                email_subject = 'Welcome to ENpower Skill Lab - Your Login Credentials'
+                email_body = f"""
+Dear {teacher.full_name},
 
-            messages.success(request, f'Teacher {teacher.full_name} added successfully! Employee ID: {employee_id}')
+Welcome to ENpower Skill Lab! Your account has been created successfully.
+
+Here are your login credentials:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📧 Email: {email}
+🔑 Temporary Password: {temp_password}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔗 Login URL: http://127.0.0.1:8000/login/
+
+Employee ID: {employee_id}
+Role: Thinking Coach / Teacher
+
+⚠️ IMPORTANT: Please change your password after your first login for security purposes.
+
+If you have any questions, please contact the administration.
+
+Best regards,
+ENpower Skill Lab Team
+                """
+                
+                send_mail(
+                    email_subject,
+                    email_body,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [email],
+                    fail_silently=False,
+                )
+                messages.success(request, f'Teacher {teacher.full_name} added successfully! Credentials sent to {email}')
+            except Exception as mail_error:
+                messages.warning(request, f'Teacher added but email failed: {str(mail_error)}. Password: {temp_password}')
+            
             return redirect('teacher_list')
 
         except Exception as e:
@@ -869,7 +1186,12 @@ def onboard_teacher(request):
             return redirect('onboard_teacher')
 
     # GET request - render the onboarding form
-    return render(request, 'superadmin/onboard-teacher.html')
+    from schools.models import School
+    schools = School.objects.filter(is_active=True).order_by('school_name')
+    context = {
+        'schools': schools
+    }
+    return render(request, 'superadmin/onboard-teacher.html', context)
 
 
 @login_required
@@ -956,3 +1278,354 @@ def edit_teacher(request, teacher_id):
         'teacher': teacher
     }
     return render(request, 'superadmin/edit-teacher.html', context)
+
+
+@login_required
+@user_passes_test(is_superadmin)
+def delete_teacher(request, teacher_id):
+    """View to delete a teacher"""
+    from .models import Teacher
+    teacher = get_object_or_404(Teacher, id=teacher_id)
+    teacher_name = teacher.full_name
+    
+    try:
+        teacher.delete()
+        messages.success(request, f'Teacher "{teacher_name}" deleted successfully!')
+    except Exception as e:
+        messages.error(request, f'Error deleting teacher: {str(e)}')
+    
+    return redirect('teacher_list')
+
+
+@login_required
+@user_passes_test(is_superadmin)
+def delete_student(request, student_id):
+    """View to delete a student"""
+    from .models import Student
+    student = get_object_or_404(Student, id=student_id)
+    student_name = f"{student.first_name} {student.last_name}"
+    
+    try:
+        student.delete()
+        messages.success(request, f'Student "{student_name}" deleted successfully!')
+    except Exception as e:
+        messages.error(request, f'Error deleting student: {str(e)}')
+    
+    return redirect('student_list')
+
+
+# ==================== PARENT VIEWS ====================
+
+@login_required
+@user_passes_test(is_superadmin)
+def parent_list(request):
+    """View to display list of all parents"""
+    from .models import Parent
+    parents = Parent.objects.prefetch_related('students').all().order_by('-created_at')
+
+    # Add helper properties for each parent
+    colors = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#06b6d4', '#f97316', '#6366f1', '#ec4899', '#14b8a6']
+    for parent in parents:
+        # Assign badge color based on first character
+        parent.badge_color = colors[ord(parent.full_name[0]) % len(colors)]
+
+    context = {
+        'parents': parents,
+        'total_parents': parents.count(),
+        'active_parents': parents.filter(account_status='active').count(),
+        'pending_parents': parents.filter(account_status='pending').count(),
+    }
+    return render(request, 'superadmin/parent-list.html', context)
+
+
+@login_required
+@user_passes_test(is_superadmin)
+def onboard_parent(request):
+    """View to handle parent onboarding form"""
+    from .models import Parent
+
+    if request.method == 'POST':
+        try:
+            data = request.POST
+            
+            # Create parent
+            parent = Parent(
+                # Primary Parent Details
+                full_name=data.get('full_name', ''),
+                relation_to_student=data.get('relation_to_student', ''),
+                mobile_number=data.get('mobile_number', ''),
+                alternate_mobile=data.get('alternate_mobile', '') or None,
+                email=data.get('email', ''),
+                occupation=data.get('occupation', '') or None,
+                organization=data.get('organization', '') or None,
+                education_level=data.get('education_level', '') or None,
+                id_proof=data.get('id_proof', '') or None,
+                
+                # Secondary Parent Details
+                secondary_full_name=data.get('secondary_full_name', '') or None,
+                secondary_relation=data.get('secondary_relation', '') or None,
+                secondary_mobile=data.get('secondary_mobile', '') or None,
+                secondary_email=data.get('secondary_email', '') or None,
+                secondary_occupation=data.get('secondary_occupation', '') or None,
+                preferred_contact=data.get('preferred_contact', 'primary'),
+                
+                # Address
+                residential_address=data.get('residential_address', ''),
+                landmark=data.get('landmark', '') or None,
+                city=data.get('city', ''),
+                state=data.get('state', ''),
+                pin_code=data.get('pin_code', ''),
+                permanent_address=data.get('permanent_address', '') or None,
+                
+                # Communication Preferences
+                contact_method=data.get('contact_method', 'whatsapp'),
+                preferred_language=data.get('preferred_language', 'english'),
+                dnd_timings=data.get('dnd_timings', '') or None,
+                whatsapp_consent=data.get('whatsapp_consent', 'yes') == 'yes',
+                photo_consent=data.get('photo_consent', 'yes') == 'yes',
+                
+                # Financial
+                fee_category=data.get('fee_category', 'regular'),
+                payment_mode=data.get('payment_mode', '') or None,
+                billing_email=data.get('billing_email', '') or None,
+                gst_number=data.get('gst_number', '') or None,
+                
+                # Emergency Contact
+                emergency_name=data.get('emergency_name', ''),
+                emergency_relation=data.get('emergency_relation', ''),
+                emergency_phone=data.get('emergency_phone', ''),
+                emergency_address=data.get('emergency_address', '') or None,
+                
+                # Parent Involvement
+                meeting_availability=data.get('meeting_availability', '') or None,
+                volunteer_interest=data.get('volunteer_interest', '') or None,
+                parent_skills=data.get('parent_skills', '') or None,
+                
+                # Status
+                account_status='pending',
+                created_by=request.user,
+            )
+            
+            # Handle profile photo
+            if 'profile_photo' in request.FILES:
+                parent.profile_photo = request.FILES['profile_photo']
+            
+            # Create User account for parent login
+            User = get_user_model()
+            email = parent.email
+            
+            # Check if user already exists
+            if User.objects.filter(email=email).exists():
+                messages.error(request, f'A user with email {email} already exists.')
+                return redirect('onboard_parent')
+            
+            # Generate temporary password
+            import secrets
+            import string
+            temp_password = ''.join(secrets.choice(string.ascii_letters + string.digits + '!@#$%') for _ in range(12))
+            
+            # Create User with PARENT role
+            user = User.objects.create_user(
+                username=email,
+                email=email,
+                password=temp_password,
+                first_name=parent.full_name.split()[0] if parent.full_name else '',
+                last_name=' '.join(parent.full_name.split()[1:]) if len(parent.full_name.split()) > 1 else '',
+                is_active=True,
+                role='PARENT'
+            )
+            
+            # Link user to parent
+            parent.user = user
+            
+            parent.save()
+            
+            # Link to students (ManyToMany relationship)
+            student_ids = request.POST.getlist('students')
+            linked_students = []
+            if student_ids:
+                from .models import Student
+                students = Student.objects.filter(id__in=student_ids)
+                parent.students.set(students)
+                linked_students = [s.full_name for s in students]
+            
+            # Send welcome email with credentials
+            try:
+                email_subject = 'Welcome to ENpower Skill Lab - Your Login Credentials'
+                students_text = ', '.join(linked_students) if linked_students else 'Not yet linked'
+                email_body = f"""
+Dear {parent.full_name},
+
+Welcome to ENpower Skill Lab! Your parent account has been created successfully.
+
+Here are your login credentials:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📧 Email: {email}
+🔑 Temporary Password: {temp_password}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔗 Login URL: http://127.0.0.1:8000/login/
+
+Parent ID: {parent.parent_id}
+Linked Student(s): {students_text}
+Role: Parent/Guardian
+
+⚠️ IMPORTANT: Please change your password after your first login for security purposes.
+
+You can use the parent portal to:
+- Track your child's progress
+- View attendance records
+- Communicate with teachers
+- Access reports and certificates
+
+If you have any questions, please contact the administration.
+
+Best regards,
+ENpower Skill Lab Team
+                """
+                
+                send_mail(
+                    email_subject,
+                    email_body,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [email],
+                    fail_silently=False,
+                )
+                messages.success(request, f'Parent "{parent.full_name}" onboarded successfully! Credentials sent to {email}')
+            except Exception as mail_error:
+                messages.warning(request, f'Parent added but email failed: {str(mail_error)}. Password: {temp_password}')
+            
+            return redirect('parent_list')
+            
+        except Exception as e:
+            messages.error(request, f'Error onboarding parent: {str(e)}')
+    
+    # GET request - pass students to template
+    from .models import Student
+    students = Student.objects.all().order_by('first_name', 'last_name')
+    context = {
+        'students': students
+    }
+    return render(request, 'superadmin/onboard-parent.html', context)
+
+
+@login_required
+@user_passes_test(is_superadmin)
+def view_parent(request, parent_id):
+    """View to display parent details"""
+    from .models import Parent
+    parent = get_object_or_404(Parent, id=parent_id)
+
+    # Assign badge color
+    colors = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#06b6d4']
+    parent.badge_color = colors[ord(parent.full_name[0]) % len(colors)]
+
+    context = {
+        'parent': parent,
+    }
+    return render(request, 'superadmin/view-parent.html', context)
+
+
+@login_required
+@user_passes_test(is_superadmin)
+def edit_parent(request, parent_id):
+    """View to edit parent details"""
+    from .models import Parent
+    parent = get_object_or_404(Parent, id=parent_id)
+
+    if request.method == 'POST':
+        try:
+            data = request.POST
+            
+            # Update Primary Parent Details
+            parent.full_name = data.get('full_name', parent.full_name)
+            parent.relation_to_student = data.get('relation_to_student', parent.relation_to_student)
+            parent.mobile_number = data.get('mobile_number', parent.mobile_number)
+            parent.alternate_mobile = data.get('alternate_mobile', '') or None
+            parent.email = data.get('email', parent.email)
+            parent.occupation = data.get('occupation', '') or None
+            parent.organization = data.get('organization', '') or None
+            parent.education_level = data.get('education_level', '') or None
+            parent.id_proof = data.get('id_proof', '') or None
+            
+            # Update Secondary Parent Details
+            parent.secondary_full_name = data.get('secondary_full_name', '') or None
+            parent.secondary_relation = data.get('secondary_relation', '') or None
+            parent.secondary_mobile = data.get('secondary_mobile', '') or None
+            parent.secondary_email = data.get('secondary_email', '') or None
+            parent.secondary_occupation = data.get('secondary_occupation', '') or None
+            parent.preferred_contact = data.get('preferred_contact', 'primary')
+            
+            # Update Address
+            parent.residential_address = data.get('residential_address', parent.residential_address)
+            parent.landmark = data.get('landmark', '') or None
+            parent.city = data.get('city', parent.city)
+            parent.state = data.get('state', parent.state)
+            parent.pin_code = data.get('pin_code', parent.pin_code)
+            parent.permanent_address = data.get('permanent_address', '') or None
+            
+            # Update Communication Preferences
+            parent.contact_method = data.get('contact_method', parent.contact_method)
+            parent.preferred_language = data.get('preferred_language', parent.preferred_language)
+            parent.dnd_timings = data.get('dnd_timings', '') or None
+            parent.whatsapp_consent = data.get('whatsapp_consent', 'yes') == 'yes'
+            parent.photo_consent = data.get('photo_consent', 'yes') == 'yes'
+            
+            # Update Financial
+            parent.fee_category = data.get('fee_category', parent.fee_category)
+            parent.payment_mode = data.get('payment_mode', '') or None
+            parent.billing_email = data.get('billing_email', '') or None
+            parent.gst_number = data.get('gst_number', '') or None
+            
+            # Update Emergency Contact
+            parent.emergency_name = data.get('emergency_name', parent.emergency_name)
+            parent.emergency_relation = data.get('emergency_relation', parent.emergency_relation)
+            parent.emergency_phone = data.get('emergency_phone', parent.emergency_phone)
+            parent.emergency_address = data.get('emergency_address', '') or None
+            
+            # Update Parent Involvement
+            parent.meeting_availability = data.get('meeting_availability', '') or None
+            parent.volunteer_interest = data.get('volunteer_interest', '') or None
+            parent.parent_skills = data.get('parent_skills', '') or None
+            
+            # Update Status
+            parent.account_status = data.get('account_status', parent.account_status)
+            parent.is_active = data.get('is_active', 'true') == 'true'
+            
+            # Handle profile photo
+            if 'profile_photo' in request.FILES:
+                parent.profile_photo = request.FILES['profile_photo']
+            
+            parent.save()
+            
+            messages.success(request, f'Parent "{parent.full_name}" updated successfully!')
+            return redirect('parent_list')
+            
+        except Exception as e:
+            messages.error(request, f'Error updating parent: {str(e)}')
+
+    # Assign badge color
+    colors = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#06b6d4']
+    parent.badge_color = colors[ord(parent.full_name[0]) % len(colors)]
+
+    context = {
+        'parent': parent,
+    }
+    return render(request, 'superadmin/edit-parent.html', context)
+
+
+@login_required
+@user_passes_test(is_superadmin)
+def delete_parent(request, parent_id):
+    """View to delete a parent"""
+    from .models import Parent
+    parent = get_object_or_404(Parent, id=parent_id)
+    parent_name = parent.full_name
+    
+    try:
+        parent.delete()
+        messages.success(request, f'Parent "{parent_name}" deleted successfully!')
+    except Exception as e:
+        messages.error(request, f'Error deleting parent: {str(e)}')
+    
+    return redirect('parent_list')

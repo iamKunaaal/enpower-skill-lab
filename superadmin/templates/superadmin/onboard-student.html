@@ -35,26 +35,30 @@
                 </div>
                 <div class="step" data-step="2">
                     <div class="step-icon">2</div>
-                    <div class="step-label">Academic</div>
+                    <div class="step-label">School</div>
                 </div>
                 <div class="step" data-step="3">
                     <div class="step-icon">3</div>
-                    <div class="step-label">Contact</div>
+                    <div class="step-label">Academic</div>
                 </div>
                 <div class="step" data-step="4">
                     <div class="step-icon">4</div>
-                    <div class="step-label">Skill Lab</div>
+                    <div class="step-label">Contact</div>
                 </div>
                 <div class="step" data-step="5">
                     <div class="step-icon">5</div>
-                    <div class="step-label">Health</div>
+                    <div class="step-label">Skill Lab</div>
                 </div>
                 <div class="step" data-step="6">
                     <div class="step-icon">6</div>
-                    <div class="step-label">Emergency</div>
+                    <div class="step-label">Health</div>
                 </div>
                 <div class="step" data-step="7">
                     <div class="step-icon">7</div>
+                    <div class="step-label">Emergency</div>
+                </div>
+                <div class="step" data-step="8">
+                    <div class="step-icon">8</div>
                     <div class="step-label">Family</div>
                 </div>
             </div>
@@ -161,11 +165,37 @@
             </div>
         </div>
 
+        <!-- Step 2: School Assignment -->
         <div class="form-section step-content" id="step2" style="display: none;">
             <div class="section-header">
                 <h2 class="section-title">
+                    <span class="material-symbols-outlined">domain</span>
+                    B. School Assignment
+                </h2>
+            </div>
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label for="school" class="form-label">Assign to School <span class="required">*</span></label>
+                    <select id="school" name="school" class="form-input" required>
+                        <option value="" disabled selected hidden>Select a school</option>
+                        {% for school in schools %}
+                        <option value="{{ school.id }}">{{ school.school_name }} - {{ school.city }}</option>
+                        {% empty %}
+                        <option value="" disabled>No schools available</option>
+                        {% endfor %}
+                    </select>
+                    <span class="error-message" id="schoolError"></span>
+                    <p class="field-hint">Select the school where this student will be enrolled</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Academic Details -->
+        <div class="form-section step-content" id="step3" style="display: none;">
+            <div class="section-header">
+                <h2 class="section-title">
                     <span class="material-symbols-outlined">school</span>
-                    B. Academic Details
+                    C. Academic Details
                 </h2>
             </div>
             <div class="form-grid">
@@ -279,11 +309,11 @@
             </div>
         </div>
 
-        <div class="form-section step-content" id="step3" style="display: none;">
+        <div class="form-section step-content" id="step4" style="display: none;">
             <div class="section-header">
                 <h2 class="section-title">
                     <span class="material-symbols-outlined">contact_phone</span>
-                    C. Contact Details
+                    D. Contact Details
                 </h2>
             </div>
             <div class="form-grid">
@@ -314,11 +344,11 @@
             </div>
         </div>
 
-        <div class="form-section step-content" id="step4" style="display: none;">
+        <div class="form-section step-content" id="step5" style="display: none;">
             <div class="section-header">
                 <h2 class="section-title">
                     <span class="material-symbols-outlined">psychology</span>
-                    D. Skill Lab Specific Details
+                    E. Skill Lab Specific Details
                 </h2>
             </div>
             <div class="form-grid">
@@ -429,11 +459,11 @@
             </div>
         </div>
 
-        <div class="form-section step-content" id="step5" style="display: none;">
+        <div class="form-section step-content" id="step6" style="display: none;">
             <div class="section-header">
                 <h2 class="section-title">
                     <span class="material-symbols-outlined">medical_information</span>
-                    E. Health and Safety
+                    F. Health and Safety
                 </h2>
             </div>
             <div class="form-grid">
@@ -475,11 +505,11 @@
             </div>
         </div>
 
-        <div class="form-section step-content" id="step6" style="display: none;">
+        <div class="form-section step-content" id="step7" style="display: none;">
             <div class="section-header">
                 <h2 class="section-title">
                     <span class="material-symbols-outlined">emergency</span>
-                    F. Emergency Contact
+                    G. Emergency Contact
                 </h2>
             </div>
             <div class="form-grid">
@@ -525,11 +555,11 @@
             </div>
         </div>
 
-        <div class="form-section step-content" id="step7" style="display: none;">
+        <div class="form-section step-content" id="step8" style="display: none;">
             <div class="section-header">
                 <h2 class="section-title">
                     <span class="material-symbols-outlined">family_restroom</span>
-                    G. Family Details (Optional)
+                    H. Family Details (Optional)
                 </h2>
             </div>
             <div class="form-grid">

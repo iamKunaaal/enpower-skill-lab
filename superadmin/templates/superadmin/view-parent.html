@@ -1,0 +1,319 @@
+{% extends 'superadmin/base.html' %}
+{% load static %}
+
+{% block title %}View Parent - {{ parent.full_name }} - Enpower Skill Lab{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/view-teacher.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="view-teacher-page">
+    <div class="view-teacher-container">
+        <!-- Header -->
+        <div class="view-header">
+            <div class="header-left">
+                <a href="{% url 'parent_list' %}" class="back-btn">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                </a>
+                <div class="header-info">
+                    <h1 class="page-title">Parent Details</h1>
+                    <p class="page-subtitle">View complete information about this parent</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <a href="{% url 'edit_parent' parent.id %}" class="btn-edit">
+                    <span class="material-symbols-outlined">edit</span>
+                    Edit Parent
+                </a>
+            </div>
+        </div>
+
+        <!-- Profile Section -->
+        <div class="profile-section">
+            <div class="profile-card">
+                <div class="profile-photo">
+                    {% if parent.profile_photo %}
+                    <img src="{{ parent.profile_photo.url }}" alt="{{ parent.full_name }}">
+                    {% else %}
+                    <div class="initial-badge-large" style="background-color: {{ parent.badge_color }};">
+                        {{ parent.initials }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="profile-info">
+                    <h2 class="profile-name">{{ parent.full_name }}</h2>
+                    <p class="profile-id">ID: {{ parent.parent_id }}</p>
+                    <div class="profile-badges">
+                        {% if parent.account_status == 'active' %}
+                        <span class="status-badge status-active">Active</span>
+                        {% elif parent.account_status == 'pending' %}
+                        <span class="status-badge status-pending">Pending</span>
+                        {% else %}
+                        <span class="status-badge status-inactive">Inactive</span>
+                        {% endif %}
+                        <span class="role-badge">{{ parent.get_relation_to_student_display }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Details Sections -->
+        <div class="details-grid">
+            <!-- Primary Parent Information -->
+            <div class="details-card">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">person</span>
+                    <h3>Primary Parent Information</h3>
+                </div>
+                <div class="card-content">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>Full Name</label>
+                            <p>{{ parent.full_name }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Relation to Student</label>
+                            <p>{{ parent.get_relation_to_student_display }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Mobile Number</label>
+                            <p>{{ parent.mobile_number }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Alternate Mobile</label>
+                            <p>{{ parent.alternate_mobile|default:"-" }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Email</label>
+                            <p>{{ parent.email }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Occupation</label>
+                            <p>{{ parent.occupation|default:"-" }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Organization</label>
+                            <p>{{ parent.organization|default:"-" }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Education Level</label>
+                            <p>{{ parent.get_education_level_display|default:"-" }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label>ID Proof</label>
+                            <p>{{ parent.id_proof|default:"-" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Secondary Parent Information -->
+            <div class="details-card">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">people</span>
+                    <h3>Secondary Parent Information</h3>
+                </div>
+                <div class="card-content">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>Full Name</label>
+                            <p>{{ parent.secondary_full_name|default:"-" }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Relation</label>
+                            <p>{{ parent.get_secondary_relation_display|default:"-" }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Mobile Number</label>
+                            <p>{{ parent.secondary_mobile|default:"-" }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Email</label>
+                            <p>{{ parent.secondary_email|default:"-" }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Occupation</label>
+                            <p>{{ parent.secondary_occupation|default:"-" }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Preferred Contact</label>
+                            <p>{{ parent.get_preferred_contact_display }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Address Information -->
+            <div class="details-card">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">home</span>
+                    <h3>Address Information</h3>
+                </div>
+                <div class="card-content">
+                    <div class="info-grid">
+                        <div class="info-item full-width">
+                            <label>Residential Address</label>
+                            <p>{{ parent.residential_address }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Landmark</label>
+                            <p>{{ parent.landmark|default:"-" }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label>City</label>
+                            <p>{{ parent.city }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label>State</label>
+                            <p>{{ parent.state }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label>PIN Code</label>
+                            <p>{{ parent.pin_code }}</p>
+                        </div>
+                        <div class="info-item full-width">
+                            <label>Permanent Address</label>
+                            <p>{{ parent.permanent_address|default:"Same as residential" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Communication Preferences -->
+            <div class="details-card">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">chat</span>
+                    <h3>Communication Preferences</h3>
+                </div>
+                <div class="card-content">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>Preferred Contact Method</label>
+                            <p>{{ parent.get_contact_method_display }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Preferred Language</label>
+                            <p>{{ parent.get_preferred_language_display }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label>DND Timings</label>
+                            <p>{{ parent.dnd_timings|default:"-" }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label>WhatsApp Consent</label>
+                            <p>{% if parent.whatsapp_consent %}Yes{% else %}No{% endif %}</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Photo Sharing Consent</label>
+                            <p>{% if parent.photo_consent %}Yes{% else %}No{% endif %}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financial Information -->
+            <div class="details-card">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">payments</span>
+                    <h3>Financial Information</h3>
+                </div>
+                <div class="card-content">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>Fee Category</label>
+                            <p>{{ parent.get_fee_category_display }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Payment Mode</label>
+                            <p>{{ parent.get_payment_mode_display|default:"-" }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Billing Email</label>
+                            <p>{{ parent.billing_email|default:parent.email }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label>GST Number</label>
+                            <p>{{ parent.gst_number|default:"-" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Emergency Contact -->
+            <div class="details-card">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">emergency</span>
+                    <h3>Emergency Contact</h3>
+                </div>
+                <div class="card-content">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>Contact Name</label>
+                            <p>{{ parent.emergency_name }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Relation</label>
+                            <p>{{ parent.get_emergency_relation_display }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Phone Number</label>
+                            <p>{{ parent.emergency_phone }}</p>
+                        </div>
+                        <div class="info-item full-width">
+                            <label>Address</label>
+                            <p>{{ parent.emergency_address|default:"-" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Parent Involvement -->
+            <div class="details-card">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">volunteer_activism</span>
+                    <h3>Parent Involvement</h3>
+                </div>
+                <div class="card-content">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>Meeting Availability</label>
+                            <p>{{ parent.get_meeting_availability_display|default:"-" }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Volunteer Interest</label>
+                            <p>{{ parent.volunteer_interest|default:"-"|title }}</p>
+                        </div>
+                        <div class="info-item full-width">
+                            <label>Parent Skills</label>
+                            <p>{{ parent.parent_skills|default:"-" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Linked Children -->
+            <div class="details-card">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">child_care</span>
+                    <h3>Linked Children</h3>
+                </div>
+                <div class="card-content">
+                    {% if parent.students.exists %}
+                    <div class="info-grid">
+                        {% for student in parent.students.all %}
+                        <div class="info-item">
+                            <label>{{ student.full_name }}</label>
+                            <p>Grade {{ student.student_class }} - {{ student.division }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No children linked yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

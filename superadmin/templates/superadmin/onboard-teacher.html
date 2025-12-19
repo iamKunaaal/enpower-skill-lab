@@ -34,30 +34,34 @@
                 </div>
                 <div class="step" data-step="2">
                     <div class="step-icon">2</div>
-                    <div class="step-label">Professional</div>
+                    <div class="step-label">School</div>
                 </div>
                 <div class="step" data-step="3">
                     <div class="step-icon">3</div>
-                    <div class="step-label">Contact</div>
+                    <div class="step-label">Professional</div>
                 </div>
                 <div class="step" data-step="4">
                     <div class="step-icon">4</div>
-                    <div class="step-label">Address</div>
+                    <div class="step-label">Contact</div>
                 </div>
                 <div class="step" data-step="5">
                     <div class="step-icon">5</div>
-                    <div class="step-label">Skill Lab</div>
+                    <div class="step-label">Address</div>
                 </div>
                 <div class="step" data-step="6">
                     <div class="step-icon">6</div>
-                    <div class="step-label">Emergency</div>
+                    <div class="step-label">Skill Lab</div>
                 </div>
                 <div class="step" data-step="7">
                     <div class="step-icon">7</div>
-                    <div class="step-label">Compliance</div>
+                    <div class="step-label">Emergency</div>
                 </div>
                 <div class="step" data-step="8">
                     <div class="step-icon">8</div>
+                    <div class="step-label">Compliance</div>
+                </div>
+                <div class="step" data-step="9">
+                    <div class="step-icon">9</div>
                     <div class="step-label">Additional</div>
                 </div>
             </div>
@@ -157,12 +161,37 @@
             </div>
         </div>
 
-        <!-- Step 2: Professional Details -->
+        <!-- Step 2: School Assignment -->
         <div class="form-section step-content" id="step2" style="display: none;">
             <div class="section-header">
                 <h2 class="section-title">
+                    <span class="material-symbols-outlined">school</span>
+                    B. School Assignment
+                </h2>
+            </div>
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label for="school" class="form-label">Assign to School <span class="required">*</span></label>
+                    <select id="school" name="school" class="form-input" required>
+                        <option value="" disabled selected hidden>Select a school</option>
+                        {% for school in schools %}
+                        <option value="{{ school.id }}">{{ school.school_name }} - {{ school.city }}</option>
+                        {% empty %}
+                        <option value="" disabled>No schools available</option>
+                        {% endfor %}
+                    </select>
+                    <span class="error-message" id="schoolError"></span>
+                    <p class="field-hint">Select the school where this thinking coach will be assigned</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Professional Details -->
+        <div class="form-section step-content" id="step3" style="display: none;">
+            <div class="section-header">
+                <h2 class="section-title">
                     <span class="material-symbols-outlined">work</span>
-                    B. Professional Details
+                    C. Professional Details
                 </h2>
             </div>
             <div class="form-grid">
@@ -235,12 +264,12 @@
             </div>
         </div>
 
-        <!-- Step 3: Contact Information -->
-        <div class="form-section step-content" id="step3" style="display: none;">
+        <!-- Step 4: Contact Information -->
+        <div class="form-section step-content" id="step4" style="display: none;">
             <div class="section-header">
                 <h2 class="section-title">
                     <span class="material-symbols-outlined">phone</span>
-                    C. Contact Information
+                    D. Contact Information
                 </h2>
             </div>
             <div class="form-grid">
@@ -269,12 +298,12 @@
             </div>
         </div>
 
-        <!-- Step 4: Address Details -->
-        <div class="form-section step-content" id="step4" style="display: none;">
+        <!-- Step 5: Address Details -->
+        <div class="form-section step-content" id="step5" style="display: none;">
             <div class="section-header">
                 <h2 class="section-title">
                     <span class="material-symbols-outlined">home</span>
-                    D. Address Details
+                    E. Address Details
                 </h2>
             </div>
             <div class="form-grid">
@@ -309,12 +338,12 @@
             </div>
         </div>
 
-        <!-- Step 5: Skill Lab Work Details -->
-        <div class="form-section step-content" id="step5" style="display: none;">
+        <!-- Step 6: Skill Lab Work Details -->
+        <div class="form-section step-content" id="step6" style="display: none;">
             <div class="section-header">
                 <h2 class="section-title">
                     <span class="material-symbols-outlined">science</span>
-                    E. Skill Lab Work Details
+                    F. Skill Lab Work Details
                 </h2>
             </div>
             <div class="form-grid">
@@ -394,12 +423,12 @@
             </div>
         </div>
 
-        <!-- Step 6: Emergency Information -->
-        <div class="form-section step-content" id="step6" style="display: none;">
+        <!-- Step 7: Emergency Information -->
+        <div class="form-section step-content" id="step7" style="display: none;">
             <div class="section-header">
                 <h2 class="section-title">
                     <span class="material-symbols-outlined">emergency</span>
-                    F. Emergency Information
+                    G. Emergency Information
                 </h2>
             </div>
             <div class="form-grid">
@@ -441,12 +470,12 @@
             </div>
         </div>
 
-        <!-- Step 7: Compliance & Documentation -->
-        <div class="form-section step-content" id="step7" style="display: none;">
+        <!-- Step 8: Compliance & Documentation -->
+        <div class="form-section step-content" id="step8" style="display: none;">
             <div class="section-header">
                 <h2 class="section-title">
                     <span class="material-symbols-outlined">folder</span>
-                    G. Compliance & Documentation
+                    H. Compliance & Documentation
                 </h2>
             </div>
             <div class="form-grid">
@@ -550,12 +579,12 @@
             </div>
         </div>
 
-        <!-- Step 8: Additional Optional Data -->
-        <div class="form-section step-content" id="step8" style="display: none;">
+        <!-- Step 9: Additional Optional Data -->
+        <div class="form-section step-content" id="step9" style="display: none;">
             <div class="section-header">
                 <h2 class="section-title">
                     <span class="material-symbols-outlined">more_horiz</span>
-                    H. Additional Optional Data
+                    I. Additional Optional Data
                 </h2>
             </div>
             <div class="form-grid">

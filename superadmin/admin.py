@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import SuperAdmin, Student, Teacher
+from .models import SuperAdmin, Student, Teacher, Parent
 
 
 # SuperAdmin Model Admin
@@ -110,6 +110,52 @@ class TeacherAdmin(admin.ModelAdmin):
         }),
         ('Status & Metadata', {
             'fields': ('attendance_status', 'is_active', 'created_at', 'updated_at', 'created_by'),
+            'classes': ('collapse',)
+        }),
+    )
+
+
+# Parent Model Admin
+@admin.register(Parent)
+class ParentAdmin(admin.ModelAdmin):
+    list_display = ('parent_id', 'full_name', 'email', 'mobile_number', 'relation_to_student', 'account_status', 'is_active', 'created_at')
+    list_filter = ('is_active', 'account_status', 'relation_to_student', 'fee_category', 'preferred_language', 'created_at')
+    search_fields = ('full_name', 'parent_id', 'email', 'mobile_number', 'secondary_full_name')
+    readonly_fields = ('parent_id', 'created_at', 'updated_at', 'created_by')
+    filter_horizontal = ('students',)
+
+    fieldsets = (
+        ('Primary Parent Information', {
+            'fields': ('parent_id', 'profile_photo', 'full_name', 'relation_to_student', 'mobile_number', 'alternate_mobile', 'email', 'occupation', 'organization', 'education_level', 'id_proof')
+        }),
+        ('Secondary Parent Information', {
+            'fields': ('secondary_full_name', 'secondary_relation', 'secondary_mobile', 'secondary_email', 'secondary_occupation', 'preferred_contact'),
+            'classes': ('collapse',)
+        }),
+        ('Address', {
+            'fields': ('residential_address', 'landmark', 'city', 'state', 'pin_code', 'permanent_address')
+        }),
+        ('Communication Preferences', {
+            'fields': ('contact_method', 'preferred_language', 'dnd_timings', 'whatsapp_consent', 'photo_consent'),
+            'classes': ('collapse',)
+        }),
+        ('Financial', {
+            'fields': ('fee_category', 'payment_mode', 'billing_email', 'gst_number'),
+            'classes': ('collapse',)
+        }),
+        ('Emergency Contact', {
+            'fields': ('emergency_name', 'emergency_relation', 'emergency_phone', 'emergency_address'),
+            'classes': ('collapse',)
+        }),
+        ('Parent Involvement', {
+            'fields': ('meeting_availability', 'volunteer_interest', 'parent_skills'),
+            'classes': ('collapse',)
+        }),
+        ('Linked Students', {
+            'fields': ('students',)
+        }),
+        ('Status & Metadata', {
+            'fields': ('account_status', 'is_active', 'created_at', 'updated_at', 'created_by'),
             'classes': ('collapse',)
         }),
     )
