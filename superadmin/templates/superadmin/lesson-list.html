@@ -1,0 +1,167 @@
+{% extends 'superadmin/base.html' %}
+{% load static %}
+
+{% block title %}Lesson Library - Super Admin{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="{% static 'css/lesson-list.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="ll-dashboard-page">
+    <main class="container-xl py-4 px-4" style="max-width: 1600px;">
+        {% csrf_token %}
+        
+        <!-- Page Header -->
+        <header class="mb-4 d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-3">
+            <div>
+                <h1 class="ll-page-title">Lesson Library</h1>
+                <p class="ll-page-description">Manage self-learning content, inventory, and publishing status across the platform.</p>
+            </div>
+            <div class="d-flex gap-2 align-items-center">
+                <button id="llBulkDeleteBtn" class="btn btn-danger d-none" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                    <span class="material-symbols-outlined" style="font-size: 20px;">delete</span>
+                    <span>Delete Selected (<span id="llSelectedCount">0</span>)</span>
+                </button>
+                <a href="{% url 'add_lesson' %}" class="ll-btn-primary">
+                    <span class="material-symbols-outlined" style="font-size: 20px;">add</span>
+                    <span>Create Lesson</span>
+                </a>
+            </div>
+        </header>
+
+        <!-- Messages -->
+        {% if messages %}
+        <div class="mb-4">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Table Section -->
+        <div class="ll-table-card">
+            <div class="ll-table-wrapper-outer">
+                <div class="ll-table-responsive">
+                    <table id="llLessonsTable" class="table mb-0 align-middle ll-lessons-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">
+                                    <input class="form-check-input" type="checkbox" id="llSelectAll" />
+                                </th>
+                                <th scope="col">Lesson Title</th>
+                                <th scope="col">Type</th>
+                                <th scope="col">Competency</th>
+                                <th scope="col">Level</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Created</th>
+                                <th scope="col">Updated</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for lesson in lessons %}
+                            <tr>
+                                <td>
+                                    <input class="form-check-input ll-row-checkbox" type="checkbox" data-lesson-id="{{ lesson.id }}" />
+                                </td>
+                                <td>
+                                    <div class="ll-lesson-title">{{ lesson.title }}</div>
+                                    <div class="ll-lesson-id">ID: LES-{{ lesson.id|stringformat:"05d" }}</div>
+                                </td>
+                                <td>
+                                    <div class="ll-content-type-icon">
+                                        {% if lesson.primary_content_type == 'video' %}
+                                        <span class="material-symbols-outlined">play_circle</span>
+                                        <span>Video</span>
+                                        {% elif lesson.primary_content_type == 'article' %}
+                                        <span class="material-symbols-outlined">article</span>
+                                        <span>Article</span>
+                                        {% elif lesson.primary_content_type == 'quiz' %}
+                                        <span class="material-symbols-outlined">quiz</span>
+                                        <span>Quiz</span>
+                                        {% else %}
+                                        <span class="material-symbols-outlined">extension</span>
+                                        <span>Mixed</span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>{{ lesson.competency|default:"General" }}</td>
+                                <td>
+                                    {% if lesson.level == 'beginner' %}
+                                    <span class="ll-badge-level ll-badge-level-low">Beginner</span>
+                                    {% elif lesson.level == 'intermediate' %}
+                                    <span class="ll-badge-level ll-badge-level-medium">Intermediate</span>
+                                    {% else %}
+                                    <span class="ll-badge-level ll-badge-level-high">Advanced</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if lesson.status == 'published' %}
+                                    <span class="ll-badge-status ll-badge-status-published">
+                                        <span class="ll-status-dot"></span>
+                                        Published
+                                    </span>
+                                    {% elif lesson.status == 'draft' %}
+                                    <span class="ll-badge-status ll-badge-status-draft">
+                                        <span class="ll-status-dot"></span>
+                                        Draft
+                                    </span>
+                                    {% else %}
+                                    <span class="ll-badge-status ll-badge-status-archived">
+                                        <span class="ll-status-dot"></span>
+                                        Archived
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td class="ll-date-text">{{ lesson.created_at|date:"M d, Y" }}</td>
+                                <td class="ll-date-text">{{ lesson.updated_at|timesince }} ago</td>
+                                <td>
+                                    <div class="ll-action-buttons">
+                                        <a href="{% url 'view_lesson' lesson.id %}" class="ll-action-btn" title="View">
+                                            <span class="material-symbols-outlined">visibility</span>
+                                        </a>
+                                        <a href="{% url 'edit_lesson' lesson.id %}" class="ll-action-btn" title="Edit">
+                                            <span class="material-symbols-outlined">edit</span>
+                                        </a>
+                                        <a href="{% url 'delete_lesson' lesson.id %}" class="ll-action-btn delete ll-delete-btn" title="Delete">
+                                            <span class="material-symbols-outlined">delete</span>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="9">
+                                    <div class="ll-empty-state">
+                                        <span class="material-symbols-outlined ll-empty-icon">auto_stories</span>
+                                        <h3>No Lessons Yet</h3>
+                                        <p class="text-muted mb-4">Create your first lesson to get started.</p>
+                                        <a href="{% url 'add_lesson' %}" class="ll-btn-primary">
+                                            <span class="material-symbols-outlined" style="font-size: 20px;">add</span>
+                                            Create Lesson
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="{% static 'js/lesson-list.js' %}"></script>
+{% endblock %}

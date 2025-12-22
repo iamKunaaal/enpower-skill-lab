@@ -624,3 +624,170 @@ class School(models.Model):
             'principal': self.principal_name,
             'principal_email': self.principal_email,
         }
+
+
+class Class(models.Model):
+    """
+    Class model for managing class divisions within schools.
+    Each class is linked to a school and can have an assigned coach.
+    """
+    
+    GRADE_CHOICES = [
+        ('1', 'Standard 1'),
+        ('2', 'Standard 2'),
+        ('3', 'Standard 3'),
+        ('4', 'Standard 4'),
+        ('5', 'Standard 5'),
+        ('6', 'Standard 6'),
+        ('7', 'Standard 7'),
+        ('8', 'Standard 8'),
+        ('9', 'Standard 9'),
+        ('10', 'Standard 10'),
+        ('11', 'Standard 11'),
+        ('12', 'Standard 12'),
+    ]
+    
+    ACADEMIC_YEAR_CHOICES = [
+        ('2023-2024', '2023-2024'),
+        ('2024-2025', '2024-2025'),
+        ('2025-2026', '2025-2026'),
+        ('2026-2027', '2026-2027'),
+    ]
+    
+    # ==================== SCHOOL RELATIONSHIP ====================
+    school = models.ForeignKey(
+        School,
+        on_delete=models.CASCADE,
+        related_name='classes',
+        verbose_name="School",
+        help_text="School this class belongs to"
+    )
+    
+    # ==================== CLASS DETAILS ====================
+    grade = models.CharField(
+        max_length=2,
+        choices=GRADE_CHOICES,
+        verbose_name="Grade / Standard",
+        help_text="Grade level of the class"
+    )
+    
+    division = models.CharField(
+        max_length=5,
+        verbose_name="Division",
+        help_text="Division/Section of the class (e.g., A, B, C)"
+    )
+    
+    class_name = models.CharField(
+        max_length=50,
+        verbose_name="Class Name",
+        help_text="Auto-generated class name (e.g., Std 9A)"
+    )
+    
+    class_code = models.CharField(
+        max_length=50,
+        unique=True,
+        verbose_name="Class Code",
+        help_text="Unique identifier for this class"
+    )
+    
+    academic_year = models.CharField(
+        max_length=9,
+        choices=ACADEMIC_YEAR_CHOICES,
+        default='2024-2025',
+        verbose_name="Academic Year",
+        help_text="Academic year for this class"
+    )
+    
+    # ==================== COACH ASSIGNMENT ====================
+    thinking_coach = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='assigned_classes',
+        limit_choices_to={'role': 'TEACHER'},
+        verbose_name="Thinking Coach",
+        help_text="Assigned thinking coach for this class"
+    )
+    
+    # ==================== PROGRAM CONFIGURATION ====================
+    total_sessions = models.PositiveIntegerField(
+        default=48,
+        validators=[MinValueValidator(1), MaxValueValidator(100)],
+        verbose_name="Total Sessions",
+        help_text="Total number of sessions for this class"
+    )
+    
+    # ==================== STATUS & VISIBILITY ====================
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name="Class Status",
+        help_text="Whether this class is active"
+    )
+    
+    student_visibility = models.BooleanField(
+        default=True,
+        verbose_name="Student Visibility",
+        help_text="Show this class to assigned students"
+    )
+    
+    parent_visibility = models.BooleanField(
+        default=False,
+        verbose_name="Parent Visibility",
+        help_text="Show this class to connected parents"
+    )
+    
+    # ==================== TRACKING & METADATA ====================
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Created At"
+    )
+    
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name="Updated At"
+    )
+    
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='created_classes',
+        verbose_name="Created By"
+    )
+    
+    class Meta:
+        verbose_name = "Class"
+        verbose_name_plural = "Classes"
+        ordering = ['school', 'grade', 'division']
+        unique_together = ['school', 'grade', 'division', 'academic_year']
+        indexes = [
+            models.Index(fields=['class_code']),
+            models.Index(fields=['school', 'academic_year']),
+        ]
+    
+    def __str__(self):
+        return f"{self.class_name} - {self.school.school_name} ({self.academic_year})"
+    
+    def save(self, *args, **kwargs):
+        # Auto-generate class name if not provided
+        if not self.class_name:
+            self.class_name = f"Std {self.grade}{self.division.upper()}"
+        
+        # Auto-generate class code if not provided
+        if not self.class_code:
+            import random
+            year = self.academic_year.split('-')[0]
+            random_id = random.randint(100, 999)
+            self.class_code = f"CLS-{year}-{self.grade}{self.division.upper()}-{random_id:03d}"
+        
+        super().save(*args, **kwargs)
+    
+    @property
+    def student_count(self):
+        """Returns the number of students in this class"""
+        return self.students.count() if hasattr(self, 'students') else 0
+    
+    def get_grade_display_short(self):
+        """Returns short grade display (e.g., 'Grade 9')"""
+        return f"Grade {self.grade}"

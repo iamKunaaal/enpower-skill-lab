@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import School
+from .models import School, Class
 
 
 @admin.register(School)
@@ -138,3 +138,77 @@ class SchoolAdmin(admin.ModelAdmin):
         updated = queryset.update(onboarding_completed=True)
         self.message_user(request, f'{updated} school(s) marked as onboarding complete.')
     mark_onboarding_complete.short_description = "Mark onboarding as complete"
+
+
+@admin.register(Class)
+class ClassAdmin(admin.ModelAdmin):
+    """
+    Admin interface for Class model.
+    """
+    list_display = [
+        'class_name',
+        'class_code',
+        'school',
+        'grade',
+        'division',
+        'academic_year',
+        'thinking_coach',
+        'total_sessions',
+        'is_active',
+        'created_at',
+    ]
+    
+    list_filter = [
+        'school',
+        'grade',
+        'academic_year',
+        'is_active',
+        'student_visibility',
+        'parent_visibility',
+    ]
+    
+    search_fields = [
+        'class_name',
+        'class_code',
+        'school__school_name',
+        'thinking_coach__first_name',
+        'thinking_coach__last_name',
+    ]
+    
+    readonly_fields = ['created_at', 'updated_at']
+    
+    fieldsets = (
+        ('Class Information', {
+            'fields': (
+                'school', 'grade', 'division', 'class_name', 
+                'class_code', 'academic_year'
+            )
+        }),
+        ('Coach Assignment', {
+            'fields': ('thinking_coach',)
+        }),
+        ('Program Configuration', {
+            'fields': ('total_sessions',)
+        }),
+        ('Status & Visibility', {
+            'fields': ('is_active', 'student_visibility', 'parent_visibility')
+        }),
+        ('System Information', {
+            'fields': ('created_by', 'created_at', 'updated_at')
+        }),
+    )
+    
+    list_per_page = 25
+    date_hierarchy = 'created_at'
+    
+    actions = ['mark_as_active', 'mark_as_inactive']
+    
+    def mark_as_active(self, request, queryset):
+        updated = queryset.update(is_active=True)
+        self.message_user(request, f'{updated} class(es) marked as active.')
+    mark_as_active.short_description = "Mark selected classes as active"
+    
+    def mark_as_inactive(self, request, queryset):
+        updated = queryset.update(is_active=False)
+        self.message_user(request, f'{updated} class(es) marked as inactive.')
+    mark_as_inactive.short_description = "Mark selected classes as inactive"

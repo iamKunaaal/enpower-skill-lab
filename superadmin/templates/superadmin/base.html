@@ -156,11 +156,11 @@
                         <span class="material-symbols-outlined dropdown-icon">expand_more</span>
                     </a>
                     <div class="sidebar-dropdown-menu">
-                        <a href="class-list.html" id="nav-class-list">
+                        <a href="{% url 'class_list' %}" id="nav-class-list">
                             <span class="material-symbols-outlined">list</span>
                             Class List
                         </a>
-                        <a href="add-class.html" id="nav-add-class">
+                        <a href="{% url 'add_class' %}" id="nav-add-class">
                             <span class="material-symbols-outlined">add</span>
                             Add Class
                         </a>
@@ -214,11 +214,11 @@
                         <span class="material-symbols-outlined dropdown-icon">expand_more</span>
                     </a>
                     <div class="sidebar-dropdown-menu">
-                        <a href="lessons-library.html" id="nav-lessons-library">
+                        <a href="{% url 'lesson_list' %}" id="nav-lessons-library">
                             <span class="material-symbols-outlined">auto_stories</span>
                             Lessons Library
                         </a>
-                        <a href="add-lesson.html" id="nav-add-lesson">
+                        <a href="{% url 'add_lesson' %}" id="nav-add-lesson">
                             <span class="material-symbols-outlined">note_add</span>
                             Add Lesson
                         </a>

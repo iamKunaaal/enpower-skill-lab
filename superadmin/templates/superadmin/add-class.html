@@ -1,0 +1,253 @@
+{% extends 'superadmin/base.html' %}
+{% load static %}
+
+{% block title %}Add Class - Super Admin{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/add-class.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-page">
+    <main class="container-xl py-5" style="max-width: 1600px;">
+        <!-- Page Header -->
+        <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-1">
+            <div class="ac-page-header">
+                <h1 class="ac-page-title">Add Class</h1>
+                <p class="ac-page-subtitle">Define new class structure and assign coaches.</p>
+            </div>
+            <div class="d-flex gap-3">
+                <a href="{% url 'class_list' %}" class="btn-secondary-custom">
+                    Cancel
+                </a>
+                <button type="submit" form="addClassForm" class="btn-primary-custom">
+                    <span class="material-symbols-outlined" style="font-size: 18px;">save</span>
+                    Save Class
+                </button>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+        <div class="mb-4">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form id="addClassForm" method="POST" action="{% url 'add_class' %}">
+            {% csrf_token %}
+            
+            <!-- Hidden fields for auto-generated values -->
+            <input type="hidden" name="class_name" id="class_name" value="">
+            <input type="hidden" name="class_code" id="class_code" value="">
+
+            <!-- Main Content Grid -->
+            <div class="row">
+                <!-- Left Column: Primary Details -->
+                <div class="col-lg-8">
+                    <!-- Card 1: School Context -->
+                    <div class="add-class-card">
+                        <div class="card-header-custom">
+                            <span class="material-symbols-outlined">school</span>
+                            <h3>School & Academic Context</h3>
+                        </div>
+                        <div class="ac-card-body">
+                            <div class="row g-3">
+                                <!-- School Selection -->
+                                <div class="col-12">
+                                    <label class="form-label-custom" for="school">
+                                        School Name <span class="required">*</span>
+                                    </label>
+                                    <select class="form-select-custom" id="school" name="school" required>
+                                        <option value="">Select a school...</option>
+                                        {% for school in schools %}
+                                        <option value="{{ school.id }}" data-city="{{ school.city }}, {{ school.state }}">
+                                            {{ school.school_name }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <!-- City (Read Only) -->
+                                <div class="col-md-6">
+                                    <label class="form-label-custom" for="city">City / Location</label>
+                                    <div class="input-with-icon">
+                                        <input class="form-control-custom form-control-with-icon-right" id="city" name="city_display" readonly type="text" value="" placeholder="Auto-filled from school" />
+                                        <span class="material-symbols-outlined input-icon-right" style="font-size: 18px;">lock</span>
+                                    </div>
+                                </div>
+
+                                <!-- Academic Year -->
+                                <div class="col-md-6">
+                                    <label class="form-label-custom" for="academic-year">
+                                        Academic Year <span class="required">*</span>
+                                    </label>
+                                    <select class="form-select-custom" id="academic-year" name="academic_year" required>
+                                        <option value="2025-2026">2025-2026</option>
+                                        <option value="2024-2025" selected>2024-2025</option>
+                                        <option value="2023-2024">2023-2024</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Class Details -->
+                    <div class="add-class-card">
+                        <div class="card-header-custom">
+                            <span class="material-symbols-outlined">meeting_room</span>
+                            <h3>Class Details</h3>
+                        </div>
+                        <div class="ac-card-body">
+                            <div class="row g-3 mb-4">
+                                <!-- Grade -->
+                                <div class="col-md-6">
+                                    <label class="form-label-custom" for="grade">
+                                        Grade / Standard <span class="required">*</span>
+                                    </label>
+                                    <select class="form-select-custom" id="grade" name="grade" required>
+                                        <option value="">Select Grade</option>
+                                        <option value="1">Standard 1</option>
+                                        <option value="2">Standard 2</option>
+                                        <option value="3">Standard 3</option>
+                                        <option value="4">Standard 4</option>
+                                        <option value="5">Standard 5</option>
+                                        <option value="6">Standard 6</option>
+                                        <option value="7">Standard 7</option>
+                                        <option value="8">Standard 8</option>
+                                        <option value="9">Standard 9</option>
+                                        <option value="10">Standard 10</option>
+                                        <option value="11">Standard 11</option>
+                                        <option value="12">Standard 12</option>
+                                    </select>
+                                </div>
+
+                                <!-- Division -->
+                                <div class="col-md-6">
+                                    <label class="form-label-custom" for="division">
+                                        Division <span class="required">*</span>
+                                    </label>
+                                    <input class="form-control-custom" id="division" name="division" placeholder="e.g. A, B, C" type="text" required />
+                                </div>
+                            </div>
+
+                            <!-- Auto Generated Fields -->
+                            <div class="auto-generated-section">
+                                <div class="auto-generated-badge">
+                                    <span class="material-symbols-outlined">auto_awesome</span>
+                                    System Generated
+                                </div>
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <div class="auto-field-label">Class Name</div>
+                                        <div class="auto-field-value" id="classNameDisplay">Std --</div>
+                                        <div class="form-text-custom">Generated from Grade and Division</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="auto-field-label">Class Code</div>
+                                        <div class="auto-field-value code" id="classCodeDisplay">CLS-YYYY-XX-001</div>
+                                        <div class="form-text-custom">Unique identifier for this class</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Coach Assignment -->
+                    <div class="add-class-card">
+                        <div class="card-header-custom">
+                            <span class="material-symbols-outlined">person_check</span>
+                            <h3>Thinking Coach Assignment</h3>
+                        </div>
+                        <div class="ac-card-body">
+                            <label class="form-label-custom" for="coach">Assigned Coach</label>
+                            <p class="form-text-custom mb-3">Select the primary coach responsible for this class division.</p>
+                            <div class="input-with-icon">
+                                <span class="material-symbols-outlined input-icon-left">face</span>
+                                <select class="form-select-custom form-control-with-icon-left" id="coach" name="thinking_coach">
+                                    <option value="">Select a Thinking Coach...</option>
+                                    {% for coach in coaches %}
+                                    <option value="{{ coach.id }}">{{ coach.get_full_name|default:coach.username }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Meta & Status -->
+                <div class="col-lg-4">
+                    <!-- Card 4: Status & Visibility -->
+                    <div class="add-class-card">
+                        <div class="card-header-custom">
+                            <span class="material-symbols-outlined">settings</span>
+                            <h3>Status & Visibility</h3>
+                        </div>
+                        <div class="ac-card-body">
+                            <!-- Class Status -->
+                            <div class="form-switch-custom">
+                                <div class="switch-label">
+                                    <span class="switch-title">Class Status</span>
+                                    <span class="switch-description">Enable or disable this class</span>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="classStatus" name="is_active" checked>
+                                </div>
+                            </div>
+
+                            <hr style="border-color: var(--border-color); margin: 1rem 0;">
+
+                            <!-- Student Visibility -->
+                            <div class="form-switch-custom">
+                                <div class="switch-label">
+                                    <span class="switch-title">Student Visibility</span>
+                                    <span class="switch-description">Show to assigned students</span>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="studentVisibility" name="student_visibility" checked>
+                                </div>
+                            </div>
+
+                            <hr style="border-color: var(--border-color); margin: 1rem 0;">
+
+                            <!-- Parent Visibility -->
+                            <div class="form-switch-custom">
+                                <div class="switch-label">
+                                    <span class="switch-title">Parent Visibility</span>
+                                    <span class="switch-description">Show to connected parents</span>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="parentVisibility" name="parent_visibility">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 5: Program Configuration -->
+                    <div class="add-class-card">
+                        <div class="card-header-custom">
+                            <span class="material-symbols-outlined">event_note</span>
+                            <h3>Program Configuration</h3>
+                        </div>
+                        <div class="ac-card-body">
+                            <label class="form-label-custom" for="sessions">Number of Sessions</label>
+                            <p class="form-text-custom mb-3">Enter the total number of sessions for this class.</p>
+                            <input class="form-control-custom" id="sessions" name="total_sessions" type="number" min="1" max="100" placeholder="e.g. 48" value="48" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/add-class.js' %}"></script>
+{% endblock %}

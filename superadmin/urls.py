@@ -3,6 +3,7 @@ from . import views
 
 
 urlpatterns = [
+    
     path('dashboard/', views.dashboard, name='superadmin_dashboard'),
     path('onboard-school/', views.onboard_school, name='onboard_school'),
     path('schools/', views.school_list, name='school_list'),
@@ -29,6 +30,17 @@ urlpatterns = [
     path('parent/<int:parent_id>/', views.view_parent, name='view_parent'),
     path('parent/<int:parent_id>/edit/', views.edit_parent, name='edit_parent'),
     path('parent/<int:parent_id>/delete/', views.delete_parent, name='delete_parent'),
+    # Class Management URLs
+    path('classes/', views.class_list, name='class_list'),
+    path('add-class/', views.add_class, name='add_class'),
+    path('class/<int:class_id>/edit/', views.edit_class, name='edit_class'),
+    path('class/<int:class_id>/delete/', views.delete_class, name='delete_class'),
+    # Lesson Management URLs
+    path('lessons/', views.lesson_list, name='lesson_list'),
+    path('add-lesson/', views.add_lesson, name='add_lesson'),
+    path('lesson/<int:lesson_id>/', views.view_lesson, name='view_lesson'),
+    path('lesson/<int:lesson_id>/edit/', views.edit_lesson, name='edit_lesson'),
+    path('lesson/<int:lesson_id>/delete/', views.delete_lesson, name='delete_lesson'),
     path('api/search-schools/', views.search_schools, name='search_schools'),
     path('profile/', views.profile, name='superadmin_profile'),
     path('profile/update/', views.profile_update, name='superadmin_profile_update'),

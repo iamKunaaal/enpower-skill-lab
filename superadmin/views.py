@@ -1629,3 +1629,342 @@ def delete_parent(request, parent_id):
         messages.error(request, f'Error deleting parent: {str(e)}')
     
     return redirect('parent_list')
+
+
+# ==================== CLASS MANAGEMENT VIEWS ====================
+
+@login_required
+@user_passes_test(is_superadmin)
+def class_list(request):
+    """View to display all classes"""
+    from schools.models import Class
+    
+    classes = Class.objects.select_related('school', 'thinking_coach').all()
+    schools = School.objects.filter(is_active=True)
+    
+    # Get unique locations
+    locations = School.objects.filter(is_active=True).values_list('city', flat=True).distinct()
+    
+    # Get coaches (teachers)
+    User = get_user_model()
+    coaches = User.objects.filter(role='TEACHER', is_active=True)
+    
+    # Grade choices for the edit drawer
+    grade_choices = Class.GRADE_CHOICES
+    
+    context = {
+        'classes': classes,
+        'schools': schools,
+        'locations': locations,
+        'coaches': coaches,
+        'grade_choices': grade_choices,
+    }
+    return render(request, 'superadmin/class-list.html', context)
+
+
+@login_required
+@user_passes_test(is_superadmin)
+def add_class(request):
+    """View to add a new class"""
+    from schools.models import Class
+    
+    if request.method == 'POST':
+        try:
+            # Get form data
+            school_id = request.POST.get('school')
+            grade = request.POST.get('grade')
+            division = request.POST.get('division', '').upper()
+            academic_year = request.POST.get('academic_year')
+            thinking_coach_id = request.POST.get('thinking_coach')
+            total_sessions = request.POST.get('total_sessions', 48)
+            is_active = request.POST.get('is_active') == 'on'
+            student_visibility = request.POST.get('student_visibility') == 'on'
+            parent_visibility = request.POST.get('parent_visibility') == 'on'
+            
+            # Get class name and code from hidden fields or generate
+            class_name = request.POST.get('class_name') or f"Std {grade}{division}"
+            class_code = request.POST.get('class_code')
+            
+            # Get school
+            school = get_object_or_404(School, id=school_id)
+            
+            # Get thinking coach if provided
+            thinking_coach = None
+            if thinking_coach_id:
+                User = get_user_model()
+                thinking_coach = User.objects.filter(id=thinking_coach_id, role='TEACHER').first()
+            
+            # Create class
+            new_class = Class(
+                school=school,
+                grade=grade,
+                division=division,
+                class_name=class_name,
+                academic_year=academic_year,
+                thinking_coach=thinking_coach,
+                total_sessions=int(total_sessions) if total_sessions else 48,
+                is_active=is_active,
+                student_visibility=student_visibility,
+                parent_visibility=parent_visibility,
+                created_by=request.user,
+            )
+            
+            # Let the model generate the class code if not provided
+            if class_code and class_code != 'CLS-YYYY-XX-001':
+                new_class.class_code = class_code
+            
+            new_class.save()
+            
+            messages.success(request, f'Class "{new_class.class_name}" created successfully!')
+            return redirect('class_list')
+            
+        except Exception as e:
+            messages.error(request, f'Error creating class: {str(e)}')
+    
+    # GET request - render form
+    schools = School.objects.filter(is_active=True)
+    
+    User = get_user_model()
+    coaches = User.objects.filter(role='TEACHER', is_active=True)
+    
+    context = {
+        'schools': schools,
+        'coaches': coaches,
+    }
+    return render(request, 'superadmin/add-class.html', context)
+
+
+@login_required
+@user_passes_test(is_superadmin)
+def edit_class(request, class_id):
+    """View to edit a class (AJAX endpoint)"""
+    from schools.models import Class
+    
+    class_obj = get_object_or_404(Class, id=class_id)
+    
+    if request.method == 'POST':
+        try:
+            # Update class data
+            school_id = request.POST.get('school')
+            if school_id:
+                class_obj.school = get_object_or_404(School, id=school_id)
+            
+            class_obj.grade = request.POST.get('grade', class_obj.grade)
+            class_obj.division = request.POST.get('division', class_obj.division).upper()
+            class_obj.class_name = request.POST.get('class_name') or f"Std {class_obj.grade}{class_obj.division}"
+            class_obj.academic_year = request.POST.get('academic_year', class_obj.academic_year)
+            class_obj.total_sessions = int(request.POST.get('total_sessions', class_obj.total_sessions))
+            
+            # Update thinking coach
+            thinking_coach_id = request.POST.get('thinking_coach')
+            if thinking_coach_id:
+                User = get_user_model()
+                class_obj.thinking_coach = User.objects.filter(id=thinking_coach_id, role='TEACHER').first()
+            else:
+                class_obj.thinking_coach = None
+            
+            # Update visibility settings
+            class_obj.is_active = request.POST.get('is_active') == 'true'
+            class_obj.student_visibility = request.POST.get('student_visibility') == 'true'
+            class_obj.parent_visibility = request.POST.get('parent_visibility') == 'true'
+            
+            class_obj.save()
+            
+            messages.success(request, f'Class "{class_obj.class_name}" updated successfully!')
+            
+        except Exception as e:
+            messages.error(request, f'Error updating class: {str(e)}')
+    
+    return redirect('class_list')
+
+
+@login_required
+@user_passes_test(is_superadmin)
+def delete_class(request, class_id):
+    """View to delete a class"""
+    from schools.models import Class
+    
+    class_obj = get_object_or_404(Class, id=class_id)
+    class_name = class_obj.class_name
+    
+    try:
+        class_obj.delete()
+        messages.success(request, f'Class "{class_name}" deleted successfully!')
+    except Exception as e:
+        messages.error(request, f'Error deleting class: {str(e)}')
+    
+    return redirect('class_list')
+
+
+# ==================== LESSON MANAGEMENT VIEWS ====================
+
+@login_required
+@user_passes_test(is_superadmin)
+def lesson_list(request):
+    """View to display all lessons"""
+    from .models import Lesson
+    
+    lessons = Lesson.objects.all()
+    schools = School.objects.filter(is_active=True)
+    
+    context = {
+        'lessons': lessons,
+        'schools': schools,
+    }
+    return render(request, 'superadmin/lesson-list.html', context)
+
+
+@login_required
+@user_passes_test(is_superadmin)
+def add_lesson(request):
+    """View to add a new lesson"""
+    from .models import Lesson
+    
+    if request.method == 'POST':
+        try:
+            # Get form data
+            title = request.POST.get('title')
+            description = request.POST.get('description')
+            competency = request.POST.get('competency')
+            level = request.POST.get('level', 'beginner')
+            module = request.POST.get('module')
+            applicable_grades = request.POST.get('applicable_grades')
+            status = request.POST.get('status', 'draft')
+            is_published = status == 'published'
+            recommend_low_competency = request.POST.get('recommend_low_competency') == 'true'
+            
+            # Create lesson
+            lesson = Lesson(
+                title=title,
+                description=description,
+                competency=competency,
+                level=level,
+                module=module,
+                applicable_grades=applicable_grades,
+                status=status,
+                is_published=is_published,
+                recommend_low_competency=recommend_low_competency,
+                created_by=request.user,
+            )
+            
+            # Handle thumbnail upload
+            if 'thumbnail' in request.FILES:
+                lesson.thumbnail = request.FILES['thumbnail']
+            
+            lesson.save()
+            
+            # Handle applicable schools (M2M)
+            school_id = request.POST.get('applicable_schools')
+            if school_id:
+                school = School.objects.filter(id=school_id).first()
+                if school:
+                    lesson.applicable_schools.add(school)
+            
+            messages.success(request, f'Lesson "{lesson.title}" created successfully!')
+            return redirect('lesson_list')
+            
+        except Exception as e:
+            messages.error(request, f'Error creating lesson: {str(e)}')
+    
+    # GET request - render form
+    schools = School.objects.filter(is_active=True)
+    
+    context = {
+        'schools': schools,
+    }
+    return render(request, 'superadmin/add-lessons.html', context)
+
+
+@login_required
+@user_passes_test(is_superadmin)
+def view_lesson(request, lesson_id):
+    """View to display a lesson in read-only mode"""
+    from .models import Lesson, LessonResource, LessonVideo
+    
+    lesson = get_object_or_404(Lesson, id=lesson_id)
+    resources = LessonResource.objects.filter(lesson=lesson)
+    videos = LessonVideo.objects.filter(lesson=lesson)
+    schools = School.objects.filter(is_active=True)
+    
+    context = {
+        'lesson': lesson,
+        'resources': resources,
+        'videos': videos,
+        'schools': schools,
+        'view_mode': True,  # Flag for read-only mode
+    }
+    return render(request, 'superadmin/view-lesson.html', context)
+
+
+@login_required
+@user_passes_test(is_superadmin)
+def edit_lesson(request, lesson_id):
+    """View to edit a lesson"""
+    from .models import Lesson, LessonResource, LessonVideo
+    
+    lesson = get_object_or_404(Lesson, id=lesson_id)
+    
+    if request.method == 'POST':
+        try:
+            lesson.title = request.POST.get('title', lesson.title)
+            lesson.description = request.POST.get('description', lesson.description)
+            lesson.competency = request.POST.get('competency', lesson.competency)
+            lesson.level = request.POST.get('level', lesson.level)
+            lesson.module = request.POST.get('module', lesson.module)
+            lesson.applicable_grades = request.POST.get('applicable_grades', lesson.applicable_grades)
+            
+            status = request.POST.get('status', lesson.status)
+            lesson.status = status
+            lesson.is_published = status == 'published'
+            lesson.recommend_low_competency = request.POST.get('recommend_low_competency') == 'true'
+            
+            if 'thumbnail' in request.FILES:
+                lesson.thumbnail = request.FILES['thumbnail']
+            
+            lesson.save()
+            
+            # Handle applicable schools (M2M)
+            school_id = request.POST.get('applicable_schools')
+            lesson.applicable_schools.clear()
+            if school_id:
+                school = School.objects.filter(id=school_id).first()
+                if school:
+                    lesson.applicable_schools.add(school)
+            
+            messages.success(request, f'Lesson "{lesson.title}" updated successfully!')
+            return redirect('lesson_list')
+            
+        except Exception as e:
+            messages.error(request, f'Error updating lesson: {str(e)}')
+    
+    # GET request - render edit form with lesson data
+    resources = LessonResource.objects.filter(lesson=lesson)
+    videos = LessonVideo.objects.filter(lesson=lesson)
+    schools = School.objects.filter(is_active=True)
+    
+    context = {
+        'lesson': lesson,
+        'resources': resources,
+        'videos': videos,
+        'schools': schools,
+        'edit_mode': True,  # Flag for edit mode
+    }
+    return render(request, 'superadmin/edit-lesson.html', context)
+
+
+@login_required
+@user_passes_test(is_superadmin)
+def delete_lesson(request, lesson_id):
+    """View to delete a lesson"""
+    from .models import Lesson
+    
+    lesson = get_object_or_404(Lesson, id=lesson_id)
+    lesson_title = lesson.title
+    
+    try:
+        lesson.delete()
+        messages.success(request, f'Lesson "{lesson_title}" deleted successfully!')
+    except Exception as e:
+        messages.error(request, f'Error deleting lesson: {str(e)}')
+    
+    return redirect('lesson_list')

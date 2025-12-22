@@ -919,6 +919,10 @@
 
 .no-results .material-symbols-outlined {
     font-size: 48px;
+    line-height: 1;
+    display: inline-block;
+    width: 48px;
+    height: 48px;
     color: #d2d2d7;
     margin-bottom: 12px;
 }

@@ -162,8 +162,10 @@ body {
 }
 
 .stat-icon .material-symbols-outlined {
-    font-size: 2rem;
+    /* font-size: 2rem; */
     color: white;
+    line-height: 1;
+    display: block;
 }
 
 .stat-icon.schools {
@@ -221,6 +223,7 @@ body {
 
 .stat-change .material-symbols-outlined {
     font-size: 1rem;
+    line-height: 1;
 }
 
 /* Card Styles */
@@ -484,6 +487,8 @@ body {
 .lms-stat-icon .material-symbols-outlined {
     font-size: 1.5rem;
     color: white;
+    line-height: 1;
+    display: block;
 }
 
 .lms-stat-icon.lessons {
@@ -736,8 +741,10 @@ body {
 }
 
 .quick-action-icon .material-symbols-outlined {
-    font-size: 2rem;
+    /* font-size: 2rem; */
     color: white;
+    line-height: 1;
+    display: block;
 }
 
 .quick-action-icon.schools {
@@ -837,6 +844,8 @@ body {
 .activity-icon .material-symbols-outlined {
     font-size: 1.5rem;
     color: white;
+    line-height: 1;
+    display: block;
 }
 
 .activity-icon.school {
@@ -1312,6 +1321,8 @@ body.dark .notification-item.unread {
     font-size: 1.5rem;
     color: white;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    line-height: 1;
+    display: block;
 }
 
 .notification-icon.bg-blue {
@@ -1901,6 +1912,8 @@ body.dark .profile-image-section {
 .profile-image-overlay .material-symbols-outlined {
     font-size: 3rem;
     color: white;
+    line-height: 1;
+    display: block;
 }
 
 .btn-upload-image {
@@ -2606,6 +2619,8 @@ body.dark .sidebar-dropdown-menu a.active {
   'FILL' 0,
   'wght' 400,
   'GRAD' 0,
-  'opsz' 24
+  'opsz' 24;
+  line-height: 1;
+  vertical-align: middle;
 }
 

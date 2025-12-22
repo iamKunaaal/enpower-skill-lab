@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import SuperAdmin, Student, Teacher, Parent
+from .models import SuperAdmin, Student, Teacher, Parent, Lesson, LessonResource, LessonVideo
 
 
 # SuperAdmin Model Admin
@@ -159,3 +159,91 @@ class ParentAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
+
+
+# Lesson Resource Inline
+class LessonResourceInline(admin.TabularInline):
+    model = LessonResource
+    extra = 0
+    fields = ('title', 'file', 'resource_type', 'file_size')
+    readonly_fields = ('file_size',)
+
+
+# Lesson Video Inline
+class LessonVideoInline(admin.TabularInline):
+    model = LessonVideo
+    extra = 0
+    fields = ('title', 'source', 'url', 'file', 'duration', 'order')
+
+
+# Lesson Model Admin
+@admin.register(Lesson)
+class LessonAdmin(admin.ModelAdmin):
+    list_display = ('title', 'competency', 'level', 'status', 'is_published', 'view_count', 'completion_count', 'created_at')
+    list_filter = ('status', 'level', 'is_published', 'primary_content_type', 'recommend_low_competency', 'created_at')
+    search_fields = ('title', 'description', 'competency', 'module')
+    readonly_fields = ('view_count', 'completion_count', 'created_at', 'updated_at', 'created_by')
+    filter_horizontal = ('applicable_schools',)
+    inlines = [LessonVideoInline, LessonResourceInline]
+
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('title', 'description', 'thumbnail')
+        }),
+        ('Assignment', {
+            'fields': ('competency', 'level', 'module')
+        }),
+        ('Lesson Context', {
+            'fields': ('applicable_schools', 'applicable_grades')
+        }),
+        ('Content', {
+            'fields': ('primary_content_type', 'video_urls', 'article_content', 'quiz_data'),
+            'classes': ('collapse',)
+        }),
+        ('Visibility & Status', {
+            'fields': ('status', 'is_published', 'recommend_low_competency')
+        }),
+        ('Metrics', {
+            'fields': ('view_count', 'completion_count'),
+            'classes': ('collapse',)
+        }),
+        ('Metadata', {
+            'fields': ('created_at', 'updated_at', 'created_by'),
+            'classes': ('collapse',)
+        }),
+    )
+
+    actions = ['publish_lessons', 'unpublish_lessons', 'archive_lessons']
+
+    def publish_lessons(self, request, queryset):
+        updated = queryset.update(status='published', is_published=True)
+        self.message_user(request, f'{updated} lesson(s) published.')
+    publish_lessons.short_description = "Publish selected lessons"
+
+    def unpublish_lessons(self, request, queryset):
+        updated = queryset.update(status='draft', is_published=False)
+        self.message_user(request, f'{updated} lesson(s) unpublished.')
+    unpublish_lessons.short_description = "Unpublish selected lessons"
+
+    def archive_lessons(self, request, queryset):
+        updated = queryset.update(status='archived', is_published=False)
+        self.message_user(request, f'{updated} lesson(s) archived.')
+    archive_lessons.short_description = "Archive selected lessons"
+
+
+# Lesson Resource Model Admin
+@admin.register(LessonResource)
+class LessonResourceAdmin(admin.ModelAdmin):
+    list_display = ('title', 'lesson', 'resource_type', 'file_size', 'created_at')
+    list_filter = ('resource_type', 'created_at')
+    search_fields = ('title', 'lesson__title')
+    readonly_fields = ('created_at',)
+
+
+# Lesson Video Model Admin
+@admin.register(LessonVideo)
+class LessonVideoAdmin(admin.ModelAdmin):
+    list_display = ('title', 'lesson', 'source', 'duration', 'order', 'created_at')
+    list_filter = ('source', 'created_at')
+    search_fields = ('title', 'lesson__title', 'url')
+    readonly_fields = ('created_at',)
