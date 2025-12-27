@@ -120,6 +120,12 @@ def school_admin_change_password(request):
                 profile = SchoolAdmin.objects.get(user=request.user)
                 profile.password_changed = True
                 profile.last_password_change = timezone.now()
+                
+                # Activate account if it was pending (first login password change)
+                if profile.account_status == 'pending':
+                    profile.account_status = 'active'
+                    profile.mark_first_login()
+                
                 profile.save()
             except SchoolAdmin.DoesNotExist:
                 pass

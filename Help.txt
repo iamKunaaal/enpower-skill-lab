@@ -3,7 +3,7 @@
 
 git status
 git add .
-git commit -m "Added Lesson Module"
+git commit -m "Seprated Models"
 git push origin main
 
 

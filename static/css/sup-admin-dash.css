@@ -3,17 +3,20 @@
 /* Super Admin Dashboard Styles */
 
 :root {
-    --primary-color: #3b82f6;
-    --primary-hover: #2563eb;
+    --primary: #5A1F6E;
+    --primary-light: rgba(90, 31, 110, 0.1);
+    --primary-lighter: rgba(90, 31, 110, 0.05);
+    --primary-color: #5A1F6E;
+    --primary-hover: rgba(90, 31, 110, 0.9);
     --success-color: #10b981;
     --warning-color: #f59e0b;
     --danger-color: #ef4444;
     --info-color: #06b6d4;
-    --purple-color: #8b5cf6;
+    --purple-color: #5A1F6E;
 
     --text-color: #1f2937;
     --text-secondary: #6b7280;
-    --background-color: #f9fafb;
+    --background-color: #f7f6f8;
     --card-background: #ffffff;
     --border-color: #e5e7eb;
 }
@@ -55,7 +58,7 @@ body {
     right: 0;
     width: 600px;
     height: 600px;
-    background: radial-gradient(circle, rgba(102, 126, 234, 0.08) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(90, 31, 110, 0.08) 0%, transparent 70%);
     pointer-events: none;
     z-index: 0;
 }
@@ -90,7 +93,7 @@ body {
 }
 
 .page-title-icon {
-    font-size: 2.5rem;
+    font-size: 1.5rem;
     color: var(--primary-color);
 }
 
@@ -169,19 +172,35 @@ body {
 }
 
 .stat-icon.schools {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--primary-light);
+}
+
+.stat-icon.schools .material-symbols-outlined {
+    color: var(--primary);
 }
 
 .stat-icon.teachers {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: var(--primary-light);
+}
+
+.stat-icon.teachers .material-symbols-outlined {
+    color: var(--primary);
 }
 
 .stat-icon.students {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    background: var(--primary-light);
+}
+
+.stat-icon.students .material-symbols-outlined {
+    color: var(--primary);
 }
 
 .stat-icon.active {
-    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    background: var(--primary-light);
+}
+
+.stat-icon.active .material-symbols-outlined {
+    color: var(--primary);
 }
 
 .stat-content {
@@ -244,7 +263,7 @@ body {
     left: 0;
     right: 0;
     height: 3px;
-    background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    background: var(--primary);
     opacity: 0;
     transition: opacity 0.4s ease;
 }
@@ -275,7 +294,7 @@ body {
     left: 0;
     right: 0;
     height: 2px;
-    background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.3), transparent);
+    background: linear-gradient(90deg, transparent, rgba(90, 31, 110, 0.3), transparent);
 }
 
 .card-title {
@@ -291,10 +310,7 @@ body {
 
 .card-title .material-symbols-outlined {
     font-size: 1.5rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--primary);
 }
 
 .card-header-actions {
@@ -323,10 +339,7 @@ body {
     font-weight: 600;
     text-decoration: none;
     transition: all 0.3s ease;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--primary);
     position: relative;
 }
 
@@ -391,7 +404,7 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
-    background: rgba(59, 130, 246, calc(var(--intensity) * 0.8));
+    background: rgba(90, 31, 110, calc(var(--intensity) * 0.8));
     color: white;
     border: 2px solid rgba(255, 255, 255, 0.2);
 }
@@ -441,12 +454,11 @@ body {
     height: 10px;
     border-radius: 5px;
     background: linear-gradient(90deg,
-        rgba(59, 130, 246, 0.1) 0%,
-        rgba(59, 130, 246, 0.3) 25%,
-        rgba(59, 130, 246, 0.5) 50%,
-        rgba(59, 130, 246, 0.7) 75%,
-        rgba(59, 130, 246, 0.9) 100%
-    );
+        rgba(90, 31, 110, 0.1) 0%,
+        rgba(90, 31, 110, 0.3) 25%,
+        rgba(90, 31, 110, 0.5) 50%,
+        rgba(90, 31, 110, 0.7) 75%,
+        rgba(90, 31, 110, 0.9) 100%);
 }
 
 /* LMS Stats */
@@ -492,19 +504,35 @@ body {
 }
 
 .lms-stat-icon.lessons {
-    background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+    background: var(--primary-light);
+}
+
+.lms-stat-icon.lessons .material-symbols-outlined {
+    color: var(--primary);
 }
 
 .lms-stat-icon.active-users {
-    background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+    background: var(--primary-light);
+}
+
+.lms-stat-icon.active-users .material-symbols-outlined {
+    color: var(--primary);
 }
 
 .lms-stat-icon.completion {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: var(--primary-light);
+}
+
+.lms-stat-icon.completion .material-symbols-outlined {
+    color: var(--primary);
 }
 
 .lms-stat-icon.time {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    background: var(--primary-light);
+}
+
+.lms-stat-icon.time .material-symbols-outlined {
+    color: var(--primary);
 }
 
 .lms-stat-content {
@@ -580,19 +608,19 @@ body {
 }
 
 .breakdown-fill[data-color="primary"] {
-    background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
+    background: var(--primary);
 }
 
 .breakdown-fill[data-color="success"] {
-    background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+    background: var(--primary);
 }
 
 .breakdown-fill[data-color="warning"] {
-    background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+    background: var(--primary);
 }
 
 .breakdown-fill[data-color="info"] {
-    background: linear-gradient(90deg, #06b6d4 0%, #0891b2 100%);
+    background: var(--primary);
 }
 
 .breakdown-percentage {
@@ -686,7 +714,7 @@ body {
 /* Quick Actions */
 .quick-actions-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
 }
 
@@ -748,27 +776,51 @@ body {
 }
 
 .quick-action-icon.schools {
-    background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+    background: var(--primary-light);
+}
+
+.quick-action-icon.schools .material-symbols-outlined {
+    color: var(--primary);
 }
 
 .quick-action-icon.admins {
-    background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+    background: var(--primary-light);
+}
+
+.quick-action-icon.admins .material-symbols-outlined {
+    color: var(--primary);
 }
 
 .quick-action-icon.lessons {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    background: var(--primary-light);
+}
+
+.quick-action-icon.lessons .material-symbols-outlined {
+    color: var(--primary);
 }
 
 .quick-action-icon.analytics {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: var(--primary-light);
+}
+
+.quick-action-icon.analytics .material-symbols-outlined {
+    color: var(--primary);
 }
 
 .quick-action-icon.settings {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    background: var(--primary-light);
+}
+
+.quick-action-icon.settings .material-symbols-outlined {
+    color: var(--primary);
 }
 
 .quick-action-icon.reports {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    background: var(--primary-light);
+}
+
+.quick-action-icon.reports .material-symbols-outlined {
+    color: var(--primary);
 }
 
 .quick-action-label {
@@ -849,19 +901,35 @@ body {
 }
 
 .activity-icon.school {
-    background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+    background: var(--primary-light);
+}
+
+.activity-icon.school .material-symbols-outlined {
+    color: var(--primary);
 }
 
 .activity-icon.admin {
-    background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+    background: var(--primary-light);
+}
+
+.activity-icon.admin .material-symbols-outlined {
+    color: var(--primary);
 }
 
 .activity-icon.lesson {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    background: var(--primary-light);
+}
+
+.activity-icon.lesson .material-symbols-outlined {
+    color: var(--primary);
 }
 
 .activity-icon.assessment {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: var(--primary-light);
+}
+
+.activity-icon.assessment .material-symbols-outlined {
+    color: var(--primary);
 }
 
 .activity-content {

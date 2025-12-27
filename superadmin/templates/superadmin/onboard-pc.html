@@ -1,0 +1,633 @@
+{% extends 'superadmin/base.html' %}
+{% load static %}
+
+{% block title %}Onboard Program Coordinator - Enpower Skill Lab{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/onboard-pc.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-page opc-dashboard-page">
+    <div class="opc-container">
+        <div class="opc-page-header">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h1>Onboard Program Coordinator</h1>
+                    <p>Fill in the coordinator details to onboard them to the system</p>
+                </div>
+                <button type="button" class="opc-btn opc-btn-next" id="autoFillBtn" style="display: flex;">
+                    <span class="material-symbols-outlined" style="font-size: 18px;">auto_fix_high</span>
+                    Auto Fill
+                </button>
+            </div>
+        </div>
+
+                    <!-- Progress Stepper -->
+                    <div class="opc-stepper">
+                        <div class="opc-step active">
+                            <div class="opc-step-icon">1</div>
+                            <div class="opc-step-label">Basic Info</div>
+                        </div>
+                        <div class="opc-step">
+                            <div class="opc-step-icon">2</div>
+                            <div class="opc-step-label">Professional</div>
+                        </div>
+                        <div class="opc-step">
+                            <div class="opc-step-icon">3</div>
+                            <div class="opc-step-label">Contact</div>
+                        </div>
+                        <div class="opc-step">
+                            <div class="opc-step-icon">4</div>
+                            <div class="opc-step-label">Address</div>
+                        </div>
+                        <div class="opc-step">
+                            <div class="opc-step-icon">5</div>
+                            <div class="opc-step-label">Compliance</div>
+                        </div>
+                        <div class="opc-step">
+                            <div class="opc-step-icon">6</div>
+                            <div class="opc-step-label">Assignment</div>
+                        </div>
+                        <div class="opc-step">
+                            <div class="opc-step-icon">7</div>
+                            <div class="opc-step-label">Bank Details</div>
+                        </div>
+                        <div class="opc-step">
+                            <div class="opc-step-icon">8</div>
+                            <div class="opc-step-label">Additional</div>
+                        </div>
+                    </div>
+
+                    <!-- Form -->
+                    <form id="coordinatorForm" method="POST" enctype="multipart/form-data" action="{% url 'onboard_coordinator' %}">{% csrf_token %}
+                        <!-- Step 1: Basic Information -->
+                        <div class="opc-form-section" id="step1">
+                            <h2>A. Basic Information</h2>
+
+                            <div class="opc-form-row full">
+                                <div class="opc-form-group">
+                                    <label>Profile Photo</label>
+                                    <div class="opc-photo-upload-container">
+                                        <div class="opc-photo-preview" id="photoPreview">
+                                            <span class="material-symbols-outlined">add_a_photo</span>
+                                            <span class="opc-photo-preview-text">Upload Photo</span>
+                                        </div>
+                                        <input type="file" id="profilePhoto" name="profilePhoto" accept="image/*"
+                                            class="opc-photo-input">
+                                        <button type="button" class="opc-upload-photo-btn" id="uploadPhotoBtn">
+                                            <span class="material-symbols-outlined">upload</span>
+                                            Choose Photo
+                                        </button>
+                                        <p class="opc-photo-hint">Passport size photograph (Square image, max 2MB)</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="opc-form-row">
+                                <div class="opc-form-group">
+                                    <label>Full Name (as per Aadhar card) <span class="required">*</span></label>
+                                    <input type="text" id="fullName" name="fullName" placeholder="Enter full name as per Aadhar"
+                                        required>
+                                    <span class="opc-error-message" id="fullNameError"></span>
+                                </div>
+                                <div class="opc-form-group">
+                                    <label>Gender <span class="required">*</span></label>
+                                    <select id="gender" name="gender" required>
+                                        <option value="">Select gender</option>
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                    <span class="opc-error-message" id="genderError"></span>
+                                </div>
+                            </div>
+
+                            <div class="opc-form-row">
+                                <div class="opc-form-group">
+                                    <label>Date of Birth <span class="required">*</span></label>
+                                    <input type="date" id="dateOfBirth" name="dateOfBirth" required>
+                                    <span class="opc-error-message" id="dateOfBirthError"></span>
+                                </div>
+                                <div class="opc-form-group">
+                                    <label>Age (auto-calculated)</label>
+                                    <input type="text" id="age" name="age" readonly placeholder="Age will be calculated">
+                                </div>
+                            </div>
+
+                            <div class="opc-form-row">
+                                <div class="opc-form-group">
+                                    <label>Blood Group</label>
+                                    <select id="bloodGroup" name="bloodGroup">
+                                        <option value="">Select blood group</option>
+                                        <option value="A+">A+</option>
+                                        <option value="A-">A-</option>
+                                        <option value="B+">B+</option>
+                                        <option value="B-">B-</option>
+                                        <option value="AB+">AB+</option>
+                                        <option value="AB-">AB-</option>
+                                        <option value="O+">O+</option>
+                                        <option value="O-">O-</option>
+                                    </select>
+                                </div>
+                                <div class="opc-form-group">
+                                    <label>Nationality <span class="required">*</span></label>
+                                    <input type="text" id="nationality" name="nationality" value="Indian" required>
+                                    <span class="opc-error-message" id="nationalityError"></span>
+                                </div>
+                            </div>
+
+                            <div class="opc-form-row">
+                                <div class="opc-form-group">
+                                    <label>Employee / Coach ID</label>
+                                    <input type="text" id="employeeId" name="employeeId" placeholder="e.g., PC001">
+                                </div>
+                                <div class="opc-form-group">
+                                    <label>Aadhar Number <span class="required">*</span></label>
+                                    <input type="text" id="aadharNumber" name="aadharNumber" placeholder="Enter 12-digit Aadhar number"
+                                        maxlength="12" required>
+                                    <span class="opc-error-message" id="aadharNumberError"></span>
+                                </div>
+                            </div>
+
+                            <div class="opc-form-row">
+                                <div class="opc-form-group">
+                                    <label>PAN Number <span class="required">*</span></label>
+                                    <input type="text" id="panNumber" name="panNumber" placeholder="e.g., ABCDE1234F"
+                                        maxlength="10" style="text-transform: uppercase;" required>
+                                    <span class="opc-error-message" id="panNumberError"></span>
+                                </div>
+                                <div class="opc-form-group">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Professional Details -->
+                        <div class="opc-form-section" id="step2" style="display: none;">
+                            <h2>B. Professional Details</h2>
+
+                            <div class="opc-form-row">
+                                <div class="opc-form-group">
+                                    <label>Designation <span class="required">*</span></label>
+                                    <select id="designation" name="designation" required>
+                                        <option value="">Select designation</option>
+                                        <option value="Program Coordinator">Program Coordinator</option>
+                                        <option value="Project Coordinator">Project Coordinator</option>
+                                    </select>
+                                    <span class="opc-error-message" id="designationError"></span>
+                                </div>
+                                <div class="opc-form-group">
+                                    <label>Qualification <span class="required">*</span></label>
+                                    <input type="text" id="qualification" name="qualification" placeholder="e.g., MBA, B.Tech"
+                                        required>
+                                    <span class="opc-error-message" id="qualificationError"></span>
+                                </div>
+                            </div>
+
+                            <div class="opc-form-row">
+                                <div class="opc-form-group">
+                                    <label>Specialization <span class="required">*</span></label>
+                                    <select id="specialization" name="specialization" required>
+                                        <option value="">Select specialization</option>
+                                        <option value="Operations">Operations</option>
+                                        <option value="Education">Education</option>
+                                        <option value="Project Management">Project Management</option>
+                                        <option value="Others">Others</option>
+                                    </select>
+                                    <span class="opc-error-message" id="specializationError"></span>
+                                </div>
+                                <div class="opc-form-group">
+                                    <label>Total Experience <span class="required">*</span></label>
+                                    <input type="text" id="totalExperience" name="totalExperience" placeholder="e.g., 5 Years 6 Months"
+                                        required>
+                                    <span class="opc-error-message" id="totalExperienceError"></span>
+                                </div>
+                            </div>
+
+                            <div class="opc-form-row">
+                                <div class="opc-form-group">
+                                    <label>Experience in Project / Program Management</label>
+                                    <input type="text" id="programManagementExp" name="programManagementExp" placeholder="e.g., 3 Years">
+                                </div>
+                                <div class="opc-form-group">
+                                    <label>Experience in Education / School Programs (Years)</label>
+                                    <input type="text" id="educationExp" name="educationExp" placeholder="e.g., 2 Years">
+                                </div>
+                            </div>
+
+                            <div class="opc-form-row full">
+                                <div class="opc-form-group">
+                                    <label>Previous Organizations</label>
+                                    <textarea id="previousOrganizations" name="previousOrganizations" placeholder="List previous organizations (one per line)"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="opc-form-row">
+                                <div class="opc-form-group">
+                                    <label>Languages Known <span class="required">*</span></label>
+                                    <input type="text" id="languagesKnown" name="languagesKnown" placeholder="e.g., English, Hindi, Tamil"
+                                        required>
+                                    <span class="opc-error-message" id="languagesKnownError"></span>
+                                </div>
+                                <div class="opc-form-group">
+                                    <label>Certifications (PMP / Agile / Operations / Education – if any)</label>
+                                    <input type="text" id="certifications" name="certifications" placeholder="e.g., PMP Certified, Agile Scrum Master">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Contact Information -->
+                        <div class="opc-form-section" id="step3" style="display: none;">
+                            <h2>C. Contact Information</h2>
+
+                            <div class="opc-form-row">
+                                <div class="opc-form-group">
+                                    <label>Mobile Number <span class="required">*</span></label>
+                                    <input type="tel" id="mobileNumber" name="mobileNumber" placeholder="+91 XXXXX XXXXX"
+                                        required maxlength="10">
+                                    <span class="opc-error-message" id="mobileNumberError"></span>
+                                </div>
+                                <div class="opc-form-group">
+                                    <label>Alternate Number</label>
+                                    <input type="tel" id="alternateNumber" name="alternateNumber"
+                                        placeholder="+91 XXXXX XXXXX" maxlength="10">
+                                    <span class="opc-error-message" id="alternateNumberError"></span>
+                                </div>
+                            </div>
+
+                            <div class="opc-form-row">
+                                <div class="opc-form-group">
+                                    <label>Official Email ID <span class="required">*</span></label>
+                                    <input type="email" id="officialEmail" name="officialEmail" placeholder="official@example.com"
+                                        required>
+                                    <span class="opc-error-message" id="officialEmailError"></span>
+                                </div>
+                                <div class="opc-form-group">
+                                    <label>Personal Email (optional)</label>
+                                    <input type="email" id="personalEmail" name="personalEmail" placeholder="personal@example.com">
+                                    <span class="opc-error-message" id="personalEmailError"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 4: Address Details -->
+                        <div class="opc-form-section" id="step4" style="display: none;">
+                            <h2>D. Address Details</h2>
+
+                            <div class="opc-form-row full">
+                                <div class="opc-form-group">
+                                    <label>Current Residential Address <span class="required">*</span></label>
+                                    <textarea id="currentAddress" name="currentAddress" placeholder="Enter complete current address" required></textarea>
+                                    <span class="opc-error-message" id="currentAddressError"></span>
+                                </div>
+                            </div>
+
+                            <div class="opc-form-row full">
+                                <div class="opc-form-group">
+                                    <label>Permanent Address</label>
+                                    <textarea id="permanentAddress" name="permanentAddress" placeholder="Enter complete permanent address (leave blank if same as current)"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="opc-form-row">
+                                <div class="opc-form-group">
+                                    <label>City <span class="required">*</span></label>
+                                    <input type="text" id="city" name="city" placeholder="City" required>
+                                    <span class="opc-error-message" id="cityError"></span>
+                                </div>
+                                <div class="opc-form-group">
+                                    <label>State <span class="required">*</span></label>
+                                    <input type="text" id="state" name="state" placeholder="State" required>
+                                    <span class="opc-error-message" id="stateError"></span>
+                                </div>
+                            </div>
+
+                            <div class="opc-form-row">
+                                <div class="opc-form-group">
+                                    <label>Pin Code <span class="required">*</span></label>
+                                    <input type="text" id="pincode" name="pincode" placeholder="6-digit PIN code"
+                                        maxlength="6" required>
+                                    <span class="opc-error-message" id="pincodeError"></span>
+                                </div>
+                                <div class="opc-form-group">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 5: Compliance & Documentation -->
+                        <div class="opc-form-section" id="step5" style="display: none;">
+                            <h2>E. Compliance & Documentation</h2>
+
+                            <div class="opc-form-row">
+                                <div class="opc-form-group">
+                                    <label>ID Proof Submitted <span class="required">*</span></label>
+                                    <select id="idProof" name="idProof" required>
+                                        <option value="">Select ID proof</option>
+                                        <option value="Aadhar">Aadhar</option>
+                                        <option value="PAN">PAN</option>
+                                        <option value="Both">Both (Aadhar & PAN)</option>
+                                    </select>
+                                    <span class="opc-error-message" id="idProofError"></span>
+                                </div>
+                                <div class="opc-form-group">
+                                    <label>Address Proof Submitted</label>
+                                    <select id="addressProof" name="addressProof">
+                                        <option value="">Select address proof</option>
+                                        <option value="Aadhar">Aadhar</option>
+                                        <option value="Utility Bill">Utility Bill</option>
+                                        <option value="Passport">Passport</option>
+                                        <option value="Rental Agreement">Rental Agreement</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="opc-form-row">
+                                <div class="opc-form-group">
+                                    <label>Police Verification Status</label>
+                                    <select id="policeVerification" name="policeVerification">
+                                        <option value="">Select status</option>
+                                        <option value="Pending">Pending</option>
+                                        <option value="In Progress">In Progress</option>
+                                        <option value="Completed">Completed</option>
+                                        <option value="Not Required">Not Required</option>
+                                    </select>
+                                </div>
+                                <div class="opc-form-group">
+                                    <label>Passport Size Photograph Uploaded</label>
+                                    <select id="passportPhotoUploaded" name="passportPhotoUploaded">
+                                        <option value="">Select option</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="opc-form-row">
+                                <div class="opc-form-group">
+                                    <label>Signed Contract Uploaded</label>
+                                    <select id="contractUploaded" name="contractUploaded">
+                                        <option value="">Select option</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                    </select>
+                                </div>
+                                <div class="opc-form-group">
+                                    <label>PAN Linked with Aadhar</label>
+                                    <select id="panAadharLinked" name="panAadharLinked">
+                                        <option value="">Select option</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="opc-form-row full">
+                                <div class="opc-form-group">
+                                    <label>Upload your latest resume (pdf / word format)</label>
+                                    <div class="opc-file-upload-wrapper">
+                                        <input type="file" id="resumeUpload" name="resumeUpload" accept=".pdf,.doc,.docx" class="opc-file-input">
+                                        <button type="button" class="opc-file-upload-btn" onclick="document.getElementById('resumeUpload').click()">
+                                            <span class="material-symbols-outlined">upload_file</span>
+                                            Choose Resume File
+                                        </button>
+                                        <div class="opc-file-name" id="resumeFileName">No file chosen</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="opc-form-row">
+                                <div class="opc-form-group">
+                                    <label>NDA / Confidentiality Agreement Signed (optional)</label>
+                                    <select id="ndaSigned" name="ndaSigned">
+                                        <option value="">Select option</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                        <option value="Not Required">Not Required</option>
+                                    </select>
+                                </div>
+                                <div class="opc-form-group">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 6: Program & Work Assignment Details -->
+                        <div class="opc-form-section" id="step6" style="display: none;">
+                            <h2>F. Program & Work Assignment Details</h2>
+
+                            <div class="opc-form-row">
+                                <div class="opc-form-group">
+                                    <label>Program Assigned <span class="required">*</span></label>
+                                    <select id="programAssigned" name="programAssigned" required>
+                                        <option value="">Select program</option>
+                                        <option value="CSL">CSL</option>
+                                        <option value="CSL+">CSL+</option>
+                                        <option value="Idea Lab Aff">Idea Lab Aff</option>
+                                        <option value="Idea Lab Certf">Idea Lab Certf</option>
+                                    </select>
+                                    <span class="opc-error-message" id="programAssignedError"></span>
+                                </div>
+                                <div class="opc-form-group">
+                                    <label>Zone Assigned</label>
+                                    <input type="text" id="zoneAssigned" name="zoneAssigned" placeholder="e.g., North Zone, South Zone">
+                                </div>
+                            </div>
+
+                            <div class="opc-form-row full">
+                                <div class="opc-form-group">
+                                    <label>Schools Assigned <span class="required">*</span></label>
+                                    <div class="opc-multi-select-container">
+                                        <div class="opc-selected-items" id="selectedSchools">
+                                            <span class="placeholder">Select schools to assign (Single / Multiple)</span>
+                                        </div>
+                                        <div class="opc-multi-select-dropdown" id="schoolsDropdown">
+                                            <div class="opc-search-box">
+                                                <input type="text" id="schoolSearch" placeholder="Search schools...">
+                                            </div>
+                                            <div class="opc-options-list">
+                                                {% for school in schools %}
+                                                <label class="opc-checkbox-option">
+                                                    <input type="checkbox" name="schools" value="{{ school.id }}">
+                                                    <span>{{ school.school_name }}{% if school.branch_name %} - {{ school.branch_name }}{% endif %}</span>
+                                                </label>
+                                                {% empty %}
+                                                <p class="no-schools-message">No schools available. Please add schools first.</p>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <span class="opc-error-message" id="schoolsError"></span>
+                                </div>
+                            </div>
+
+                            <div class="opc-form-row">
+                                <div class="opc-form-group">
+                                    <label>Branch / Region</label>
+                                    <input type="text" id="branchRegion" name="branchRegion" placeholder="e.g., Delhi NCR, Mumbai">
+                                </div>
+                                <div class="opc-form-group">
+                                    <label>Reporting Manager</label>
+                                    <input type="text" id="reportingManager" name="reportingManager" placeholder="Manager name">
+                                </div>
+                            </div>
+
+                            <div class="opc-form-row">
+                                <div class="opc-form-group">
+                                    <label>Dashboard Login Role & Permissions</label>
+                                    <select id="loginRole" name="loginRole">
+                                        <option value="">Select role</option>
+                                        <option value="Program Coordinator">Program Coordinator</option>
+                                        <option value="Project Coordinator">Project Coordinator</option>
+                                        <option value="Senior Coordinator">Senior Coordinator</option>
+                                    </select>
+                                </div>
+                                <div class="opc-form-group">
+                                    <label>Joining Date <span class="required">*</span></label>
+                                    <input type="date" id="joiningDate" name="joiningDate" required>
+                                    <span class="opc-error-message" id="joiningDateError"></span>
+                                </div>
+                            </div>
+
+                            <div class="opc-form-row">
+                                <div class="opc-form-group">
+                                    <label>Employment Type <span class="required">*</span></label>
+                                    <select id="employmentType" name="employmentType" required>
+                                        <option value="">Select employment type</option>
+                                        <option value="Full-time">Full-time</option>
+                                        <option value="Contract">Contract</option>
+                                        <option value="Consultant">Consultant</option>
+                                    </select>
+                                    <span class="opc-error-message" id="employmentTypeError"></span>
+                                </div>
+                                <div class="opc-form-group">
+                                </div>
+                            </div>
+
+                            <div class="opc-form-row">
+                                <div class="opc-form-group">
+                                    <label>Contract Start Date</label>
+                                    <input type="date" id="contractStartDate" name="contractStartDate">
+                                </div>
+                                <div class="opc-form-group">
+                                    <label>Contract End Date</label>
+                                    <input type="date" id="contractEndDate" name="contractEndDate">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 7: Bank & Payroll Details -->
+                        <div class="opc-form-section" id="step7" style="display: none;">
+                            <h2>G. Bank & Payroll Details</h2>
+
+                            <div class="opc-form-row">
+                                <div class="opc-form-group">
+                                    <label>Bank Name <span class="required">*</span></label>
+                                    <input type="text" id="bankName" name="bankName" placeholder="e.g., HDFC Bank, ICICI Bank" required>
+                                    <span class="opc-error-message" id="bankNameError"></span>
+                                </div>
+                                <div class="opc-form-group">
+                                    <label>Branch Name <span class="required">*</span></label>
+                                    <input type="text" id="branchName" name="branchName" placeholder="e.g., MG Road Branch" required>
+                                    <span class="opc-error-message" id="branchNameError"></span>
+                                </div>
+                            </div>
+
+                            <div class="opc-form-row">
+                                <div class="opc-form-group">
+                                    <label>Bank Account Number <span class="required">*</span></label>
+                                    <input type="text" id="accountNumber" name="accountNumber" placeholder="Enter account number" required>
+                                    <span class="opc-error-message" id="accountNumberError"></span>
+                                </div>
+                                <div class="opc-form-group">
+                                    <label>IFSC Code <span class="required">*</span></label>
+                                    <input type="text" id="ifscCode" name="ifscCode" placeholder="e.g., HDFC0001234"
+                                        maxlength="11" style="text-transform: uppercase;" required>
+                                    <span class="opc-error-message" id="ifscCodeError"></span>
+                                </div>
+                            </div>
+
+                            <div class="opc-form-row full">
+                                <div class="opc-form-group">
+                                    <label>Bank Passbook / Cancelled Cheque Copy</label>
+                                    <div class="opc-file-upload-wrapper">
+                                        <input type="file" id="bankProofUpload" name="bankProofUpload" accept=".pdf,.jpg,.jpeg,.png" class="opc-file-input">
+                                        <button type="button" class="opc-file-upload-btn" onclick="document.getElementById('bankProofUpload').click()">
+                                            <span class="material-symbols-outlined">upload_file</span>
+                                            Choose Bank Proof File
+                                        </button>
+                                        <div class="opc-file-name" id="bankProofFileName">No file chosen</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 8: Additional Optional Data -->
+                        <div class="opc-form-section" id="step8" style="display: none;">
+                            <h2>H. Additional Optional Data</h2>
+
+                            <div class="opc-form-row full">
+                                <div class="opc-form-group">
+                                    <label>Strength Areas</label>
+                                    <textarea id="strengthAreas" name="strengthAreas" placeholder="e.g., Team Management, Communication, Problem Solving"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="opc-form-row full">
+                                <div class="opc-form-group">
+                                    <label>Hobbies / Interests</label>
+                                    <textarea id="hobbies" name="hobbies" placeholder="e.g., Reading, Sports, Music"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="opc-form-row">
+                                <div class="opc-form-group">
+                                    <label>Preferred Work Style</label>
+                                    <select id="workStyle" name="workStyle">
+                                        <option value="">Select work style</option>
+                                        <option value="Field">Field</option>
+                                        <option value="Remote">Remote</option>
+                                        <option value="Hybrid">Hybrid</option>
+                                    </select>
+                                </div>
+                                <div class="opc-form-group">
+                                    <label>Tools Comfortable With</label>
+                                    <input type="text" id="toolsComfortable" name="toolsComfortable" placeholder="e.g., Google Sheets, Dashboards, PM Tools">
+                                </div>
+                            </div>
+
+                            <div class="opc-form-row full">
+                                <div class="opc-form-group">
+                                    <label>Achievements & Recognition</label>
+                                    <textarea id="achievements" name="achievements" placeholder="List any achievements, awards, or recognition received"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="opc-form-row full">
+                                <div class="opc-form-group">
+                                    <label>Career Aspirations</label>
+                                    <textarea id="careerAspirations" name="careerAspirations" placeholder="Your career goals and aspirations"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="opc-form-actions">
+                            <button type="button" class="opc-btn opc-btn-back" id="backBtn" style="display: none;">
+                                <span class="opc-arrow">←</span>
+                                Back
+                            </button>
+                            <button type="button" class="opc-btn opc-btn-next" id="nextBtn">
+                                Next
+                                <span class="opc-arrow">→</span>
+                            </button>
+                            <button type="submit" class="opc-btn opc-btn-submit" id="submitBtn" style="display: none;">
+                                Submit
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/onboard-pc.js' %}"></script>
+{% endblock %}

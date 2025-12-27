@@ -11,9 +11,11 @@
 
 /* Dashboard Layout - Override base styles for add-class page */
 .dashboard-page {
-    padding: 0 !important;
+    /* padding: 0 !important; */
     background: #f9fafb !important;
     min-height: 100vh;
+    padding-top: 0px;
+  
 }
 
 .dashboard-page::before {

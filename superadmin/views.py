@@ -754,7 +754,7 @@ def onboard_student(request):
     """View for onboarding new students"""
     if request.method == 'POST':
         try:
-            from .models import Student
+            from student.models import Student
             import uuid
             from datetime import date
             import secrets
@@ -934,7 +934,7 @@ ENpower Skill Lab Team
 @user_passes_test(is_superadmin)
 def student_list(request):
     """View to display list of all students"""
-    from .models import Student
+    from student.models import Student
     import random
     
     # Get all students
@@ -955,7 +955,7 @@ def student_list(request):
 @user_passes_test(is_superadmin)
 def view_student(request, student_id):
     """View to display student details"""
-    from .models import Student
+    from student.models import Student
     student = get_object_or_404(Student, id=student_id)
     context = {
         'student': student
@@ -967,7 +967,7 @@ def view_student(request, student_id):
 @user_passes_test(is_superadmin)
 def edit_student(request, student_id):
     """View to edit student details"""
-    from .models import Student
+    from student.models import Student
     student = get_object_or_404(Student, id=student_id)
     
     if request.method == 'POST':
@@ -1301,7 +1301,7 @@ def delete_teacher(request, teacher_id):
 @user_passes_test(is_superadmin)
 def delete_student(request, student_id):
     """View to delete a student"""
-    from .models import Student
+    from student.models import Student
     student = get_object_or_404(Student, id=student_id)
     student_name = f"{student.first_name} {student.last_name}"
     
@@ -1320,7 +1320,7 @@ def delete_student(request, student_id):
 @user_passes_test(is_superadmin)
 def parent_list(request):
     """View to display list of all parents"""
-    from .models import Parent
+    from parent.models import Parent
     parents = Parent.objects.prefetch_related('students').all().order_by('-created_at')
 
     # Add helper properties for each parent
@@ -1342,7 +1342,7 @@ def parent_list(request):
 @user_passes_test(is_superadmin)
 def onboard_parent(request):
     """View to handle parent onboarding form"""
-    from .models import Parent
+    from parent.models import Parent
 
     if request.method == 'POST':
         try:
@@ -1444,7 +1444,7 @@ def onboard_parent(request):
             student_ids = request.POST.getlist('students')
             linked_students = []
             if student_ids:
-                from .models import Student
+                from student.models import Student
                 students = Student.objects.filter(id__in=student_ids)
                 parent.students.set(students)
                 linked_students = [s.full_name for s in students]
@@ -1501,7 +1501,7 @@ ENpower Skill Lab Team
             messages.error(request, f'Error onboarding parent: {str(e)}')
     
     # GET request - pass students to template
-    from .models import Student
+    from student.models import Student
     students = Student.objects.all().order_by('first_name', 'last_name')
     context = {
         'students': students
@@ -1513,7 +1513,7 @@ ENpower Skill Lab Team
 @user_passes_test(is_superadmin)
 def view_parent(request, parent_id):
     """View to display parent details"""
-    from .models import Parent
+    from parent.models import Parent
     parent = get_object_or_404(Parent, id=parent_id)
 
     # Assign badge color
@@ -1530,7 +1530,7 @@ def view_parent(request, parent_id):
 @user_passes_test(is_superadmin)
 def edit_parent(request, parent_id):
     """View to edit parent details"""
-    from .models import Parent
+    from parent.models import Parent
     parent = get_object_or_404(Parent, id=parent_id)
 
     if request.method == 'POST':
@@ -1618,7 +1618,7 @@ def edit_parent(request, parent_id):
 @user_passes_test(is_superadmin)
 def delete_parent(request, parent_id):
     """View to delete a parent"""
-    from .models import Parent
+    from parent.models import Parent
     parent = get_object_or_404(Parent, id=parent_id)
     parent_name = parent.full_name
     
@@ -1629,6 +1629,131 @@ def delete_parent(request, parent_id):
         messages.error(request, f'Error deleting parent: {str(e)}')
     
     return redirect('parent_list')
+
+
+# ==================== PROGRAM COORDINATOR VIEWS ====================
+
+@login_required
+@user_passes_test(is_superadmin)
+def onboard_coordinator(request):
+    """View to handle program coordinator onboarding form"""
+    from coordinator.models import ProgramCoordinator
+    
+    if request.method == 'POST':
+        try:
+            data = request.POST
+            files = request.FILES
+            
+            # Helper function to handle empty date strings
+            def parse_date(date_str):
+                if date_str and date_str.strip():
+                    return date_str
+                return None
+            
+            # Create coordinator instance
+            coordinator = ProgramCoordinator(
+                # Basic Information
+                full_name=data.get('fullName', ''),
+                gender=data.get('gender', ''),
+                date_of_birth=parse_date(data.get('dateOfBirth')),
+                blood_group=data.get('bloodGroup', '') or None,
+                nationality=data.get('nationality', 'Indian'),
+                employee_id=data.get('employeeId', '').strip() or None,
+                aadhar_number=data.get('aadharNumber', ''),
+                pan_number=data.get('panNumber', '').upper(),
+                
+                # Professional Details
+                designation=data.get('designation', ''),
+                qualification=data.get('qualification', ''),
+                specialization=data.get('specialization', ''),
+                total_experience=data.get('totalExperience', ''),
+                program_management_exp=data.get('programManagementExp', '') or None,
+                education_exp=data.get('educationExp', '') or None,
+                previous_organizations=data.get('previousOrganizations', '') or None,
+                languages_known=data.get('languagesKnown', ''),
+                certifications=data.get('certifications', '') or None,
+                
+                # Contact Information
+                mobile_number=data.get('mobileNumber', ''),
+                alternate_number=data.get('alternateNumber', '') or None,
+                official_email=data.get('officialEmail', ''),
+                personal_email=data.get('personalEmail', '') or None,
+                
+                # Address Details
+                current_address=data.get('currentAddress', ''),
+                permanent_address=data.get('permanentAddress', '') or None,
+                city=data.get('city', ''),
+                state=data.get('state', ''),
+                pincode=data.get('pincode', ''),
+                
+                # Compliance & Documentation
+                id_proof=data.get('idProof', '') or None,
+                address_proof=data.get('addressProof', '') or None,
+                police_verification=data.get('policeVerification') or 'Pending',
+                passport_photo_uploaded=data.get('passportPhotoUploaded') or 'No',
+                contract_uploaded=data.get('contractUploaded') or 'No',
+                pan_aadhar_linked=data.get('panAadharLinked') or 'No',
+                nda_signed=data.get('ndaSigned') or 'No',
+                
+                # Program & Work Assignment Details
+                program_assigned=data.get('programAssigned', '') or None,
+                zone_assigned=data.get('zoneAssigned', '') or None,
+                branch_region=data.get('branchRegion', '') or None,
+                reporting_manager=data.get('reportingManager', '') or None,
+                login_role=data.get('loginRole', '') or None,
+                joining_date=parse_date(data.get('joiningDate')),
+                employment_type=data.get('employmentType', ''),
+                contract_start_date=parse_date(data.get('contractStartDate')),
+                contract_end_date=parse_date(data.get('contractEndDate')),
+                
+                # Bank & Payroll Details
+                bank_name=data.get('bankName', ''),
+                branch_name=data.get('branchName', ''),
+                account_number=data.get('accountNumber', ''),
+                ifsc_code=data.get('ifscCode', '').upper(),
+                
+                # Additional Optional Data
+                strength_areas=data.get('strengthAreas', '') or None,
+                hobbies=data.get('hobbies', '') or None,
+                work_style=data.get('workStyle', '') or None,
+                tools_comfortable=data.get('toolsComfortable', '') or None,
+                achievements=data.get('achievements', '') or None,
+                career_aspirations=data.get('careerAspirations', '') or None,
+                
+                # Metadata
+                created_by=request.user,
+            )
+            
+            # Handle file uploads
+            if 'profilePhoto' in files:
+                coordinator.profile_photo = files['profilePhoto']
+            if 'resumeUpload' in files:
+                coordinator.resume = files['resumeUpload']
+            if 'bankProofUpload' in files:
+                coordinator.bank_proof = files['bankProofUpload']
+            
+            coordinator.save()
+            
+            # Handle schools assignment (ManyToMany)
+            school_ids = data.getlist('schools')
+            if school_ids:
+                # Filter to only valid integer IDs
+                valid_ids = [int(sid) for sid in school_ids if sid.isdigit()]
+                if valid_ids:
+                    coordinator.schools_assigned.set(School.objects.filter(id__in=valid_ids))
+            
+            messages.success(request, f'Program Coordinator "{coordinator.full_name}" onboarded successfully!')
+            return redirect('superadmin_dashboard')
+            
+        except Exception as e:
+            messages.error(request, f'Error onboarding coordinator: {str(e)}')
+    
+    # GET request - pass schools to template
+    schools = School.objects.filter(is_active=True).order_by('school_name')
+    context = {
+        'schools': schools
+    }
+    return render(request, 'superadmin/onboard-pc.html', context)
 
 
 # ==================== CLASS MANAGEMENT VIEWS ====================
@@ -1691,8 +1816,10 @@ def add_class(request):
             # Get thinking coach if provided
             thinking_coach = None
             if thinking_coach_id:
-                User = get_user_model()
-                thinking_coach = User.objects.filter(id=thinking_coach_id, role='TEACHER').first()
+                from .models import Teacher
+                teacher = Teacher.objects.filter(id=thinking_coach_id).first()
+                if teacher:
+                    thinking_coach = teacher.user
             
             # Create class
             new_class = Class(
@@ -1724,8 +1851,15 @@ def add_class(request):
     # GET request - render form
     schools = School.objects.filter(is_active=True)
     
-    User = get_user_model()
-    coaches = User.objects.filter(role='TEACHER', is_active=True)
+    # Get teachers (thinking coaches) from Teacher model
+    from .models import Teacher
+    # Get ALL teachers (remove filters to see everyone)
+    coaches = Teacher.objects.all().select_related('user')
+    
+    # Debug: Print the coaches to console
+    print(f"Found {coaches.count()} teachers:")
+    for coach in coaches:
+        print(f"  - ID: {coach.id}, Name: {coach.full_name}, User: {coach.user.username if coach.user else 'No User'}, User Active: {coach.user.is_active if coach.user else 'N/A'}")
     
     context = {
         'schools': schools,
@@ -1802,7 +1936,7 @@ def delete_class(request, class_id):
 @user_passes_test(is_superadmin)
 def lesson_list(request):
     """View to display all lessons"""
-    from .models import Lesson
+    from lms.models import Lesson
     
     lessons = Lesson.objects.all()
     schools = School.objects.filter(is_active=True)
@@ -1818,7 +1952,7 @@ def lesson_list(request):
 @user_passes_test(is_superadmin)
 def add_lesson(request):
     """View to add a new lesson"""
-    from .models import Lesson
+    from lms.models import Lesson
     
     if request.method == 'POST':
         try:
@@ -1879,7 +2013,7 @@ def add_lesson(request):
 @user_passes_test(is_superadmin)
 def view_lesson(request, lesson_id):
     """View to display a lesson in read-only mode"""
-    from .models import Lesson, LessonResource, LessonVideo
+    from lms.models import Lesson, LessonResource, LessonVideo
     
     lesson = get_object_or_404(Lesson, id=lesson_id)
     resources = LessonResource.objects.filter(lesson=lesson)
@@ -1900,7 +2034,7 @@ def view_lesson(request, lesson_id):
 @user_passes_test(is_superadmin)
 def edit_lesson(request, lesson_id):
     """View to edit a lesson"""
-    from .models import Lesson, LessonResource, LessonVideo
+    from lms.models import Lesson, LessonResource, LessonVideo
     
     lesson = get_object_or_404(Lesson, id=lesson_id)
     
@@ -1956,7 +2090,7 @@ def edit_lesson(request, lesson_id):
 @user_passes_test(is_superadmin)
 def delete_lesson(request, lesson_id):
     """View to delete a lesson"""
-    from .models import Lesson
+    from lms.models import Lesson
     
     lesson = get_object_or_404(Lesson, id=lesson_id)
     lesson_title = lesson.title

@@ -122,7 +122,7 @@
                         <select id="accountStatus" name="account_status" class="form-input">
                             <option value="active" {% if admin.account_status == 'active' %}selected{% endif %}>Active</option>
                             <option value="pending" {% if admin.account_status == 'pending' %}selected{% endif %}>Pending</option>
-                            <option value="inactive" {% if admin.account_status == 'inactive' %}selected{% endif %}>Inactive</option>
+                            <option value="suspended" {% if admin.account_status == 'suspended' %}selected{% endif %}>Suspended</option>
                         </select>
                     </div>
 

@@ -26,6 +26,7 @@ urlpatterns = [
     path('teacher/<int:teacher_id>/edit/', views.edit_teacher, name='edit_teacher'),
     path('teacher/<int:teacher_id>/delete/', views.delete_teacher, name='delete_teacher'),
     path('onboard-parent/', views.onboard_parent, name='onboard_parent'),
+    path('onboard-coordinator/', views.onboard_coordinator, name='onboard_coordinator'),
     path('parents/', views.parent_list, name='parent_list'),
     path('parent/<int:parent_id>/', views.view_parent, name='view_parent'),
     path('parent/<int:parent_id>/edit/', views.edit_parent, name='edit_parent'),

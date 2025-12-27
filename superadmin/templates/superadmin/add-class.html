@@ -173,7 +173,7 @@
                                 <select class="form-select-custom form-control-with-icon-left" id="coach" name="thinking_coach">
                                     <option value="">Select a Thinking Coach...</option>
                                     {% for coach in coaches %}
-                                    <option value="{{ coach.id }}">{{ coach.get_full_name|default:coach.username }}</option>
+                                    <option value="{{ coach.id }}">{{ coach.full_name|default:coach.user.username }}</option>
                                     {% endfor %}
                                 </select>
                             </div>

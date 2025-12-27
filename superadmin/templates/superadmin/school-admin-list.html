@@ -67,6 +67,8 @@
                   <span class="control-pill status-active">Active</span>
                   {% elif admin.account_status == 'pending' %}
                   <span class="control-pill status-pending">Pending</span>
+                  {% elif admin.account_status == 'suspended' %}
+                  <span class="control-pill status-suspended">Suspended</span>
                   {% else %}
                   <span class="control-pill status-inactive">Inactive</span>
                   {% endif %}

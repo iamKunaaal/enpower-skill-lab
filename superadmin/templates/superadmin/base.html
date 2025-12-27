@@ -113,7 +113,7 @@
                             <span class="material-symbols-outlined">supervisor_account</span>
                             Program Coordinators
                         </a>
-                        <a href="onboard-pc.html" id="nav-add-program-coordinators">
+                        <a href="{% url 'onboard_coordinator' %}" id="nav-add-program-coordinators">
                             <span class="material-symbols-outlined">person_add</span>
                             Onboard Program Coordinators
                         </a>
@@ -164,14 +164,14 @@
                             <span class="material-symbols-outlined">add</span>
                             Add Class
                         </a>
-                        <a href="bulk-import-classes.html" id="nav-bulk-import-classes">
+                        {% comment %} <a href="bulk-import-classes.html" id="nav-bulk-import-classes">
                             <span class="material-symbols-outlined">upload_file</span>
                             Bulk Import Classes
-                        </a>
-                        <a href="archive-classes.html" id="nav-archive-classes">
+                        </a> {% endcomment %}
+                        {% comment %} <a href="archive-classes.html" id="nav-archive-classes">
                             <span class="material-symbols-outlined">archive</span>
                             Archive Classes
-                        </a>
+                        </a> {% endcomment %}
                     </div>
                 </div>
 
