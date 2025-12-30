@@ -20,7 +20,15 @@
         opacity: 0.7;
     }
     .al-lesson-tabs button {
-        pointer-events: none;
+        pointer-events: auto;
+        cursor: pointer;
+    }
+    /* Content panel visibility */
+    .vl-content-panel {
+        display: none !important;
+    }
+    .vl-content-panel.active {
+        display: block !important;
     }
     .al-switch.disabled {
         pointer-events: none;
@@ -153,80 +161,203 @@
                 <div class="al-card-box">
                     <h5 class="fw-bold mb-4">Learning Content</h5>
 
-                    <!-- Content Type Tabs (Visual only) -->
+                    <!-- Content Type Tabs - Show only relevant tabs based on primary content type -->
                     <div class="al-lesson-tabs mb-4">
-                        <button type="button" class="{% if lesson.primary_content_type == 'video' %}active{% endif %}">
+                        {% if lesson.primary_content_type == 'video' or not lesson.primary_content_type %}
+                        <button type="button" class="active" data-content-type="video">
                             <span class="material-symbols-outlined">play_circle</span>
                             Video
                         </button>
-                        <button type="button" class="{% if lesson.primary_content_type == 'article' %}active{% endif %}">
+                        {% if resources %}
+                        <button type="button" data-content-type="mixed">
+                            <span class="material-symbols-outlined">upload_file</span>
+                            Resources
+                        </button>
+                        {% endif %}
+                        {% elif lesson.primary_content_type == 'article' %}
+                        <button type="button" class="active" data-content-type="article">
                             <span class="material-symbols-outlined">article</span>
                             Article
                         </button>
-                        <button type="button" class="{% if lesson.primary_content_type == 'quiz' %}active{% endif %}">
+                        {% if resources %}
+                        <button type="button" data-content-type="mixed">
+                            <span class="material-symbols-outlined">upload_file</span>
+                            Resources
+                        </button>
+                        {% endif %}
+                        {% elif lesson.primary_content_type == 'quiz' %}
+                        <button type="button" class="active" data-content-type="quiz">
                             <span class="material-symbols-outlined">quiz</span>
                             Quiz
                         </button>
-                        <button type="button" class="{% if lesson.primary_content_type == 'resources' %}active{% endif %}">
-                            <span class="material-symbols-outlined">folder_open</span>
+                        {% elif lesson.primary_content_type == 'mixed' %}
+                        <button type="button" class="active" data-content-type="mixed">
+                            <span class="material-symbols-outlined">upload_file</span>
                             Resources
                         </button>
+                        {% endif %}
                     </div>
 
                     <!-- Content Display -->
-                    <div class="vl-content-display">
-                        {% if lesson.video_url %}
-                        <div class="mb-3">
-                            <label class="al-form-label">Video URL</label>
-                            <input type="text" class="al-form-control" value="{{ lesson.video_url }}" readonly>
+                    <div id="vlContentDisplay" class="vl-content-display">
+                        {% if lesson.primary_content_type == 'video' or not lesson.primary_content_type %}
+                        <!-- Video Content -->
+                        <div id="vlVideoContent" class="vl-content-panel active">
+                            {% if video_urls_list %}
+                            <div class="mb-3">
+                                <label class="al-form-label">Video URLs</label>
+                                <ul class="list-group">
+                                    {% for video_url in video_urls_list %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span class="text-truncate" style="max-width: 70%;">{{ video_url }}</span>
+                                        <a href="{{ video_url }}" target="_blank" class="btn btn-sm btn-outline-primary">Watch</a>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% endif %}
+                            {% if videos %}
+                            <div class="mb-3">
+                                <label class="al-form-label">Uploaded Videos</label>
+                                <ul class="list-group">
+                                    {% for video in videos %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>{{ video.title }}</span>
+                                        <a href="{{ video.url }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% endif %}
+                            {% if not video_urls_list and not videos %}
+                            <div class="text-center text-muted py-4">
+                                <span class="material-symbols-outlined" style="font-size: 48px; opacity: 0.5;">videocam_off</span>
+                                <p class="mt-2 mb-0">No video content added yet.</p>
+                            </div>
+                            {% endif %}
                         </div>
-                        {% endif %}
-                        
-                        {% if lesson.article_content %}
-                        <div class="mb-3">
-                            <label class="al-form-label">Article Content</label>
-                            <div class="bg-white p-3 rounded border">
-                                {{ lesson.article_content|linebreaks }}
+                        {% if resources %}
+                        <!-- Resources Content (for video lessons with resources) -->
+                        <div id="vlMixedContent" class="vl-content-panel">
+                            <div class="mb-3">
+                                <label class="al-form-label">Resources</label>
+                                <ul class="list-group">
+                                    {% for resource in resources %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>{{ resource.title }} ({{ resource.resource_type }})</span>
+                                        {% if resource.file %}
+                                        <a href="{{ resource.file.url }}" target="_blank" class="btn btn-sm btn-outline-primary">Download</a>
+                                        {% elif resource.url %}
+                                        <a href="{{ resource.url }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
+                                        {% endif %}
+                                    </li>
+                                    {% endfor %}
+                                </ul>
                             </div>
                         </div>
                         {% endif %}
-                        
-                        {% if videos %}
-                        <div class="mb-3">
-                            <label class="al-form-label">Videos</label>
-                            <ul class="list-group">
-                                {% for video in videos %}
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <span>{{ video.title }}</span>
-                                    <a href="{{ video.url }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
-                                </li>
-                                {% endfor %}
-                            </ul>
+
+                        {% elif lesson.primary_content_type == 'article' %}
+                        <!-- Article Content -->
+                        <div id="vlArticleContent" class="vl-content-panel active">
+                            {% if lesson.article_content %}
+                            <div class="mb-3">
+                                <label class="al-form-label">Article Content</label>
+                                <div class="bg-white p-3 rounded border">
+                                    {{ lesson.article_content|safe }}
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="text-center text-muted py-4">
+                                <span class="material-symbols-outlined" style="font-size: 48px; opacity: 0.5;">article</span>
+                                <p class="mt-2 mb-0">No article content added yet.</p>
+                            </div>
+                            {% endif %}
                         </div>
-                        {% endif %}
-                        
                         {% if resources %}
-                        <div class="mb-3">
-                            <label class="al-form-label">Resources</label>
-                            <ul class="list-group">
-                                {% for resource in resources %}
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <span>{{ resource.title }} ({{ resource.resource_type }})</span>
-                                    {% if resource.file %}
-                                    <a href="{{ resource.file.url }}" target="_blank" class="btn btn-sm btn-outline-primary">Download</a>
-                                    {% elif resource.url %}
-                                    <a href="{{ resource.url }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
-                                    {% endif %}
-                                </li>
-                                {% endfor %}
-                            </ul>
+                        <!-- Resources Content (for article lessons with resources) -->
+                        <div id="vlMixedContent" class="vl-content-panel">
+                            <div class="mb-3">
+                                <label class="al-form-label">Resources</label>
+                                <ul class="list-group">
+                                    {% for resource in resources %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>{{ resource.title }} ({{ resource.resource_type }})</span>
+                                        {% if resource.file %}
+                                        <a href="{{ resource.file.url }}" target="_blank" class="btn btn-sm btn-outline-primary">Download</a>
+                                        {% elif resource.url %}
+                                        <a href="{{ resource.url }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
+                                        {% endif %}
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
                         </div>
                         {% endif %}
-                        
-                        {% if not lesson.video_url and not lesson.article_content and not videos and not resources %}
-                        <div class="text-center text-muted py-4">
-                            <span class="material-symbols-outlined" style="font-size: 48px; line-height: 1; display: inline-block; width: 48px; height: 48px; opacity: 0.5;">description</span>
-                            <p class="mt-2 mb-0">No learning content has been added yet.</p>
+
+                        {% elif lesson.primary_content_type == 'quiz' %}
+                        <!-- Quiz Content -->
+                        <div id="vlQuizContent" class="vl-content-panel active">
+                            {% if lesson.quiz_data %}
+                            <div class="mb-3">
+                                <label class="al-form-label">Quiz Questions</label>
+                                <div id="quizDataDisplay" class="bg-white p-3 rounded border">
+                                    <!-- Will be populated by JS -->
+                                </div>
+                            </div>
+                            <script>
+                                (function() {
+                                    try {
+                                        const quizData = {{ lesson.quiz_data|safe }};
+                                        const container = document.getElementById('quizDataDisplay');
+                                        if (Array.isArray(quizData) && quizData.length > 0) {
+                                            container.innerHTML = quizData.map((q, i) => 
+                                                '<div class="p-3 mb-2 bg-light rounded">' +
+                                                '<strong>Q' + (i+1) + ':</strong> ' + q.question +
+                                                '<br><small class="text-success">Correct Answer: ' + q.correctAnswer + '</small>' +
+                                                '</div>'
+                                            ).join('');
+                                        } else {
+                                            container.innerHTML = '<span class="text-muted">No quiz questions.</span>';
+                                        }
+                                    } catch(e) {
+                                        document.getElementById('quizDataDisplay').innerHTML = '<span class="text-muted">Unable to load quiz data.</span>';
+                                    }
+                                })();
+                            </script>
+                            {% else %}
+                            <div class="text-center text-muted py-4">
+                                <span class="material-symbols-outlined" style="font-size: 48px; opacity: 0.5;">quiz</span>
+                                <p class="mt-2 mb-0">No quiz content added yet.</p>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        {% elif lesson.primary_content_type == 'mixed' %}
+                        <!-- Resources Content -->
+                        <div id="vlMixedContent" class="vl-content-panel active">
+                            {% if resources %}
+                            <div class="mb-3">
+                                <label class="al-form-label">Resources</label>
+                                <ul class="list-group">
+                                    {% for resource in resources %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>{{ resource.title }} ({{ resource.resource_type }})</span>
+                                        {% if resource.file %}
+                                        <a href="{{ resource.file.url }}" target="_blank" class="btn btn-sm btn-outline-primary">Download</a>
+                                        {% elif resource.url %}
+                                        <a href="{{ resource.url }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
+                                        {% endif %}
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% else %}
+                            <div class="text-center text-muted py-4">
+                                <span class="material-symbols-outlined" style="font-size: 48px; opacity: 0.5;">upload_file</span>
+                                <p class="mt-2 mb-0">No resources added yet.</p>
+                            </div>
+                            {% endif %}
                         </div>
                         {% endif %}
                     </div>
@@ -379,6 +510,36 @@
     // Minimal JS for view mode - just handle switch display
     document.querySelectorAll('.al-switch.active').forEach(function(el) {
         el.style.background = 'linear-gradient(135deg, #6366F1, #8B5CF6)';
+    });
+
+    // Tab switching functionality for Learning Content
+    document.addEventListener('DOMContentLoaded', function() {
+        const tabButtons = document.querySelectorAll('.al-lesson-tabs button');
+        const allPanels = document.querySelectorAll('.vl-content-panel');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                // Add active class to clicked button
+                this.classList.add('active');
+
+                // Hide all content panels
+                allPanels.forEach(panel => panel.classList.remove('active'));
+
+                // Show the selected content panel
+                const contentType = this.getAttribute('data-content-type');
+                const panelId = contentType === 'mixed' ? 'vlMixedContent' : 
+                               contentType === 'video' ? 'vlVideoContent' :
+                               contentType === 'article' ? 'vlArticleContent' :
+                               contentType === 'quiz' ? 'vlQuizContent' : null;
+                
+                if (panelId) {
+                    const panel = document.getElementById(panelId);
+                    if (panel) panel.classList.add('active');
+                }
+            });
+        });
     });
 </script>
 {% endblock %}

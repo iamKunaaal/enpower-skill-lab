@@ -21,3 +21,7 @@ systemctl restart nginx
 OR 
 
 Run "deploy.sh" on the server
+
+
+
+{% comment %} when i go to the edit lesson uploaded resources is not appear - superadmin {% endcomment %}

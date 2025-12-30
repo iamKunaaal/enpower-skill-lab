@@ -1952,8 +1952,9 @@ def lesson_list(request):
 @user_passes_test(is_superadmin)
 def add_lesson(request):
     """View to add a new lesson"""
-    from lms.models import Lesson
-    
+    from lms.models import Lesson, LessonResource
+    import os
+
     if request.method == 'POST':
         try:
             # Get form data
@@ -1966,7 +1967,30 @@ def add_lesson(request):
             status = request.POST.get('status', 'draft')
             is_published = status == 'published'
             recommend_low_competency = request.POST.get('recommend_low_competency') == 'true'
+
+            # Get content data
+            video_urls = request.POST.get('video_urls', '')
+            article_content = request.POST.get('article_content', '')
+            quiz_data = request.POST.get('quiz_data', '')
             
+            # Determine primary_content_type based on actual content (not form value)
+            # Priority: Video > Article > Quiz > Resources
+            has_videos = video_urls and video_urls.strip() and video_urls != '[]'
+            has_article = article_content and article_content.strip() and article_content != '<br>'
+            has_quiz = quiz_data and quiz_data.strip() and quiz_data != '[]'
+            has_resources = len(request.FILES.getlist('resources')) > 0
+            
+            if has_videos:
+                primary_content_type = 'video'
+            elif has_article:
+                primary_content_type = 'article'
+            elif has_quiz:
+                primary_content_type = 'quiz'
+            elif has_resources:
+                primary_content_type = 'mixed'
+            else:
+                primary_content_type = request.POST.get('primary_content_type', 'video')
+
             # Create lesson
             lesson = Lesson(
                 title=title,
@@ -1978,31 +2002,59 @@ def add_lesson(request):
                 status=status,
                 is_published=is_published,
                 recommend_low_competency=recommend_low_competency,
+                primary_content_type=primary_content_type,
+                video_urls=video_urls,
+                article_content=article_content,
+                quiz_data=quiz_data,
                 created_by=request.user,
             )
-            
+
             # Handle thumbnail upload
             if 'thumbnail' in request.FILES:
                 lesson.thumbnail = request.FILES['thumbnail']
-            
+
             lesson.save()
-            
+
             # Handle applicable schools (M2M)
             school_id = request.POST.get('applicable_schools')
             if school_id:
                 school = School.objects.filter(id=school_id).first()
                 if school:
                     lesson.applicable_schools.add(school)
-            
+
+            # Handle resource files
+            resource_files = request.FILES.getlist('resources')
+            for resource_file in resource_files:
+                # Get file extension
+                file_extension = os.path.splitext(resource_file.name)[1].lower().replace('.', '')
+
+                # Determine resource type
+                resource_type_map = {
+                    'pdf': 'pdf',
+                    'doc': 'doc', 'docx': 'doc',
+                    'ppt': 'ppt', 'pptx': 'ppt',
+                    'xls': 'xls', 'xlsx': 'xls',
+                }
+                resource_type = resource_type_map.get(file_extension, 'other')
+
+                # Create LessonResource
+                LessonResource.objects.create(
+                    lesson=lesson,
+                    title=resource_file.name,
+                    file=resource_file,
+                    resource_type=resource_type,
+                    file_size=resource_file.size
+                )
+
             messages.success(request, f'Lesson "{lesson.title}" created successfully!')
             return redirect('lesson_list')
-            
+
         except Exception as e:
             messages.error(request, f'Error creating lesson: {str(e)}')
-    
+
     # GET request - render form
     schools = School.objects.filter(is_active=True)
-    
+
     context = {
         'schools': schools,
     }
@@ -2014,16 +2066,26 @@ def add_lesson(request):
 def view_lesson(request, lesson_id):
     """View to display a lesson in read-only mode"""
     from lms.models import Lesson, LessonResource, LessonVideo
-    
+    import json
+
     lesson = get_object_or_404(Lesson, id=lesson_id)
     resources = LessonResource.objects.filter(lesson=lesson)
     videos = LessonVideo.objects.filter(lesson=lesson)
     schools = School.objects.filter(is_active=True)
-    
+
+    # Parse video URLs from JSON
+    video_urls_list = []
+    if lesson.video_urls:
+        try:
+            video_urls_list = json.loads(lesson.video_urls)
+        except (json.JSONDecodeError, TypeError):
+            pass
+
     context = {
         'lesson': lesson,
         'resources': resources,
         'videos': videos,
+        'video_urls_list': video_urls_list,
         'schools': schools,
         'view_mode': True,  # Flag for read-only mode
     }
@@ -2046,15 +2108,21 @@ def edit_lesson(request, lesson_id):
             lesson.level = request.POST.get('level', lesson.level)
             lesson.module = request.POST.get('module', lesson.module)
             lesson.applicable_grades = request.POST.get('applicable_grades', lesson.applicable_grades)
-            
+
             status = request.POST.get('status', lesson.status)
             lesson.status = status
             lesson.is_published = status == 'published'
             lesson.recommend_low_competency = request.POST.get('recommend_low_competency') == 'true'
-            
+
+            # Update content data
+            lesson.primary_content_type = request.POST.get('primary_content_type', lesson.primary_content_type)
+            lesson.video_urls = request.POST.get('video_urls', lesson.video_urls)
+            lesson.article_content = request.POST.get('article_content', lesson.article_content)
+            lesson.quiz_data = request.POST.get('quiz_data', lesson.quiz_data)
+
             if 'thumbnail' in request.FILES:
                 lesson.thumbnail = request.FILES['thumbnail']
-            
+
             lesson.save()
             
             # Handle applicable schools (M2M)
@@ -2064,7 +2132,32 @@ def edit_lesson(request, lesson_id):
                 school = School.objects.filter(id=school_id).first()
                 if school:
                     lesson.applicable_schools.add(school)
-            
+
+            # Handle new resource files
+            import os
+            resource_files = request.FILES.getlist('resources')
+            for resource_file in resource_files:
+                # Get file extension
+                file_extension = os.path.splitext(resource_file.name)[1].lower().replace('.', '')
+
+                # Determine resource type
+                resource_type_map = {
+                    'pdf': 'pdf',
+                    'doc': 'doc', 'docx': 'doc',
+                    'ppt': 'ppt', 'pptx': 'ppt',
+                    'xls': 'xls', 'xlsx': 'xls',
+                }
+                resource_type = resource_type_map.get(file_extension, 'other')
+
+                # Create LessonResource
+                LessonResource.objects.create(
+                    lesson=lesson,
+                    title=resource_file.name,
+                    file=resource_file,
+                    resource_type=resource_type,
+                    file_size=resource_file.size
+                )
+
             messages.success(request, f'Lesson "{lesson.title}" updated successfully!')
             return redirect('lesson_list')
             

@@ -1,0 +1,375 @@
+{% extends 'teacher/base.html' %}
+{% load static %}
+
+{% block title %}View Lesson - Thinking Coach{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/add-lessons.css' %}">
+<style>
+    .al-form-control[readonly],
+    .al-form-select[disabled],
+    .al-textarea[readonly] {
+        background-color: #f8f9fa !important;
+        cursor: default;
+        opacity: 0.9;
+    }
+    .al-upload-box.disabled {
+        pointer-events: none;
+        opacity: 0.7;
+    }
+    .al-lesson-tabs button {
+        cursor: pointer;
+    }
+    .al-lesson-tabs button.active {
+        background: linear-gradient(135deg, #6366F1, #8B5CF6);
+        color: white;
+    }
+    .al-switch.disabled {
+        pointer-events: none;
+        opacity: 0.7;
+    }
+    .vl-info-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: linear-gradient(135deg, #E0E7FF, #C7D2FE);
+        border-radius: 8px;
+        font-size: 0.875rem;
+        color: #4338CA;
+        font-weight: 500;
+    }
+    .vl-thumbnail-preview {
+        max-width: 100%;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .vl-content-display {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 1.5rem;
+        min-height: 150px;
+    }
+    .vl-status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.375rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    .vl-status-published {
+        background: #D1FAE5;
+        color: #065F46;
+    }
+    .vl-status-draft {
+        background: #F3F4F6;
+        color: #6B7280;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="al-dashboard-page">
+    <main class="container-xl py-4 px-4" style="max-width: 1600px;">
+        <!-- Page Header -->
+        <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-4">
+            <div>
+                <h1 class="al-page-title">View Lesson</h1>
+                <p class="al-page-subtitle mb-0">Viewing lesson details in read-only mode.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'teacher:edit_lesson' lesson.id %}" class="al-btn-primary" style="gap: 0.5rem; text-decoration: none;">
+                    <span class="material-symbols-outlined" style="font-size: 18px; line-height: 1;">edit</span>
+                    Edit Lesson
+                </a>
+                <a href="{% url 'teacher:lesson_library' %}" class="al-btn-outline" style="gap: 0.5rem; text-decoration: none;">
+                    <span class="material-symbols-outlined" style="font-size: 18px; line-height: 1;">arrow_back</span>
+                    Back to Lessons
+                </a>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+        <div class="mb-4">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Main Content Grid -->
+        <div class="row g-4">
+            <!-- Left Column (Main Content) -->
+            <div class="col-lg-8">
+                <!-- Basic Details Card -->
+                <div class="al-card-box">
+                    <h5 class="fw-bold mb-4">Basic Details</h5>
+
+                    <div class="mb-4">
+                        <label class="al-form-label">Lesson Title</label>
+                        <input type="text" class="al-form-control" value="{{ lesson.title }}" readonly>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="al-form-label">Short Description</label>
+                        <textarea class="al-form-control al-textarea" rows="3" readonly>{{ lesson.description|default:"No description provided." }}</textarea>
+                    </div>
+
+                    <div>
+                        <label class="al-form-label mb-2">Thumbnail</label>
+                        {% if lesson.thumbnail %}
+                        <div>
+                            <img src="{{ lesson.thumbnail.url }}" alt="Lesson thumbnail" class="vl-thumbnail-preview" style="max-width: 400px;">
+                        </div>
+                        {% else %}
+                        <div class="al-upload-box disabled">
+                            <div class="al-file-upload-icon">
+                                <span class="material-symbols-outlined">hide_image</span>
+                            </div>
+                            <p class="mb-0 fw-medium text-muted">No thumbnail uploaded</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Learning Content Card -->
+                <div class="al-card-box">
+                    <h5 class="fw-bold mb-4">Learning Content</h5>
+
+                    <!-- Content Type Tabs -->
+                    <div class="al-lesson-tabs mb-4">
+                        <button type="button" class="{% if lesson.primary_content_type == 'video' or not lesson.primary_content_type %}active{% endif %}" data-content-type="video">
+                            <span class="material-symbols-outlined">play_circle</span>
+                            Video
+                        </button>
+                        <button type="button" class="{% if lesson.primary_content_type == 'article' %}active{% endif %}" data-content-type="article">
+                            <span class="material-symbols-outlined">article</span>
+                            Article
+                        </button>
+                        <button type="button" class="{% if lesson.primary_content_type == 'quiz' %}active{% endif %}" data-content-type="quiz">
+                            <span class="material-symbols-outlined">quiz</span>
+                            Quiz
+                        </button>
+                        <button type="button" class="{% if lesson.primary_content_type == 'mixed' %}active{% endif %}" data-content-type="mixed">
+                            <span class="material-symbols-outlined">upload_file</span>
+                            Resources
+                        </button>
+                    </div>
+
+                    <!-- Content Display -->
+                    <div id="vlContentDisplay" class="vl-content-display">
+                        <!-- Video Content -->
+                        <div id="vlVideoContent" class="vl-content-panel {% if lesson.primary_content_type == 'video' or not lesson.primary_content_type %}active{% endif %}">
+                            {% if video_urls_list %}
+                            <div class="mb-3">
+                                <label class="al-form-label">Video URLs</label>
+                                <ul class="list-group">
+                                    {% for video_url in video_urls_list %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span class="text-truncate" style="max-width: 70%;">{{ video_url }}</span>
+                                        <a href="{{ video_url }}" target="_blank" class="btn btn-sm btn-outline-primary">Watch</a>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% else %}
+                            <div class="text-center text-muted py-4">
+                                <span class="material-symbols-outlined" style="font-size: 48px; opacity: 0.5;">videocam_off</span>
+                                <p class="mt-2 mb-0">No video content added yet.</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Article Content -->
+                        <div id="vlArticleContent" class="vl-content-panel {% if lesson.primary_content_type == 'article' %}active{% endif %}">
+                            {% if lesson.article_content %}
+                            <div class="mb-3">
+                                <label class="al-form-label">Article Content</label>
+                                <div class="bg-white p-3 rounded border article-content" style="color: #000000 !important;">
+                                    {{ lesson.article_content|safe }}
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="text-center text-muted py-4">
+                                <span class="material-symbols-outlined" style="font-size: 48px; opacity: 0.5;">article</span>
+                                <p class="mt-2 mb-0">No article content added yet.</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Quiz Content -->
+                        <div id="vlQuizContent" class="vl-content-panel {% if lesson.primary_content_type == 'quiz' %}active{% endif %}">
+                            {% if lesson.quiz_data %}
+                            <div class="mb-3">
+                                <label class="al-form-label">Quiz Questions</label>
+                                <div id="quizDataList" class="bg-white p-3 rounded border">
+                                    <!-- Will be populated by JS -->
+                                </div>
+                            </div>
+                            <script>
+                                (function() {
+                                    try {
+                                        const quizData = {{ lesson.quiz_data|safe }};
+                                        const container = document.getElementById('quizDataList');
+                                        if (Array.isArray(quizData) && quizData.length > 0) {
+                                            container.innerHTML = quizData.map((q, i) => 
+                                                '<div class="mb-3 p-3 bg-light rounded">' +
+                                                '<div class="fw-bold mb-2">Question ' + (i+1) + '</div>' +
+                                                '<div class="mb-2">' + (q.question || 'No question text') + '</div>' +
+                                                '<div class="text-success small"><span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">check_circle</span> Correct Answer: ' + (q.correctAnswer || 'Not specified') + '</div>' +
+                                                '</div>'
+                                            ).join('');
+                                        } else {
+                                            container.innerHTML = '<span class="text-muted">{{ lesson.quiz_data }}</span>';
+                                        }
+                                    } catch(e) {
+                                        document.getElementById('quizDataList').innerHTML = '<span class="text-muted">{{ lesson.quiz_data }}</span>';
+                                    }
+                                })();
+                            </script>
+                            {% else %}
+                            <div class="text-center text-muted py-4">
+                                <span class="material-symbols-outlined" style="font-size: 48px; opacity: 0.5;">quiz</span>
+                                <p class="mt-2 mb-0">No quiz content added yet.</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Resources Content -->
+                        <div id="vlMixedContent" class="vl-content-panel {% if lesson.primary_content_type == 'mixed' %}active{% endif %}">
+                            <div class="text-center text-muted py-4">
+                                <span class="material-symbols-outlined" style="font-size: 48px; opacity: 0.5;">upload_file</span>
+                                <p class="mt-2 mb-0">Resources - supplementary materials for this lesson.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column (Sidebar) -->
+            <div class="col-lg-4">
+                <!-- Status Card -->
+                <div class="al-card-box">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="fw-bold">Status</span>
+                        {% if lesson.status == 'published' %}
+                        <span class="vl-status-badge vl-status-published">
+                            <span class="material-symbols-outlined" style="font-size: 14px;">check_circle</span>
+                            Published
+                        </span>
+                        {% else %}
+                        <span class="vl-status-badge vl-status-draft">
+                            <span class="material-symbols-outlined" style="font-size: 14px;">edit_note</span>
+                            Draft
+                        </span>
+                        {% endif %}
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'teacher:edit_lesson' lesson.id %}" class="al-btn-primary flex-grow-1" style="text-decoration: none;">
+                            <span class="material-symbols-outlined" style="font-size: 1.125rem;">edit</span>
+                            Edit Lesson
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Assignment Card -->
+                <div class="al-card-box">
+                    <h5 class="fw-bold mb-4 d-flex align-items-center gap-2">
+                        <span class="material-symbols-outlined">school</span>
+                        Assignment
+                    </h5>
+
+                    <div class="mb-3">
+                        <label class="al-form-label">Competency</label>
+                        <input type="text" class="al-form-control" value="{{ lesson.competency|default:'Not assigned' }}" readonly>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="al-form-label">Level</label>
+                        <input type="text" class="al-form-control" value="{{ lesson.get_level_display|default:'Not assigned' }}" readonly>
+                    </div>
+
+                    <div>
+                        <label class="al-form-label">Module / Category</label>
+                        <input type="text" class="al-form-control" value="{{ lesson.module|default:'Not assigned' }}" readonly>
+                    </div>
+                </div>
+
+                <!-- Meta Information Card -->
+                <div class="al-card-box">
+                    <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+                        <span class="material-symbols-outlined">info</span>
+                        Information
+                    </h5>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Lesson ID</span>
+                        <span class="fw-medium">LES-{{ lesson.id|stringformat:"05d" }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Created</span>
+                        <span class="fw-medium">{{ lesson.created_at|date:"M d, Y" }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Last Updated</span>
+                        <span class="fw-medium">{{ lesson.updated_at|date:"M d, Y" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set active menu item
+        const navLessons = document.getElementById('nav-lessons');
+        if (navLessons) {
+            navLessons.classList.add('active');
+            const parentDropdown = navLessons.closest('.sidebar-dropdown');
+            if (parentDropdown) {
+                parentDropdown.classList.add('active');
+            }
+        }
+        
+        // Tab switching functionality
+        const tabButtons = document.querySelectorAll('.al-lesson-tabs button');
+        const contentPanels = document.querySelectorAll('.vl-content-panel');
+        
+        tabButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active from all tabs
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                // Add active to clicked tab
+                this.classList.add('active');
+                
+                // Hide all content panels
+                contentPanels.forEach(panel => panel.classList.remove('active'));
+                
+                // Show corresponding content panel
+                const contentType = this.getAttribute('data-content-type');
+                const targetPanel = document.getElementById('vl' + contentType.charAt(0).toUpperCase() + contentType.slice(1) + 'Content');
+                if (targetPanel) {
+                    targetPanel.classList.add('active');
+                }
+            });
+        });
+    });
+</script>
+<style>
+    .vl-content-panel {
+        display: none;
+    }
+    .vl-content-panel.active {
+        display: block;
+    }
+</style>
+{% endblock %}

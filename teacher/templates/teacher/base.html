@@ -284,7 +284,7 @@
                         <span class="material-symbols-outlined dropdown-icon">expand_more</span>
                     </a>
                     <div class="sidebar-dropdown-menu">
-                        <a href="#" id="nav-student-list"><span class="material-symbols-outlined">list</span>Student List</a>
+                        <a href="{% url 'teacher:student_list' %}" id="nav-student-list"><span class="material-symbols-outlined">list</span>Student List</a>
                         <a href="#" id="nav-student-profile"><span class="material-symbols-outlined">person</span>Student Profile</a>
                     </div>
                 </div>
@@ -297,6 +297,17 @@
                     <div class="sidebar-dropdown-menu">
                         <a href="#" id="nav-mark-attendance"><span class="material-symbols-outlined">edit_calendar</span>Mark Attendance</a>
                         <a href="#" id="nav-attendance-history"><span class="material-symbols-outlined">history</span>Attendance History</a>
+                    </div>
+                </div>
+                <div class="sidebar-dropdown">
+                    <a href="#" class="sidebar-dropdown-toggle" id="lessons-dropdown">
+                        <span class="material-symbols-outlined">auto_stories</span>
+                        Lessons
+                        <span class="material-symbols-outlined dropdown-icon">expand_more</span>
+                    </a>
+                    <div class="sidebar-dropdown-menu">
+                        <a href="{% url 'teacher:lesson_library' %}" id="nav-lessons"><span class="material-symbols-outlined">library_books</span>Lesson Library</a>
+                        <a href="{% url 'teacher:add_lesson' %}" id="nav-add-lesson"><span class="material-symbols-outlined">add_circle</span>Create Lesson</a>
                     </div>
                 </div>
                 <div class="sidebar-dropdown">

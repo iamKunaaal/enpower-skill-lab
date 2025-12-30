@@ -227,6 +227,14 @@
     box-shadow: 0 0 0 1px rgba(0, 0, 0, .05);
 }
 
+.al-lesson-tabs button.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+    background-color: transparent !important;
+    color: var(--text-secondary) !important;
+}
+
 .al-lesson-tabs button .material-symbols-outlined {
     font-size: 1.125rem;
 }
@@ -273,6 +281,20 @@
     min-height: 16rem;
     width: 100%;
     font-size: 0.875rem;
+    color: #000000 !important;
+    line-height: 1.6;
+    -webkit-text-fill-color: #000000 !important;
+}
+
+.al-editor-textarea * {
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
+}
+
+.al-editor-textarea:empty:before {
+    content: attr(placeholder);
+    color: #9CA3AF !important;
+    -webkit-text-fill-color: #9CA3AF !important;
 }
 
 .al-editor-textarea:focus {
@@ -564,6 +586,15 @@
     margin-bottom: 1rem;
     position: relative;
     background: #faf9fb;
+}
+
+/* ================= View Lesson Content Panels ================= */
+.vl-content-panel {
+    display: none;
+}
+
+.vl-content-panel.active {
+    display: block;
 }
 
 /* ================= Responsive ================= */

@@ -1,10 +1,9 @@
-{% extends 'superadmin/base.html' %}
+{% extends 'teacher/base.html' %}
 {% load static %}
 
-{% block title %}Create Lesson - Super Admin{% endblock %}
+{% block title %}Create Lesson - Thinking Coach{% endblock %}
 
 {% block extra_css %}
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'css/add-lessons.css' %}">
 {% endblock %}
 
@@ -35,7 +34,7 @@
         </div>
         {% endif %}
 
-        <form id="alLessonForm" method="POST" action="{% url 'add_lesson' %}" enctype="multipart/form-data">
+        <form id="alLessonForm" method="POST" action="{% url 'teacher:add_lesson' %}" enctype="multipart/form-data">
             {% csrf_token %}
             
             <!-- Main Content Grid -->
@@ -133,16 +132,7 @@
 
                         <div class="mb-3">
                             <label for="alCompetency" class="al-form-label">Competency</label>
-                            <select class="al-form-select" id="alCompetency" name="competency">
-                                <option value="">Select Competency</option>
-                                {% for competency in competencies %}
-                                <option value="{{ competency.id }}">{{ competency.name }}</option>
-                                {% empty %}
-                                <option value="1">Financial Literacy</option>
-                                <option value="2">Digital Skills</option>
-                                <option value="3">Communication</option>
-                                {% endfor %}
-                            </select>
+                            <input type="text" class="al-form-control" id="alCompetency" name="competency" placeholder="Enter competency (e.g., Financial Literacy)">
                         </div>
 
                         <div class="mb-3">
@@ -157,15 +147,7 @@
 
                         <div>
                             <label for="alModule" class="al-form-label">Module / Category</label>
-                            <select class="al-form-select" id="alModule" name="module">
-                                <option value="">Select Module</option>
-                                {% for module in modules %}
-                                <option value="{{ module.id }}">{{ module.name }}</option>
-                                {% empty %}
-                                <option value="1">Module 1: Basics</option>
-                                <option value="2">Module 2: Application</option>
-                                {% endfor %}
-                            </select>
+                            <input type="text" class="al-form-control" id="alModule" name="module" placeholder="Enter module (e.g., Module 1: Basics)">
                         </div>
                     </div>
 
@@ -178,22 +160,6 @@
                         <p class="al-text-xs text-muted mb-4">
                             Define where this lesson will be used.
                         </p>
-
-                        <!-- Applicable Schools -->
-                        <div class="mb-3">
-                            <label class="al-form-label">
-                                Applicable School(s) <span class="al-required">*</span>
-                            </label>
-                            <select class="al-form-select" id="alApplicableSchools" name="applicable_schools">
-                                <option value="">All Schools</option>
-                                {% for school in schools %}
-                                <option value="{{ school.id }}">{{ school.school_name }}</option>
-                                {% endfor %}
-                            </select>
-                            <small class="text-muted">
-                                Select which school(s) this lesson applies to.
-                            </small>
-                        </div>
 
                         <!-- Applicable Grades -->
                         <div class="mb-4">
@@ -254,4 +220,17 @@
 
 {% block extra_js %}
 <script src="{% static 'js/add-lessons.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set active menu item
+        const navLessons = document.getElementById('nav-lessons');
+        if (navLessons) {
+            navLessons.classList.add('active');
+            const parentDropdown = navLessons.closest('.sidebar-dropdown');
+            if (parentDropdown) {
+                parentDropdown.classList.add('active');
+            }
+        }
+    });
+</script>
 {% endblock %}

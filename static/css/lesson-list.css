@@ -28,7 +28,7 @@
 /* Page header */
 .ll-page-title {
     font-size: 1.875rem;
-    font-weight: 700;
+    font-weight: 600;
     color: var(--text-main);
     letter-spacing: -0.025em;
     margin-bottom: 0.25rem;
@@ -36,7 +36,7 @@
 
 @media (min-width: 768px) {
     .ll-page-title {
-        font-size: 2.25rem;
+        font-size: 30px;
     }
 }
 
@@ -65,6 +65,28 @@
 
 .ll-btn-primary:hover {
     background-color: #4a195b;
+    color: white;
+}
+
+/* Delete Selected Button */
+.ll-btn-delete-selected {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #DC2626;
+    color: white;
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    border: none;
+    transition: all 0.2s;
+    box-shadow: 0 4px 6px rgba(220, 38, 38, 0.2);
+    cursor: pointer;
+}
+
+.ll-btn-delete-selected:hover {
+    background-color: #B91C1C;
     color: white;
 }
 

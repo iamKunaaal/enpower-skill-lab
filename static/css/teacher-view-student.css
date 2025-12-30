@@ -1,0 +1,242 @@
+/* Teacher View Student Page Styles */
+/* Prefixed with tvs- to avoid conflicts */
+
+/* Student Profile Container */
+.tvs-student-profile {
+    /* padding: 1.5rem; */
+    max-width: 100%;
+    margin: 0;
+}
+
+/* Back Link */
+.tvs-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #6b7280;
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+    transition: color 0.2s;
+}
+
+.tvs-back-link:hover {
+    color: #6B21A8;
+}
+
+/* Profile Header */
+.tvs-profile-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    padding: 2rem;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    flex-wrap: wrap;
+}
+
+body.dark .tvs-profile-header {
+    background: #1f2937;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Profile Photo */
+.tvs-profile-photo {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #f3f4f6;
+    flex-shrink: 0;
+}
+
+.tvs-profile-photo-placeholder {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #7E22CE, #6B21A8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 2.5rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+/* Profile Info */
+.tvs-profile-info {
+    flex: 1;
+    min-width: 250px;
+}
+
+.tvs-profile-info h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 0.5rem 0;
+}
+
+body.dark .tvs-profile-info h1 {
+    color: #f3f4f6;
+}
+
+.tvs-profile-info .tvs-student-id {
+    color: #6b7280;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+body.dark .tvs-profile-info .tvs-student-id {
+    color: #9ca3af;
+}
+
+/* Status Pills */
+.tvs-control-pill {
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.6rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.tvs-status-active {
+    background-color: #d1fae5;
+    color: #166534;
+}
+
+.tvs-status-pending {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.tvs-status-inactive {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+body.dark .tvs-status-active {
+    background-color: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+}
+
+body.dark .tvs-status-pending {
+    background-color: rgba(234, 179, 8, 0.18);
+    color: #fcd34d;
+}
+
+body.dark .tvs-status-inactive {
+    background-color: rgba(248, 113, 113, 0.18);
+    color: #fca5a5;
+}
+
+/* Info Cards */
+.tvs-info-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+}
+
+body.dark .tvs-info-card {
+    background: #1f2937;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.tvs-info-card-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+body.dark .tvs-info-card-header {
+    border-bottom-color: #374151;
+}
+
+.tvs-info-card-header h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+
+body.dark .tvs-info-card-header h2 {
+    color: #f3f4f6;
+}
+
+.tvs-info-card-header .material-symbols-outlined {
+    color: #6B21A8;
+    font-size: 24px;
+}
+
+body.dark .tvs-info-card-header .material-symbols-outlined {
+    color: #a78bfa;
+}
+
+.tvs-info-card-body {
+    padding: 1.5rem;
+}
+
+/* Info Grid */
+.tvs-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.tvs-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.tvs-info-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+body.dark .tvs-info-label {
+    color: #9ca3af;
+}
+
+.tvs-info-value {
+    font-size: 0.95rem;
+    color: #1f2937;
+    font-weight: 500;
+}
+
+body.dark .tvs-info-value {
+    color: #e5e7eb;
+}
+
+.tvs-full-width {
+    grid-column: 1 / -1;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .tvs-student-profile {
+        padding: 1rem;
+    }
+
+    .tvs-profile-header {
+        padding: 1.5rem;
+    }
+
+    .tvs-profile-info h1 {
+        font-size: 1.5rem;
+    }
+
+    .tvs-info-grid {
+        grid-template-columns: 1fr;
+    }
+}

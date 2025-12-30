@@ -1,0 +1,204 @@
+{% extends 'teacher/base.html' %}
+{% load static %}
+
+{% block title %}{{ student.full_name }} - Student Details{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/teacher-view-student.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="tvs-student-profile">
+    <a href="{% url 'teacher:student_list' %}" class="tvs-back-link">
+        <span class="material-symbols-outlined">arrow_back</span>
+        Back to Student List
+    </a>
+
+    <!-- Profile Header -->
+    <div class="tvs-profile-header">
+        {% if student.student_photo %}
+        <img src="{{ student.student_photo.url }}" alt="{{ student.full_name }}" class="tvs-profile-photo">
+        {% else %}
+        <div class="tvs-profile-photo-placeholder">
+            {{ student.initials }}
+        </div>
+        {% endif %}
+
+        <div class="tvs-profile-info">
+            <h1>{{ student.full_name }}</h1>
+            <p class="tvs-student-id">
+                <strong>Skill Lab ID:</strong> {{ student.skill_lab_reg_id|default:"-" }} |
+                <strong>GR Number:</strong> {{ student.gr_number }}
+            </p>
+            {% if student.is_active %}
+            <span class="tvs-control-pill tvs-status-active">Active</span>
+            {% else %}
+            <span class="tvs-control-pill tvs-status-inactive">Inactive</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Basic Information -->
+    <div class="tvs-info-card">
+        <div class="tvs-info-card-header">
+            <span class="material-symbols-outlined">person</span>
+            <h2>Basic Information</h2>
+        </div>
+        <div class="tvs-info-card-body">
+            <div class="tvs-info-grid">
+                <div class="tvs-info-item">
+                    <span class="tvs-info-label">First Name</span>
+                    <span class="tvs-info-value">{{ student.first_name }}</span>
+                </div>
+                <div class="tvs-info-item">
+                    <span class="tvs-info-label">Middle Name</span>
+                    <span class="tvs-info-value">{{ student.middle_name|default:"-" }}</span>
+                </div>
+                <div class="tvs-info-item">
+                    <span class="tvs-info-label">Last Name</span>
+                    <span class="tvs-info-value">{{ student.last_name }}</span>
+                </div>
+                <div class="tvs-info-item">
+                    <span class="tvs-info-label">Gender</span>
+                    <span class="tvs-info-value">{{ student.get_gender_display }}</span>
+                </div>
+                <div class="tvs-info-item">
+                    <span class="tvs-info-label">Date of Birth</span>
+                    <span class="tvs-info-value">{{ student.date_of_birth|date:"d M Y" }}</span>
+                </div>
+                <div class="tvs-info-item">
+                    <span class="tvs-info-label">Nationality</span>
+                    <span class="tvs-info-value">{{ student.nationality }}</span>
+                </div>
+                <div class="tvs-info-item">
+                    <span class="tvs-info-label">Mother Tongue</span>
+                    <span class="tvs-info-value">{{ student.mother_tongue|default:"-" }}</span>
+                </div>
+                <div class="tvs-info-item">
+                    <span class="tvs-info-label">Blood Group</span>
+                    <span class="tvs-info-value">{{ student.blood_group|default:"-" }}</span>
+                </div>
+                <div class="tvs-info-item">
+                    <span class="tvs-info-label">Aadhar Number</span>
+                    <span class="tvs-info-value">{{ student.aadhar_number|default:"-" }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Academic Details -->
+    <div class="tvs-info-card">
+        <div class="tvs-info-card-header">
+            <span class="material-symbols-outlined">school</span>
+            <h2>Academic Details</h2>
+        </div>
+        <div class="tvs-info-card-body">
+            <div class="tvs-info-grid">
+                <div class="tvs-info-item">
+                    <span class="tvs-info-label">School Name</span>
+                    <span class="tvs-info-value">{{ student.school.school_name|default:"-" }}</span>
+                </div>
+                <div class="tvs-info-item">
+                    <span class="tvs-info-label">School Branch</span>
+                    <span class="tvs-info-value">{{ student.school_branch|default:"-" }}</span>
+                </div>
+                <div class="tvs-info-item">
+                    <span class="tvs-info-label">Class</span>
+                    <span class="tvs-info-value">{{ student.student_class }}</span>
+                </div>
+                <div class="tvs-info-item">
+                    <span class="tvs-info-label">Division</span>
+                    <span class="tvs-info-value">{{ student.division }}</span>
+                </div>
+                <div class="tvs-info-item">
+                    <span class="tvs-info-label">Roll Number</span>
+                    <span class="tvs-info-value">{{ student.roll_number }}</span>
+                </div>
+                <div class="tvs-info-item">
+                    <span class="tvs-info-label">Academic Year</span>
+                    <span class="tvs-info-value">{{ student.academic_year }}</span>
+                </div>
+                <div class="tvs-info-item">
+                    <span class="tvs-info-label">School Board</span>
+                    <span class="tvs-info-value">{{ student.get_school_board_display }}</span>
+                </div>
+                <div class="tvs-info-item">
+                    <span class="tvs-info-label">Stream</span>
+                    <span class="tvs-info-value">{{ student.get_stream_display|default:"-" }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Details -->
+    <div class="tvs-info-card">
+        <div class="tvs-info-card-header">
+            <span class="material-symbols-outlined">contact_phone</span>
+            <h2>Contact Details</h2>
+        </div>
+        <div class="tvs-info-card-body">
+            <div class="tvs-info-grid">
+                <div class="tvs-info-item">
+                    <span class="tvs-info-label">Student Mobile</span>
+                    <span class="tvs-info-value">{{ student.student_mobile|default:"-" }}</span>
+                </div>
+                <div class="tvs-info-item">
+                    <span class="tvs-info-label">School Email</span>
+                    <span class="tvs-info-value">{{ student.school_email }}</span>
+                </div>
+                <div class="tvs-info-item">
+                    <span class="tvs-info-label">Personal Email</span>
+                    <span class="tvs-info-value">{{ student.personal_email|default:"-" }}</span>
+                </div>
+                <div class="tvs-info-item tvs-full-width">
+                    <span class="tvs-info-label">Address</span>
+                    <span class="tvs-info-value">{{ student.address|default:"-" }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Emergency Contact -->
+    <div class="tvs-info-card">
+        <div class="tvs-info-card-header">
+            <span class="material-symbols-outlined">emergency</span>
+            <h2>Emergency Contact</h2>
+        </div>
+        <div class="tvs-info-card-body">
+            <div class="tvs-info-grid">
+                <div class="tvs-info-item">
+                    <span class="tvs-info-label">Contact Name</span>
+                    <span class="tvs-info-value">{{ student.emergency_name }}</span>
+                </div>
+                <div class="tvs-info-item">
+                    <span class="tvs-info-label">Relationship</span>
+                    <span class="tvs-info-value">{{ student.get_emergency_relationship_display }}</span>
+                </div>
+                <div class="tvs-info-item">
+                    <span class="tvs-info-label">Mobile</span>
+                    <span class="tvs-info-value">{{ student.emergency_mobile }}</span>
+                </div>
+                <div class="tvs-info-item">
+                    <span class="tvs-info-label">Alternate Mobile</span>
+                    <span class="tvs-info-value">{{ student.emergency_alt_mobile|default:"-" }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var navStudentList = document.getElementById('nav-student-list');
+        if (navStudentList) {
+            navStudentList.classList.add('active');
+            var parentDropdown = navStudentList.closest('.sidebar-dropdown');
+            if (parentDropdown) {
+                parentDropdown.classList.add('active');
+            }
+        }
+    });
+</script>
+{% endblock %}

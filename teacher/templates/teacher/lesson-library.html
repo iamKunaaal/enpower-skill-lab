@@ -1,10 +1,9 @@
-{% extends 'superadmin/base.html' %}
+{% extends 'teacher/base.html' %}
 {% load static %}
 
-{% block title %}Lesson Library - Super Admin{% endblock %}
+{% block title %}Lesson Library - Thinking Coach{% endblock %}
 
 {% block extra_css %}
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 <link rel="stylesheet" href="{% static 'css/lesson-list.css' %}">
 {% endblock %}
@@ -18,14 +17,14 @@
         <header class="mb-4 d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-3">
             <div>
                 <h1 class="ll-page-title">Lesson Library</h1>
-                <p class="ll-page-description">Manage self-learning content, inventory, and publishing status across the platform.</p>
+                <p class="ll-page-description">Manage self-learning content for your students.</p>
             </div>
             <div class="d-flex gap-2 align-items-center">
-                <button id="llBulkDeleteBtn" class="btn btn-danger d-none" style="display: inline-flex; align-items: center; gap: 0.5rem;">
-                    <span class="material-symbols-outlined" style="font-size: 20px;">delete</span>
+                <button type="button" id="llDeleteSelectedBtn" class="ll-btn-delete-selected" style="display: none;">
+                    <span class="material-symbols-outlined" style="font-size: 18px;">delete</span>
                     <span>Delete Selected (<span id="llSelectedCount">0</span>)</span>
                 </button>
-                <a href="{% url 'add_lesson' %}" class="ll-btn-primary">
+                <a href="{% url 'teacher:add_lesson' %}" class="ll-btn-primary">
                     <span class="material-symbols-outlined" style="font-size: 20px;">add</span>
                     <span>Create Lesson</span>
                 </a>
@@ -126,14 +125,11 @@
                                 <td class="ll-date-text">{{ lesson.updated_at|timesince }} ago</td>
                                 <td>
                                     <div class="ll-action-buttons">
-                                        <a href="{% url 'view_lesson' lesson.id %}" class="ll-action-btn" title="View">
+                                        <a href="{% url 'teacher:view_lesson' lesson.id %}" class="ll-action-btn" title="View">
                                             <span class="material-symbols-outlined">visibility</span>
                                         </a>
-                                        <a href="{% url 'edit_lesson' lesson.id %}" class="ll-action-btn" title="Edit">
+                                        <a href="{% url 'teacher:edit_lesson' lesson.id %}" class="ll-action-btn" title="Edit">
                                             <span class="material-symbols-outlined">edit</span>
-                                        </a>
-                                        <a href="{% url 'delete_lesson' lesson.id %}" class="ll-action-btn delete ll-delete-btn" title="Delete">
-                                            <span class="material-symbols-outlined">delete</span>
                                         </a>
                                     </div>
                                 </td>
@@ -145,7 +141,7 @@
                                         <span class="material-symbols-outlined ll-empty-icon">auto_stories</span>
                                         <h3>No Lessons Yet</h3>
                                         <p class="text-muted mb-4">Create your first lesson to get started.</p>
-                                        <a href="{% url 'add_lesson' %}" class="ll-btn-primary">
+                                        <a href="{% url 'teacher:add_lesson' %}" class="ll-btn-primary">
                                             <span class="material-symbols-outlined" style="font-size: 20px;">add</span>
                                             Create Lesson
                                         </a>
@@ -167,4 +163,94 @@
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 <script src="{% static 'js/lesson-list.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set active menu item
+        const navLessons = document.getElementById('nav-lessons');
+        if (navLessons) {
+            navLessons.classList.add('active');
+            const parentDropdown = navLessons.closest('.sidebar-dropdown');
+            if (parentDropdown) {
+                parentDropdown.classList.add('active');
+            }
+        }
+        
+        // Checkbox selection functionality
+        const selectAllCheckbox = document.getElementById('llSelectAll');
+        const rowCheckboxes = document.querySelectorAll('.ll-row-checkbox');
+        const deleteSelectedBtn = document.getElementById('llDeleteSelectedBtn');
+        const selectedCountSpan = document.getElementById('llSelectedCount');
+        
+        function updateDeleteButton() {
+            const checkedBoxes = document.querySelectorAll('.ll-row-checkbox:checked');
+            const count = checkedBoxes.length;
+            
+            if (count > 0) {
+                deleteSelectedBtn.style.display = 'flex';
+                selectedCountSpan.textContent = count;
+            } else {
+                deleteSelectedBtn.style.display = 'none';
+            }
+            
+            // Update select all checkbox state
+            if (rowCheckboxes.length > 0) {
+                selectAllCheckbox.checked = count === rowCheckboxes.length;
+                selectAllCheckbox.indeterminate = count > 0 && count < rowCheckboxes.length;
+            }
+        }
+        
+        // Select All checkbox handler
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', function() {
+                rowCheckboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+                updateDeleteButton();
+            });
+        }
+        
+        // Individual checkbox handlers
+        rowCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateDeleteButton);
+        });
+        
+        // Delete Selected button handler
+        if (deleteSelectedBtn) {
+            deleteSelectedBtn.addEventListener('click', function() {
+                const checkedBoxes = document.querySelectorAll('.ll-row-checkbox:checked');
+                const lessonIds = Array.from(checkedBoxes).map(cb => cb.dataset.lessonId);
+                
+                if (lessonIds.length === 0) return;
+                
+                if (confirm(`Are you sure you want to delete ${lessonIds.length} lesson(s)? This action cannot be undone.`)) {
+                    // Get CSRF token
+                    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                    
+                    // Send delete request
+                    fetch('{% url "teacher:delete_lessons" %}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrfToken
+                        },
+                        body: JSON.stringify({ lesson_ids: lessonIds })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Reload page to show updated list
+                            window.location.reload();
+                        } else {
+                            alert('Error deleting lessons: ' + (data.error || 'Unknown error'));
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error deleting lessons. Please try again.');
+                    });
+                }
+            });
+        }
+    });
+</script>
 {% endblock %}
