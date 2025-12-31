@@ -160,6 +160,14 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.style.cursor = 'pointer';
         btn.style.pointerEvents = 'auto';
     });
+    
+    // Show existing resources if the initial tab is Resources/mixed
+    if (initialContentType === 'mixed' || initialContentType === 'resources') {
+        const existingResourcesDiv = document.getElementById('alExistingResources');
+        if (existingResourcesDiv) {
+            existingResourcesDiv.style.display = 'block';
+        }
+    }
 
     tabButtons.forEach(button => {
         button.addEventListener('click', function() {
@@ -422,6 +430,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const contentContainer = document.getElementById('alContentArea');
         if (!contentContainer) return;
         
+        // Hide existing resources div when switching tabs
+        const existingResourcesDiv = document.getElementById('alExistingResources');
+        if (existingResourcesDiv) {
+            existingResourcesDiv.style.display = 'none';
+        }
+        
         contentContainer.innerHTML = content;
 
         // Re-attach handlers based on tab type
@@ -433,6 +447,11 @@ document.addEventListener('DOMContentLoaded', function() {
             attachQuizHandlers();
         } else if (tabName === 'resources' || tabName === 'mixed') {
             attachResourceHandlers();
+            
+            // Show existing resources if on edit page and Resources tab is selected
+            if (existingResourcesDiv) {
+                existingResourcesDiv.style.display = 'block';
+            }
         }
     }
     
@@ -1222,14 +1241,24 @@ document.addEventListener('DOMContentLoaded', function() {
             const content = articleEditor.innerHTML;
             if (content && content !== '<br>' && content.trim() !== '') {
                 articleInput.value = content;
+            } else if (content === '' || content === '<br>') {
+                // Only clear if editor exists but is explicitly empty
+                articleInput.value = '';
             }
+            // If editor exists but we're not sure about content, leave input as is
         }
-        
+        // Don't clear articleInput if editor doesn't exist - it might have been synced earlier
+
         // Sync video URLs from videoItems array
         const videoUrlsInput = document.getElementById('alVideoUrlsInput');
-        if (videoUrlsInput && videoItems.length > 0) {
-            const urls = videoItems.map(item => item.name);
-            videoUrlsInput.value = JSON.stringify(urls);
+        if (videoUrlsInput) {
+            if (videoItems.length > 0) {
+                const urls = videoItems.map(item => item.name);
+                videoUrlsInput.value = JSON.stringify(urls);
+            } else {
+                // Clear video URLs if no videos
+                videoUrlsInput.value = '';
+            }
         }
         
         // Sync quiz data
@@ -1251,20 +1280,27 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             if (questions.length > 0) {
                 quizDataInput.value = JSON.stringify(questions);
+            } else if (questionDivs.length === 0 || (questionDivs.length > 0 && questions.length === 0)) {
+                // Only clear if container exists but has no valid questions
+                quizDataInput.value = '';
             }
         }
+        // Don't clear quizDataInput if container doesn't exist - it might have been synced earlier
 
         // IMPORTANT: Set primary_content_type based on actual content
         // Check multiple sources for content existence
         const primaryContentTypeInput = document.getElementById('alPrimaryContentType');
         if (primaryContentTypeInput) {
             // Check for video content - array OR hidden input
-            const hasVideos = videoItems.length > 0 || 
-                (videoUrlsInput && videoUrlsInput.value && videoUrlsInput.value.trim() !== '' && videoUrlsInput.value !== '[]');
+            const hasVideos = (videoItems.length > 0 && videoItems.some(item => item.name && item.name.trim() !== '')) || 
+                (videoUrlsInput && videoUrlsInput.value && videoUrlsInput.value.trim() !== '' && videoUrlsInput.value !== '[]' && videoUrlsInput.value !== '[""]');
             
             // Check for article content
             const hasArticle = articleInput && articleInput.value && 
-                articleInput.value.trim() !== '' && articleInput.value !== '<br>';
+                articleInput.value.trim() !== '' && 
+                articleInput.value !== '<br>' && 
+                articleInput.value !== '<p><br></p>' &&
+                articleInput.value !== '<p></p>';
             
             // Check for quiz content
             const hasQuiz = quizDataInput && quizDataInput.value && 
@@ -1285,6 +1321,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             console.log('Video items:', videoItems.length, 'Video input:', videoUrlsInput ? videoUrlsInput.value : 'null');
+            console.log('Article input:', articleInput ? articleInput.value.substring(0, 100) + '...' : 'null');
+            console.log('Has videos:', hasVideos, 'Has article:', hasArticle, 'Has quiz:', hasQuiz, 'Has resources:', hasResources);
             console.log('Primary content type set to:', primaryContentTypeInput.value);
         }
 

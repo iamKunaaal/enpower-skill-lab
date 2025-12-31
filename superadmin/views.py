@@ -1003,7 +1003,7 @@ def onboard_teacher(request):
     """View for onboarding new teachers"""
     if request.method == 'POST':
         try:
-            from .models import Teacher
+            from teacher.models import Teacher
             from datetime import date
             import secrets
             import string
@@ -1198,7 +1198,7 @@ ENpower Skill Lab Team
 @user_passes_test(is_superadmin)
 def teacher_list(request):
     """View to display list of all teachers"""
-    from .models import Teacher
+    from teacher.models import Teacher
     import random
 
     # Get all teachers
@@ -1219,7 +1219,7 @@ def teacher_list(request):
 @user_passes_test(is_superadmin)
 def view_teacher(request, teacher_id):
     """View to display teacher details"""
-    from .models import Teacher
+    from teacher.models import Teacher
     teacher = get_object_or_404(Teacher, id=teacher_id)
     
     # Add badge color
@@ -1236,7 +1236,7 @@ def view_teacher(request, teacher_id):
 @user_passes_test(is_superadmin)
 def edit_teacher(request, teacher_id):
     """View to edit teacher details"""
-    from .models import Teacher
+    from teacher.models import Teacher
     teacher = get_object_or_404(Teacher, id=teacher_id)
 
     if request.method == 'POST':
@@ -1284,7 +1284,7 @@ def edit_teacher(request, teacher_id):
 @user_passes_test(is_superadmin)
 def delete_teacher(request, teacher_id):
     """View to delete a teacher"""
-    from .models import Teacher
+    from teacher.models import Teacher
     teacher = get_object_or_404(Teacher, id=teacher_id)
     teacher_name = teacher.full_name
     
@@ -1650,8 +1650,33 @@ def onboard_coordinator(request):
                     return date_str
                 return None
             
+            # Generate temporary password
+            temp_password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
+            
+            # Get coordinator email
+            coordinator_email = data.get('officialEmail', '')
+            
+            # Check if email already exists
+            User = get_user_model()
+            if User.objects.filter(email=coordinator_email).exists():
+                messages.error(request, f'A user with email {coordinator_email} already exists.')
+                schools = School.objects.filter(is_active=True).order_by('school_name')
+                return render(request, 'superadmin/onboard-pc.html', {'schools': schools})
+            
+            # Create User account for the coordinator
+            user = User.objects.create_user(
+                username=coordinator_email,
+                email=coordinator_email,
+                password=temp_password,
+                first_name=data.get('fullName', '').split()[0] if data.get('fullName') else '',
+                last_name=' '.join(data.get('fullName', '').split()[1:]) if len(data.get('fullName', '').split()) > 1 else '',
+                role='PROGRAM_COORDINATOR',
+                phone_number=data.get('mobileNumber', ''),
+            )
+            
             # Create coordinator instance
             coordinator = ProgramCoordinator(
+                user=user,  # Link to user
                 # Basic Information
                 full_name=data.get('fullName', ''),
                 gender=data.get('gender', ''),
@@ -1742,10 +1767,48 @@ def onboard_coordinator(request):
                 if valid_ids:
                     coordinator.schools_assigned.set(School.objects.filter(id__in=valid_ids))
             
-            messages.success(request, f'Program Coordinator "{coordinator.full_name}" onboarded successfully!')
+            # Send email with credentials
+            try:
+                email_subject = 'Welcome to Enpower Skill Lab - Your Program Coordinator Account'
+                email_body = f"""
+Dear {coordinator.full_name},
+
+You have been registered as a Program Coordinator at Enpower Skill Lab.
+
+Your Login Credentials:
+- Username: {user.email}
+- Temporary Password: {temp_password}
+- Login URL: {request.build_absolute_uri('/')[:-1]}/login/
+
+IMPORTANT: Please change your password immediately after your first login for security reasons.
+
+After logging in, you can access your dashboard at:
+{request.build_absolute_uri('/')[:-1]}/coordinator/dashboard/
+
+If you have any questions, please contact support.
+
+Best regards,
+Enpower Skill Lab Team
+                """
+
+                send_mail(
+                    email_subject,
+                    email_body,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [coordinator.official_email],
+                    fail_silently=False,
+                )
+
+                messages.success(request, f'Program Coordinator "{coordinator.full_name}" onboarded successfully! Credentials sent to {coordinator.official_email}.')
+            except Exception as email_error:
+                messages.warning(request, f'Program Coordinator created but email failed to send: {str(email_error)}. Temporary password: {temp_password}')
+            
             return redirect('superadmin_dashboard')
             
         except Exception as e:
+            # If user was created but coordinator failed, delete the user
+            if 'user' in locals():
+                user.delete()
             messages.error(request, f'Error onboarding coordinator: {str(e)}')
     
     # GET request - pass schools to template
@@ -1754,6 +1817,94 @@ def onboard_coordinator(request):
         'schools': schools
     }
     return render(request, 'superadmin/onboard-pc.html', context)
+
+
+# ==================== PROGRAM COORDINATOR MANAGEMENT VIEWS ====================
+
+@login_required
+@user_passes_test(is_superadmin)
+def coordinator_list(request):
+    """View to display all program coordinators"""
+    from coordinator.models import ProgramCoordinator
+    
+    coordinators = ProgramCoordinator.objects.all().order_by('-created_at')
+    
+    context = {
+        'coordinators': coordinators,
+    }
+    return render(request, 'superadmin/pc-list.html', context)
+
+
+@login_required
+@user_passes_test(is_superadmin)
+def view_coordinator(request, coordinator_id):
+    """View to display coordinator details"""
+    from coordinator.models import ProgramCoordinator
+    
+    coordinator = get_object_or_404(ProgramCoordinator, id=coordinator_id)
+    
+    context = {
+        'coordinator': coordinator,
+    }
+    return render(request, 'superadmin/view-pc.html', context)
+
+
+@login_required
+@user_passes_test(is_superadmin)
+def edit_coordinator(request, coordinator_id):
+    """View to edit a coordinator"""
+    from coordinator.models import ProgramCoordinator
+    
+    coordinator = get_object_or_404(ProgramCoordinator, id=coordinator_id)
+    
+    if request.method == 'POST':
+        try:
+            data = request.POST
+            
+            # Update basic information
+            coordinator.full_name = data.get('fullName', coordinator.full_name)
+            coordinator.gender = data.get('gender', coordinator.gender)
+            coordinator.designation = data.get('designation', coordinator.designation)
+            coordinator.mobile_number = data.get('mobileNumber', coordinator.mobile_number)
+            coordinator.official_email = data.get('officialEmail', coordinator.official_email)
+            coordinator.zone_assigned = data.get('zoneAssigned', coordinator.zone_assigned)
+            coordinator.program_assigned = data.get('programAssigned', coordinator.program_assigned)
+            coordinator.is_active = data.get('isActive') == 'on'
+            
+            coordinator.save()
+            
+            messages.success(request, f'Coordinator "{coordinator.full_name}" updated successfully!')
+            return redirect('coordinator_list')
+            
+        except Exception as e:
+            messages.error(request, f'Error updating coordinator: {str(e)}')
+    
+    schools = School.objects.filter(is_active=True).order_by('school_name')
+    context = {
+        'coordinator': coordinator,
+        'schools': schools,
+    }
+    return render(request, 'superadmin/edit-pc.html', context)
+
+
+@login_required
+@user_passes_test(is_superadmin)
+def delete_coordinator(request, coordinator_id):
+    """View to delete a coordinator"""
+    from coordinator.models import ProgramCoordinator
+    
+    if request.method == 'POST':
+        coordinator = get_object_or_404(ProgramCoordinator, id=coordinator_id)
+        coordinator_name = coordinator.full_name
+        
+        # Also delete the associated user if exists
+        if coordinator.user:
+            coordinator.user.delete()
+        
+        coordinator.delete()
+        messages.success(request, f'Coordinator "{coordinator_name}" deleted successfully!')
+    
+    return redirect('coordinator_list')
 
 
 # ==================== CLASS MANAGEMENT VIEWS ====================
@@ -1816,7 +1967,7 @@ def add_class(request):
             # Get thinking coach if provided
             thinking_coach = None
             if thinking_coach_id:
-                from .models import Teacher
+                from teacher.models import Teacher
                 teacher = Teacher.objects.filter(id=thinking_coach_id).first()
                 if teacher:
                     thinking_coach = teacher.user
@@ -1852,7 +2003,7 @@ def add_class(request):
     schools = School.objects.filter(is_active=True)
     
     # Get teachers (thinking coaches) from Teacher model
-    from .models import Teacher
+    from teacher.models import Teacher
     # Get ALL teachers (remove filters to see everyone)
     coaches = Teacher.objects.all().select_related('user')
     
@@ -1972,14 +2123,44 @@ def add_lesson(request):
             video_urls = request.POST.get('video_urls', '')
             article_content = request.POST.get('article_content', '')
             quiz_data = request.POST.get('quiz_data', '')
-            
+
             # Determine primary_content_type based on actual content (not form value)
             # Priority: Video > Article > Quiz > Resources
-            has_videos = video_urls and video_urls.strip() and video_urls != '[]'
-            has_article = article_content and article_content.strip() and article_content != '<br>'
-            has_quiz = quiz_data and quiz_data.strip() and quiz_data != '[]'
+            import json
+            import re
+            has_videos = False
+            has_article = False
+            has_quiz = False
             has_resources = len(request.FILES.getlist('resources')) > 0
-            
+
+            # Check for videos
+            if video_urls and video_urls.strip() and video_urls.strip() != '[]':
+                try:
+                    urls = json.loads(video_urls)
+                    if isinstance(urls, list) and len(urls) > 0:
+                        # Check if URLs are not empty strings
+                        has_videos = any(url and url.strip() for url in urls)
+                except json.JSONDecodeError:
+                    # If JSON parsing fails but there's content, treat it as having videos
+                    has_videos = True
+
+            # Check for article content (more robust check)
+            if article_content and article_content.strip():
+                # Remove HTML tags for content check
+                text_content = re.sub('<[^<]+?>', '', article_content)
+                if text_content.strip() and text_content.strip() != '':
+                    has_article = True
+
+            # Check for quiz
+            if quiz_data and quiz_data.strip() and quiz_data.strip() != '[]':
+                try:
+                    quiz = json.loads(quiz_data)
+                    if isinstance(quiz, list) and len(quiz) > 0:
+                        has_quiz = True
+                except json.JSONDecodeError:
+                    has_quiz = True
+
+            # Set primary content type based on priority
             if has_videos:
                 primary_content_type = 'video'
             elif has_article:
@@ -2115,10 +2296,61 @@ def edit_lesson(request, lesson_id):
             lesson.recommend_low_competency = request.POST.get('recommend_low_competency') == 'true'
 
             # Update content data
-            lesson.primary_content_type = request.POST.get('primary_content_type', lesson.primary_content_type)
-            lesson.video_urls = request.POST.get('video_urls', lesson.video_urls)
-            lesson.article_content = request.POST.get('article_content', lesson.article_content)
-            lesson.quiz_data = request.POST.get('quiz_data', lesson.quiz_data)
+            video_urls = request.POST.get('video_urls', lesson.video_urls)
+            article_content = request.POST.get('article_content', lesson.article_content)
+            quiz_data = request.POST.get('quiz_data', lesson.quiz_data)
+
+            # Determine primary_content_type based on actual content (same logic as add_lesson)
+            import json
+            import re
+            has_videos = False
+            has_article = False
+            has_quiz = False
+            has_resources = len(request.FILES.getlist('resources')) > 0
+
+            # Check for videos
+            if video_urls and video_urls.strip() and video_urls.strip() != '[]':
+                try:
+                    urls = json.loads(video_urls)
+                    if isinstance(urls, list) and len(urls) > 0:
+                        # Check if URLs are not empty strings
+                        has_videos = any(url and url.strip() for url in urls)
+                except json.JSONDecodeError:
+                    # If JSON parsing fails but there's content, treat it as having videos
+                    has_videos = True
+
+            # Check for article content (more robust check)
+            if article_content and article_content.strip():
+                # Remove HTML tags for content check
+                text_content = re.sub('<[^<]+?>', '', article_content)
+                if text_content.strip() and text_content.strip() != '':
+                    has_article = True
+
+            # Check for quiz
+            if quiz_data and quiz_data.strip() and quiz_data.strip() != '[]':
+                try:
+                    quiz = json.loads(quiz_data)
+                    if isinstance(quiz, list) and len(quiz) > 0:
+                        has_quiz = True
+                except json.JSONDecodeError:
+                    has_quiz = True
+
+            # Set primary content type based on priority
+            if has_videos:
+                primary_content_type = 'video'
+            elif has_article:
+                primary_content_type = 'article'
+            elif has_quiz:
+                primary_content_type = 'quiz'
+            elif has_resources:
+                primary_content_type = 'mixed'
+            else:
+                primary_content_type = request.POST.get('primary_content_type', lesson.primary_content_type)
+
+            lesson.primary_content_type = primary_content_type
+            lesson.video_urls = video_urls
+            lesson.article_content = article_content
+            lesson.quiz_data = quiz_data
 
             if 'thumbnail' in request.FILES:
                 lesson.thumbnail = request.FILES['thumbnail']

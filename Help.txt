@@ -3,7 +3,7 @@
 
 git status
 git add .
-git commit -m "Seprated Models"
+git commit -m "Lms Functionality Build"
 git push origin main
 
 

@@ -87,26 +87,62 @@
                         <textarea id="alExistingVideoUrls" style="display:none;">{{ lesson.video_urls|default:'' }}</textarea>
                         <textarea id="alExistingQuizData" style="display:none;">{{ lesson.quiz_data|default:'' }}</textarea>
                         <div class="al-lesson-tabs">
-                            <button type="button" class="{% if lesson.primary_content_type == 'video' or not lesson.primary_content_type %}active{% endif %}" data-content-type="video">
+                            {% if lesson.primary_content_type == 'video' or not lesson.primary_content_type %}
+                            <button type="button" class="active" data-content-type="video">
                                 <span class="material-symbols-outlined">play_circle</span>
                                 Video
                             </button>
-                            <button type="button" class="{% if lesson.primary_content_type == 'article' %}active{% endif %}" data-content-type="article">
-                                <span class="material-symbols-outlined">article</span>
-                                Article
-                            </button>
-                            <button type="button" class="{% if lesson.primary_content_type == 'quiz' %}active{% endif %}" data-content-type="quiz">
-                                <span class="material-symbols-outlined">quiz</span>
-                                Quiz
-                            </button>
-                            <button type="button" class="{% if lesson.primary_content_type == 'mixed' %}active{% endif %}" data-content-type="mixed">
+                            {% if resources %}
+                            <button type="button" data-content-type="mixed">
                                 <span class="material-symbols-outlined">upload_file</span>
                                 Resources
                             </button>
+                            {% endif %}
+                            {% elif lesson.primary_content_type == 'article' %}
+                            <button type="button" class="active" data-content-type="article">
+                                <span class="material-symbols-outlined">article</span>
+                                Article
+                            </button>
+                            {% if resources %}
+                            <button type="button" data-content-type="mixed">
+                                <span class="material-symbols-outlined">upload_file</span>
+                                Resources
+                            </button>
+                            {% endif %}
+                            {% elif lesson.primary_content_type == 'quiz' %}
+                            <button type="button" class="active" data-content-type="quiz">
+                                <span class="material-symbols-outlined">quiz</span>
+                                Quiz
+                            </button>
+                            {% elif lesson.primary_content_type == 'mixed' %}
+                            <button type="button" class="active" data-content-type="mixed">
+                                <span class="material-symbols-outlined">upload_file</span>
+                                Resources
+                            </button>
+                            {% endif %}
                         </div>
 
                         <!-- Content Area -->
                         <div id="alContentArea"></div>
+
+                        <!-- Existing Resources (shown when Resources tab is active) -->
+                        {% if resources %}
+                        <div id="alExistingResources" class="mt-3" style="display: none;">
+                            <label class="al-form-label mb-2">Uploaded Resources</label>
+                            <ul class="list-group mb-3">
+                                {% for resource in resources %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="material-symbols-outlined">{% if resource.resource_type == 'pdf' %}picture_as_pdf{% elif resource.resource_type == 'doc' %}description{% elif resource.resource_type == 'ppt' %}slideshow{% elif resource.resource_type == 'xls' %}table_chart{% else %}insert_drive_file{% endif %}</span>
+                                        <span>{{ resource.title }}</span>
+                                        <span class="badge bg-secondary">{{ resource.resource_type|upper }}</span>
+                                    </div>
+                                    <a href="{{ resource.file.url }}" target="_blank" class="btn btn-sm btn-outline-primary">Download</a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
 

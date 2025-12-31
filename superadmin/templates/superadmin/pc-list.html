@@ -1,0 +1,132 @@
+{% extends 'superadmin/base.html' %}
+{% load static %}
+
+{% block title %}Program Coordinator List - Super Admin{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="{% static 'css/pc-list.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="pcl-page-wrapper">
+  <div class="pcl-page-content">
+    <header class="pcl-page-header">
+      <h1 class="pcl-page-title">Program Coordinator List</h1>
+      <div class="pcl-header-actions">
+        <button class="pcl-btn-gradient pcl-btn-download" onclick="downloadSampleCSV()">
+          <span class="material-symbols-outlined">download</span>
+          Download Sample CSV
+        </button>
+
+        <label class="pcl-btn-gradient pcl-btn-upload">
+          <span class="material-symbols-outlined">upload</span>
+          Upload CSV
+          <input type="file" accept=".csv" onchange="handleCSVUpload(event)" style="display: none;">
+        </label>
+
+        <a href="{% url 'onboard_coordinator' %}" class="pcl-btn-gradient pcl-btn-add">
+          <span class="material-symbols-outlined">add</span>
+          Add New Coordinator
+        </a>
+      </div>
+    </header>
+
+    <main class="pcl-card">
+      <div class="pcl-table-wrapper-outer">
+        <div class="pcl-table-responsive">
+          <table id="pcl-coordinator-table" class="table mb-0 align-middle">
+            <thead>
+              <tr>
+                <th scope="col">Employee ID</th>
+                <th scope="col">
+                  <div class="d-inline-flex align-items-center gap-1">
+                    Name
+                    <span class="material-symbols-outlined" style="font-size:16px;">arrow_upward</span>
+                  </div>
+                </th>
+                <th scope="col">Designation</th>
+                <th scope="col">Contact</th>
+                <th scope="col">Program Assigned</th>
+                <th scope="col">Zone</th>
+                <th scope="col">Joining Date</th>
+                <th scope="col">Status</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for coordinator in coordinators %}
+              <tr>
+                <td class="text-muted text-monospace">{{ coordinator.employee_id|default:"N/A" }}</td>
+                <td class="fw-semibold">
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="pcl-initial-badge" style="background-color:{{ coordinator.badge_color|default:'#6b277e' }};">
+                      {{ coordinator.full_name|slice:":2"|upper }}
+                    </div>
+                    <span>{{ coordinator.full_name }}</span>
+                  </div>
+                </td>
+                <td class="text-muted">{{ coordinator.designation|default:"Program Coordinator" }}</td>
+                <td class="text-muted">
+                  {{ coordinator.official_email }}<br>
+                  <small>{{ coordinator.mobile_number|default:"" }}</small>
+                </td>
+                <td>
+                  {% if coordinator.program_assigned %}
+                  <span class="badge bg-primary-subtle text-primary fw-semibold pcl-badge-pill">{{ coordinator.program_assigned }}</span>
+                  {% else %}
+                  <span class="text-muted">-</span>
+                  {% endif %}
+                </td>
+                <td class="text-muted">{{ coordinator.zone_assigned|default:"-" }}</td>
+                <td class="text-muted">{{ coordinator.joining_date|date:"d M Y"|default:"-" }}</td>
+                <td>
+                  {% if coordinator.is_active %}
+                  <span class="pcl-control-pill pcl-status-active">Active</span>
+                  {% else %}
+                  <span class="pcl-control-pill pcl-status-inactive">Inactive</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <div class="d-flex align-items-center gap-3 text-muted">
+                    <button class="btn btn-link p-0 text-decoration-none text-muted pcl-hover-primary" onclick="window.location.href='{% url 'edit_coordinator' coordinator.id %}'">
+                      <span class="material-symbols-outlined">edit</span>
+                    </button>
+                    <button class="btn btn-link p-0 text-decoration-none text-muted pcl-hover-primary" onclick="window.location.href='{% url 'view_coordinator' coordinator.id %}'">
+                      <span class="material-symbols-outlined">visibility</span>
+                    </button>
+                    <button class="btn btn-link p-0 text-decoration-none text-muted pcl-hover-primary" title="Delete" onclick="handlePCDelete({{ coordinator.id }}, '{{ coordinator.full_name }}')">
+                      <span class="material-symbols-outlined">delete</span>
+                    </button>
+                    <form id="pcl-delete-form-{{ coordinator.id }}" action="{% url 'delete_coordinator' coordinator.id %}" method="POST" style="display: none;">
+                      {% csrf_token %}
+                    </form>
+                  </div>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="9" class="text-center py-5">
+                  <div class="text-muted">
+                    <span class="material-symbols-outlined" style="font-size: 48px; line-height: 1; display: inline-block; width: 48px; height: 48px; opacity: 0.5;">person</span>
+                    <p class="mt-2 mb-0">No program coordinators found</p>
+                    <a href="{% url 'onboard_coordinator' %}" class="pcl-btn-gradient pcl-btn-add mt-3">Add First Coordinator</a>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="{% static 'js/pc-list.js' %}"></script>
+{% endblock %}

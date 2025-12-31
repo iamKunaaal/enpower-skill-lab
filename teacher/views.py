@@ -265,24 +265,85 @@ def add_lesson(request):
         return redirect('login')
     
     if request.method == 'POST':
-        title = request.POST.get('title', '').strip()
-        description = request.POST.get('description', '').strip()
-        competency = request.POST.get('competency', '').strip()
-        level = request.POST.get('level', 'beginner')
-        module = request.POST.get('module', '').strip()
-        applicable_grades = request.POST.get('applicable_grades', '').strip()
-        status = request.POST.get('status', 'draft')
-        primary_content_type = request.POST.get('primary_content_type', 'video')
-        article_content = request.POST.get('article_content', '')
-        video_urls = request.POST.get('video_urls', '')
-        quiz_data = request.POST.get('quiz_data', '')
-        
-        if not title:
-            messages.error(request, 'Lesson title is required.')
-            return redirect('teacher:add_lesson')
+        from lms.models import Lesson, LessonResource
+        from schools.models import School
+        import os
         
         try:
-            lesson = Lesson.objects.create(
+            # Get form data
+            title = request.POST.get('title')
+            description = request.POST.get('description')
+            competency = request.POST.get('competency')
+            level = request.POST.get('level', 'beginner')
+            module = request.POST.get('module')
+            applicable_grades = request.POST.get('applicable_grades')
+            status = request.POST.get('status', 'draft')
+            is_published = status == 'published'
+            recommend_low_competency = request.POST.get('recommend_low_competency') == 'true'
+
+            # Get content data
+            video_urls = request.POST.get('video_urls', '')
+            article_content = request.POST.get('article_content', '')
+            quiz_data = request.POST.get('quiz_data', '')
+            
+            # Debug logging
+            print(f"DEBUG - video_urls: {video_urls[:100] if video_urls else 'None'}")
+            print(f"DEBUG - article_content length: {len(article_content) if article_content else 0}")
+            print(f"DEBUG - quiz_data: {quiz_data[:100] if quiz_data else 'None'}")
+            
+            # Determine primary_content_type based on actual content (not form value)
+            # Priority: Video > Article > Quiz > Resources
+            import json
+            has_videos = False
+            has_article = False
+            has_quiz = False
+            has_resources = len(request.FILES.getlist('resources')) > 0
+            
+            # Check for videos
+            if video_urls and video_urls.strip() and video_urls.strip() != '[]':
+                try:
+                    urls = json.loads(video_urls)
+                    if isinstance(urls, list) and len(urls) > 0:
+                        # Check if URLs are not empty strings
+                        has_videos = any(url and url.strip() for url in urls)
+                except json.JSONDecodeError:
+                    # If JSON parsing fails but there's content, treat it as having videos
+                    has_videos = True
+            
+            # Check for article content (more robust check)
+            if article_content and article_content.strip():
+                # Remove HTML tags for content check
+                import re
+                text_content = re.sub('<[^<]+?>', '', article_content)
+                if text_content.strip() and text_content.strip() != '':
+                    has_article = True
+
+            # Check for quiz
+            if quiz_data and quiz_data.strip() and quiz_data.strip() != '[]':
+                try:
+                    quiz = json.loads(quiz_data)
+                    if isinstance(quiz, list) and len(quiz) > 0:
+                        has_quiz = True
+                except json.JSONDecodeError:
+                    has_quiz = True
+            
+            # Set primary content type based on priority
+            if has_videos:
+                primary_content_type = 'video'
+            elif has_article:
+                primary_content_type = 'article'
+            elif has_quiz:
+                primary_content_type = 'quiz'
+            elif has_resources:
+                primary_content_type = 'mixed'
+            else:
+                primary_content_type = request.POST.get('primary_content_type', 'video')
+            
+            print(f"DEBUG - has_videos: {has_videos}, has_article: {has_article}, has_quiz: {has_quiz}, has_resources: {has_resources}")
+            print(f"DEBUG - Final primary_content_type: {primary_content_type}")
+
+            # Create lesson
+            lesson = Lesson(
                 title=title,
                 description=description,
                 competency=competency,
@@ -290,24 +351,30 @@ def add_lesson(request):
                 module=module,
                 applicable_grades=applicable_grades,
                 status=status,
+                is_published=is_published,
+                recommend_low_competency=recommend_low_competency,
                 primary_content_type=primary_content_type,
-                article_content=article_content,
                 video_urls=video_urls,
+                article_content=article_content,
                 quiz_data=quiz_data,
+                created_by=request.user,
             )
-            
+
             # Handle thumbnail upload
             if 'thumbnail' in request.FILES:
                 lesson.thumbnail = request.FILES['thumbnail']
-                lesson.save()
 
-            # Add teacher's school to applicable schools
-            if hasattr(request.user, 'teacher_profile') and request.user.teacher_profile and request.user.teacher_profile.school:
-                lesson.applicable_schools.add(request.user.teacher_profile.school)
+            lesson.save()
+
+            # Get teacher's school and assign to lesson
+            teacher_school = None
+            if hasattr(request.user, 'teacher_profile') and request.user.teacher_profile:
+                teacher_school = request.user.teacher_profile.school
+            
+            if teacher_school:
+                lesson.applicable_schools.add(teacher_school)
 
             # Handle resource files
-            import os
-            from lms.models import LessonResource
             resource_files = request.FILES.getlist('resources')
             for resource_file in resource_files:
                 # Get file extension
@@ -331,16 +398,14 @@ def add_lesson(request):
                     file_size=resource_file.size
                 )
 
-            messages.success(request, f'Lesson "{title}" created successfully!')
+            messages.success(request, f'Lesson "{lesson.title}" created successfully!')
             return redirect('teacher:lesson_library')
-            
+
         except Exception as e:
             messages.error(request, f'Error creating lesson: {str(e)}')
-            return redirect('teacher:add_lesson')
-    
-    context = {
-        'page_title': 'Create Lesson',
-    }
+
+    # GET request - render form
+    context = {}
     return render(request, 'teacher/add-lesson.html', context)
 
 
@@ -354,7 +419,17 @@ def view_lesson(request, lesson_id):
     from lms.models import LessonResource
     import json
 
-    lesson = get_object_or_404(Lesson, id=lesson_id)
+    # Get teacher's assigned school
+    teacher_school = None
+    if hasattr(request.user, 'teacher_profile') and request.user.teacher_profile:
+        teacher_school = request.user.teacher_profile.school
+    
+    # Get lesson - ensure they can view it (either created by them or assigned to their school)
+    if teacher_school:
+        lesson = get_object_or_404(Lesson, id=lesson_id, applicable_schools=teacher_school)
+    else:
+        lesson = get_object_or_404(Lesson, id=lesson_id, created_by=request.user)
+    
     resources = LessonResource.objects.filter(lesson=lesson)
 
     # Parse video URLs from JSON
@@ -381,20 +456,81 @@ def edit_lesson(request, lesson_id):
         messages.error(request, 'You do not have permission to access this page.')
         return redirect('login')
     
-    lesson = get_object_or_404(Lesson, id=lesson_id)
+    # Get teacher's assigned school
+    teacher_school = None
+    if hasattr(request.user, 'teacher_profile') and request.user.teacher_profile:
+        teacher_school = request.user.teacher_profile.school
+    
+    # Get lesson - ensure they can edit it (either created by them or assigned to their school)
+    if teacher_school:
+        lesson = get_object_or_404(Lesson, id=lesson_id, applicable_schools=teacher_school)
+    else:
+        lesson = get_object_or_404(Lesson, id=lesson_id, created_by=request.user)
     
     if request.method == 'POST':
+        # Apply same primary_content_type logic as add_lesson
+        video_urls = request.POST.get('video_urls', '')
+        article_content = request.POST.get('article_content', '')
+        quiz_data = request.POST.get('quiz_data', '')
+        
+        # Determine primary_content_type based on actual content (same logic as add_lesson)
+        import json
+        import re
+        has_videos = False
+        has_article = False
+        has_quiz = False
+        has_resources = len(request.FILES.getlist('resources')) > 0
+        
+        # Check for videos
+        if video_urls and video_urls.strip() and video_urls.strip() != '[]':
+            try:
+                urls = json.loads(video_urls)
+                if isinstance(urls, list) and len(urls) > 0:
+                    # Check if URLs are not empty strings
+                    has_videos = any(url and url.strip() for url in urls)
+            except json.JSONDecodeError:
+                # If JSON parsing fails but there's content, treat it as having videos
+                has_videos = True
+        
+        # Check for article content (more robust check)
+        if article_content and article_content.strip():
+            # Remove HTML tags for content check
+            text_content = re.sub('<[^<]+?>', '', article_content)
+            if text_content.strip() and text_content.strip() != '':
+                has_article = True
+
+        # Check for quiz
+        if quiz_data and quiz_data.strip() and quiz_data.strip() != '[]':
+            try:
+                quiz = json.loads(quiz_data)
+                if isinstance(quiz, list) and len(quiz) > 0:
+                    has_quiz = True
+            except json.JSONDecodeError:
+                has_quiz = True
+        
+        # Set primary content type based on priority
+        if has_videos:
+            primary_content_type = 'video'
+        elif has_article:
+            primary_content_type = 'article'
+        elif has_quiz:
+            primary_content_type = 'quiz'
+        elif has_resources:
+            primary_content_type = 'mixed'
+        else:
+            primary_content_type = request.POST.get('primary_content_type', lesson.primary_content_type)
+        
         lesson.title = request.POST.get('title', lesson.title).strip()
         lesson.description = request.POST.get('description', lesson.description).strip()
         lesson.competency = request.POST.get('competency', lesson.competency).strip()
         lesson.level = request.POST.get('level', lesson.level)
         lesson.module = request.POST.get('module', lesson.module).strip()
         lesson.applicable_grades = request.POST.get('applicable_grades', lesson.applicable_grades).strip()
-        lesson.primary_content_type = request.POST.get('primary_content_type', lesson.primary_content_type)
+        lesson.primary_content_type = primary_content_type
         lesson.status = request.POST.get('status', lesson.status)
-        lesson.article_content = request.POST.get('article_content', lesson.article_content or '')
-        lesson.video_urls = request.POST.get('video_urls', lesson.video_urls or '')
-        lesson.quiz_data = request.POST.get('quiz_data', lesson.quiz_data or '')
+        lesson.article_content = article_content
+        lesson.video_urls = video_urls
+        lesson.quiz_data = quiz_data
         
         if 'thumbnail' in request.FILES:
             lesson.thumbnail = request.FILES['thumbnail']
@@ -461,8 +597,22 @@ def delete_lessons(request):
         if not lesson_ids:
             return JsonResponse({'success': False, 'error': 'No lessons selected'})
         
-        # Delete the lessons
-        deleted_count = Lesson.objects.filter(id__in=lesson_ids).delete()[0]
+        # Get teacher's assigned school
+        teacher_school = None
+        if hasattr(request.user, 'teacher_profile') and request.user.teacher_profile:
+            teacher_school = request.user.teacher_profile.school
+        
+        # Delete only lessons they have access to
+        if teacher_school:
+            deleted_count = Lesson.objects.filter(
+                id__in=lesson_ids, 
+                applicable_schools=teacher_school
+            ).delete()[0]
+        else:
+            deleted_count = Lesson.objects.filter(
+                id__in=lesson_ids, 
+                created_by=request.user
+            ).delete()[0]
         
         return JsonResponse({
             'success': True,
