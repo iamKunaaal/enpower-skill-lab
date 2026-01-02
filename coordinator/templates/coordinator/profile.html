@@ -1,199 +1,177 @@
 {% extends 'coordinator/base.html' %}
 {% load static %}
 
-{% block title %}Profile - Program Coordinator{% endblock %}
+{% block title %}My Profile - Program Coordinator{% endblock %}
 
 {% block extra_css %}
-<style>
-    .coord-profile-page {
-        padding: 2rem;
-    }
-    
-    .coord-profile-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 2rem;
-    }
-    
-    .coord-profile-title {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #1f2937;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-    
-    .coord-profile-title .material-symbols-outlined {
-        font-size: 2.5rem;
-        color: #5A1F6E;
-    }
-    
-    .coord-profile-card {
-        background: #ffffff;
-        border-radius: 16px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        overflow: hidden;
-        border: 1px solid rgba(0, 0, 0, 0.04);
-    }
-    
-    .coord-profile-card-header {
-        padding: 1.5rem;
-        background: linear-gradient(135deg, rgba(249, 250, 251, 0.6) 0%, rgba(255, 255, 255, 0.3) 100%);
-        border-bottom: 2px solid rgba(90, 31, 110, 0.1);
-    }
-    
-    .coord-profile-card-title {
-        font-size: 1.125rem;
-        font-weight: 600;
-        color: #1f2937;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin: 0;
-    }
-    
-    .coord-profile-card-title .material-symbols-outlined {
-        color: #5A1F6E;
-    }
-    
-    .coord-profile-card-body {
-        padding: 2rem;
-    }
-    
-    .coord-profile-avatar-section {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-bottom: 2rem;
-        padding-bottom: 2rem;
-        border-bottom: 1px solid #e5e7eb;
-    }
-    
-    .coord-profile-avatar {
-        width: 120px;
-        height: 120px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 4px solid #5A1F6E;
-        margin-bottom: 1rem;
-    }
-    
-    .coord-profile-name {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #1f2937;
-        margin-bottom: 0.25rem;
-    }
-    
-    .coord-profile-role {
-        font-size: 0.875rem;
-        color: #5A1F6E;
-        font-weight: 600;
-    }
-    
-    .coord-profile-info-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1.5rem;
-    }
-    
-    .coord-profile-info-item {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-    
-    .coord-profile-info-label {
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        color: #6b7280;
-        letter-spacing: 0.05em;
-    }
-    
-    .coord-profile-info-value {
-        font-size: 1rem;
-        font-weight: 500;
-        color: #1f2937;
-        padding: 0.75rem 1rem;
-        background: #f9fafb;
-        border-radius: 8px;
-        border: 1px solid #e5e7eb;
-    }
-    
-    @media (max-width: 768px) {
-        .coord-profile-info-grid {
-            grid-template-columns: 1fr;
-        }
-        
-        .coord-profile-page {
-            padding: 1rem;
-        }
-    }
-</style>
+<link rel="stylesheet" href="{% static 'css/coordinator/profile.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="coord-profile-page">
-    <div class="coord-profile-header">
-        <h1 class="coord-profile-title">
-            <span class="material-symbols-outlined">person</span>
-            My Profile
-        </h1>
-    </div>
-    
-    <div class="coord-profile-card">
-        <div class="coord-profile-card-header">
-            <h3 class="coord-profile-card-title">
-                <span class="material-symbols-outlined">account_circle</span>
-                Profile Information
-            </h3>
+<div class="dashboard-page">
+    <div class="profile-container">
+        <div class="page-header">
+            <h1>My Profile</h1>
+            <p>Manage your personal information and account settings</p>
         </div>
-        <div class="coord-profile-card-body">
-            <div class="coord-profile-avatar-section">
-                {% if user.program_coordinator and user.program_coordinator.profile_photo %}
-                <img src="{{ user.program_coordinator.profile_photo.url }}" alt="{{ user.get_full_name }}" class="coord-profile-avatar">
-                {% else %}
-                <img src="https://ui-avatars.com/api/?name={{ user.get_full_name|default:user.username|urlencode }}&background=6b277e&color=fff&size=128" alt="{{ user.get_full_name }}" class="coord-profile-avatar">
-                {% endif %}
-                <div class="coord-profile-name">{{ user.get_full_name|default:user.username }}</div>
-                <div class="coord-profile-role">Program Coordinator</div>
+
+        <div class="profile-grid">
+            <!-- Personal Information Card -->
+            <div class="profile-card full-width">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">person</span>
+                    <h2>Personal Information</h2>
+                </div>
+
+                <form id="profileForm" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <!-- Photo Upload Section -->
+                    <div class="photo-section">
+                        <div class="profile-photo-wrapper">
+                            <div class="profile-photo" id="profilePhotoPreview">
+                                {% if user.program_coordinator and user.program_coordinator.profile_photo %}
+                                <img src="{{ user.program_coordinator.profile_photo.url }}" alt="{{ user.get_full_name }}">
+                                {% else %}
+                                <span class="material-symbols-outlined">account_circle</span>
+                                {% endif %}
+                            </div>
+                            <label class="photo-upload-btn" for="profilePhotoInput">
+                                <span class="material-symbols-outlined">photo_camera</span>
+                            </label>
+                            <input type="file" id="profilePhotoInput" name="profile_photo" class="photo-input" accept="image/*">
+                        </div>
+                        <p class="photo-hint">Upload a profile photo (Max 2MB, JPG, PNG)</p>
+                    </div>
+
+                    <!-- Personal Details -->
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Full Name <span class="required">*</span></label>
+                            <input type="text" id="fullName" name="full_name" class="form-input" value="{{ user.program_coordinator.full_name|default:user.get_full_name|default:user.username }}" readonly>
+                            <span class="error-message" id="fullNameError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Email Address <span class="required">*</span></label>
+                            <input type="email" id="email" name="email" class="form-input" value="{{ user.program_coordinator.official_email|default:user.email }}" readonly>
+                            <span class="error-message" id="emailError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Phone Number <span class="required">*</span></label>
+                            <input type="tel" id="phone" name="mobile_number" class="form-input" value="{{ user.program_coordinator.mobile_number|default:'' }}" readonly>
+                            <span class="error-message" id="phoneError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Alternate Phone Number</label>
+                            <input type="tel" id="alternatePhone" name="alternate_number" class="form-input" placeholder="Enter alternate phone" value="{{ user.program_coordinator.alternate_number|default:'' }}" readonly>
+                            <span class="error-message" id="alternatePhoneError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Gender</label>
+                            <select id="gender" name="gender" class="form-select" disabled>
+                                <option value="">Select gender</option>
+                                <option value="male" {% if user.program_coordinator.gender == 'male' %}selected{% endif %}>Male</option>
+                                <option value="female" {% if user.program_coordinator.gender == 'female' %}selected{% endif %}>Female</option>
+                                <option value="other" {% if user.program_coordinator.gender == 'other' %}selected{% endif %}>Other</option>
+                            </select>
+                            <span class="error-message" id="genderError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Date of Birth</label>
+                            <input type="date" id="dateOfBirth" name="date_of_birth" class="form-input" value="{{ user.program_coordinator.date_of_birth|date:'Y-m-d'|default:'' }}" readonly>
+                            <span class="error-message" id="dateOfBirthError"></span>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-cancel" id="cancelBtn" style="display: none;">
+                            <span class="material-symbols-outlined">close</span>
+                            Cancel
+                        </button>
+                        <button type="button" class="btn btn-edit-profile" id="editBtn">
+                            <span class="material-symbols-outlined">edit</span>
+                            Edit Profile
+                        </button>
+                        <button type="submit" class="btn btn-save" id="saveBtn" style="display: none;">
+                            <span class="material-symbols-outlined">save</span>
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
             </div>
-            
-            <div class="coord-profile-info-grid">
-                <div class="coord-profile-info-item">
-                    <span class="coord-profile-info-label">Username</span>
-                    <div class="coord-profile-info-value">{{ user.username }}</div>
+
+            <!-- Role Information Card -->
+            <div class="profile-card">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">admin_panel_settings</span>
+                    <h2>Role Information</h2>
                 </div>
-                
-                <div class="coord-profile-info-item">
-                    <span class="coord-profile-info-label">Email Address</span>
-                    <div class="coord-profile-info-value">{{ user.email|default:"Not provided" }}</div>
+
+                <div class="role-info-grid">
+                    <div class="info-item full-width">
+                        <span class="info-label">Role</span>
+                        <div class="role-badge">
+                            <span class="material-symbols-outlined">verified</span>
+                            Program Coordinator
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <span class="info-label">Account Created On</span>
+                        <span class="info-value">{{ user.date_joined|date:"F d, Y" }}</span>
+                    </div>
+
+                    <div class="info-item">
+                        <span class="info-label">Last Login</span>
+                        <span class="info-value">{{ user.last_login|date:"F d, Y g:i A"|default:"Never" }}</span>
+                    </div>
+
+                    <div class="info-item full-width" style="margin-top: 12px;">
+                        <span class="info-label">Assigned Permissions</span>
+                        <div class="permission-badge">
+                            <span class="material-symbols-outlined">security</span>
+                            Program Management Access
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="coord-profile-info-item">
-                    <span class="coord-profile-info-label">First Name</span>
-                    <div class="coord-profile-info-value">{{ user.first_name|default:"Not provided" }}</div>
+            </div>
+
+            <!-- Account Security Card -->
+            <div class="profile-card">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">lock</span>
+                    <h2>Account Security</h2>
                 </div>
-                
-                <div class="coord-profile-info-item">
-                    <span class="coord-profile-info-label">Last Name</span>
-                    <div class="coord-profile-info-value">{{ user.last_name|default:"Not provided" }}</div>
+
+                <div class="role-info-grid single-column">
+                    <div class="info-item">
+                        <span class="info-label">Password</span>
+                        <span class="info-value">••••••••••</span>
+                    </div>
+
+                    <div class="info-item">
+                        <span class="info-label">Last Password Change</span>
+                        <span class="info-value">{{ user.program_coordinator.last_password_change|date:"F d, Y"|default:"Never Changed" }}</span>
+                    </div>
                 </div>
-                
-                <div class="coord-profile-info-item">
-                    <span class="coord-profile-info-label">Date Joined</span>
-                    <div class="coord-profile-info-value">{{ user.date_joined|date:"F d, Y" }}</div>
-                </div>
-                
-                <div class="coord-profile-info-item">
-                    <span class="coord-profile-info-label">Last Login</span>
-                    <div class="coord-profile-info-value">{{ user.last_login|date:"F d, Y H:i"|default:"Never" }}</div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-edit-profile" onclick="window.location.href='{% url 'coordinator:coordinator_change_password' %}'">
+                        <span class="material-symbols-outlined">key</span>
+                        Change Password
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/coordinator/profile.js' %}"></script>
 {% endblock %}

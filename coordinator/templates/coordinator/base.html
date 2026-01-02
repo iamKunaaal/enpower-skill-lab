@@ -78,7 +78,7 @@
         /* Dashboard Container */
         .coord-dashboard-container { display: flex; min-height: 100vh; }
         .coord-main-content { flex: 1; display: flex; flex-direction: column; overflow-x: hidden; }
-        .coord-main-container { padding: 2rem; max-width: 1536px; margin: 0 auto; width: 100%; }
+        .coord-main-container {max-width: 1536px; margin: 0 auto; width: 100%; }
 
         /* Sidebar */
         .coord-sidebar-overlay { display: none; }
@@ -294,7 +294,7 @@
                         <span class="material-symbols-outlined coord-dropdown-icon">expand_more</span>
                     </a>
                     <div class="coord-sidebar-dropdown-menu">
-                        <a href="#" id="nav-school-list"><span class="material-symbols-outlined">list</span>School List</a>
+                        <a href="{% url 'coordinator:school_list' %}" id="nav-school-list"><span class="material-symbols-outlined">list</span>School List</a>
                         <a href="#" id="nav-school-details"><span class="material-symbols-outlined">info</span>School Details</a>
                         <a href="#" id="nav-assign-coaches"><span class="material-symbols-outlined">assignment_ind</span>Assign Thinking Coaches</a>
                     </div>

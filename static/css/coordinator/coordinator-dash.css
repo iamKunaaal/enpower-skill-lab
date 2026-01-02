@@ -4,7 +4,7 @@
 
 /* Dashboard Page Container */
 .coord-dash-page {
-    /* padding: 2rem; */
+    padding: 2rem;
     flex: 1;
     position: relative;
 }

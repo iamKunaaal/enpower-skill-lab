@@ -5,7 +5,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-<link rel="stylesheet" href="{% static 'css/pc-list.css' %}">
+<link rel="stylesheet" href="{% static 'css/superadmin/pc-list.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -59,10 +59,14 @@
               <tr>
                 <td class="text-muted text-monospace">{{ coordinator.employee_id|default:"N/A" }}</td>
                 <td class="fw-semibold">
-                  <div class="d-flex align-items-center gap-3">
+                  <div class="d-flex align-items-center gap-3 pc-profile-new">
+                    {% if coordinator.profile_photo %}
+                    <img src="{{ coordinator.profile_photo.url }}" alt="{{ coordinator.full_name }}" class="pcl-avatar-image">
+                    {% else %}
                     <div class="pcl-initial-badge" style="background-color:{{ coordinator.badge_color|default:'#6b277e' }};">
                       {{ coordinator.full_name|slice:":2"|upper }}
                     </div>
+                    {% endif %}
                     <span>{{ coordinator.full_name }}</span>
                   </div>
                 </td>
@@ -128,5 +132,5 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-<script src="{% static 'js/pc-list.js' %}"></script>
+<script src="{% static 'js/superadmin/pc-list.js' %}"></script>
 {% endblock %}

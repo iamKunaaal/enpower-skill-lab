@@ -1,0 +1,567 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Student - Enpower Skill Lab{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- Base Layout Styles -->
+    <style>
+        :root {
+            --primary: #5A1F6E;
+            --primary-light: rgba(90, 31, 110, 0.1);
+            --primary-lighter: rgba(90, 31, 110, 0.05);
+            --background-light: #f7f6f8;
+            --text-dark: #1f2937;
+            --text-muted: #6b7280;
+            --text-light: #9ca3af;
+            --white: #ffffff;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+            --border-radius: 0.75rem;
+            --card-light: #ffffff;
+            --border-light: #e5e7eb;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            --blue-500: #6b277e;
+            --blue-600: #6b277e;
+            --red-600: #dc2626;
+            --heading-light: #1f2937;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* Force Poppins font globally */
+        html, body, div, span, applet, object, iframe,
+        h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+        a, abbr, acronym, address, big, cite, code,
+        del, dfn, em, img, ins, kbd, q, s, samp,
+        small, strike, strong, sub, sup, tt, var,
+        b, u, i, center, dl, dt, dd, ol, ul, li,
+        fieldset, form, label, legend, table, caption,
+        tbody, tfoot, thead, tr, th, td, article, aside,
+        canvas, details, embed, figure, figcaption, footer,
+        header, hgroup, menu, nav, output, ruby, section,
+        summary, time, mark, audio, video,
+        input, textarea, select, button, optgroup,
+        .form-control, .form-select, .btn {
+            font-family: 'Poppins', sans-serif !important;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif !important;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            line-height: 1.5;
+        }
+
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined' !important;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+
+        /* Dashboard Container */
+        .student-dashboard-container { display: flex; min-height: 100vh; }
+        .student-main-content { flex: 1; display: flex; flex-direction: column; overflow-x: hidden; }
+        .student-main-container { max-width: 1536px; margin: 0 auto; width: 100%; padding: 2rem; }
+
+        /* Sidebar */
+        .student-sidebar-overlay { display: none; }
+        .student-sidebar {
+            width: 290px;
+            flex-shrink: 0;
+            background-color: #ffffff;
+            border-right: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            transition: width 0.3s ease-in-out;
+        }
+        .student-sidebar.collapsed { width: 0; min-width: 0; border-right: none; overflow: hidden; }
+        .student-sidebar-header { height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; }
+        .student-sidebar-logo { height: 40px; width: auto; }
+        .student-sidebar-close { display: none; background: none; border: none; color: #1f2937; cursor: pointer; padding: 8px; }
+
+        /* Sidebar Navigation */
+        .student-sidebar-nav { flex: 1; padding: 20px 16px; display: flex; flex-direction: column; gap: 8px; }
+        .student-sidebar-nav .student-menu-label {
+            padding: 0 16px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #9ca3af;
+            margin-bottom: 8px;
+        }
+        .student-sidebar-nav a {
+            display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+            font-size: 0.875rem; font-weight: 500 !important; border-radius: 0.5rem;
+            text-decoration: none; color: #4b5563; transition: background-color 0.2s;
+        }
+        .student-sidebar-nav a:hover { background-color: #f3f4f6; }
+        .student-sidebar-nav a.active { background-color: rgba(107, 39, 126, 0.1); color: #6b277e; border-left: 4px solid #6b277e; padding-left: 12px; }
+        .student-sidebar-nav a .material-symbols-outlined { width: 24px; height: 24px; font-size: 20px; }
+
+        /* Header */
+        .student-header {
+            height: 80px; display: flex; align-items: center; justify-content: space-between;
+            padding: 0 32px; border-bottom: 1px solid var(--border-light);
+            background-color: var(--card-light); position: sticky; top: 0; z-index: 10;
+        }
+        .student-header-left, .student-header-right { display: flex; align-items: center; gap: 16px; }
+        .student-header button { background: none; border: none; color: var(--heading-light); cursor: pointer; padding: 8px; }
+        .student-fullscreen-btn { display: none; }
+        @media (min-width: 640px) { .student-fullscreen-btn { display: block; } }
+
+        /* Notification Wrapper */
+        .student-notification-wrapper { position: relative; }
+        .student-notification-badge {
+            position: absolute; top: -4px; right: -4px; display: flex; align-items: center; justify-content: center;
+            width: 20px; height: 20px; border-radius: 50%;
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            color: white; font-size: 0.75rem; font-weight: 700; z-index: 1; animation: student-pulse-badge 2s infinite;
+        }
+        @keyframes student-pulse-badge {
+            0%, 100% { box-shadow: 0 2px 8px rgba(239, 68, 68, 0.5); }
+            50% { box-shadow: 0 2px 8px rgba(239, 68, 68, 0.5), 0 0 0 6px rgba(239, 68, 68, 0); }
+        }
+
+        /* Notification Dropdown */
+        .student-notification-dropdown-menu {
+            position: absolute; top: calc(100% + 12px); right: 0; width: 420px;
+            background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(20px); border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12); opacity: 0; visibility: hidden;
+            transform: translateY(-15px) scale(0.95); transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 1000; border: 1px solid rgba(255, 255, 255, 0.8); max-height: 550px;
+            overflow: hidden; display: flex; flex-direction: column;
+        }
+        .student-notification-dropdown-menu.active { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+        .student-notification-dropdown-header {
+            display: flex; align-items: center; justify-content: space-between; padding: 20px 24px;
+            border-bottom: 2px solid rgba(107, 39, 126, 0.1);
+            background: linear-gradient(135deg, rgba(107, 39, 126, 0.03) 0%, rgba(139, 92, 246, 0.03) 100%);
+        }
+        .student-notification-dropdown-title { font-size: 1.25rem; font-weight: 700; color: var(--heading-light); margin: 0; display: flex; align-items: center; gap: 8px; }
+        .student-notification-count { font-size: 0.813rem; font-weight: 700; color: white; background: linear-gradient(135deg, #6b277e 0%, #A67DB1 100%); padding: 6px 14px; border-radius: 20px; }
+        .student-notification-dropdown-body { flex: 1; overflow-y: auto; max-height: 380px; }
+        .student-notification-item { display: flex; gap: 14px; padding: 18px 24px; text-decoration: none; transition: all 0.3s ease; border-bottom: 1px solid rgba(0, 0, 0, 0.04); margin: 8px; border-radius: 12px; }
+        .student-notification-item:hover { background: linear-gradient(135deg, rgba(107, 39, 126, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%); }
+        .student-notification-item.unread { background: linear-gradient(135deg, rgba(107, 39, 126, 0.06) 0%, rgba(139, 92, 246, 0.06) 100%); }
+        .student-notification-icon { flex-shrink: 0; width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; }
+        .student-notification-icon .material-symbols-outlined { font-size: 1.5rem; color: white; }
+        .student-notification-icon.bg-blue { background: linear-gradient(135deg, #6b277e 0%, #A67DB1 100%); }
+        .student-notification-icon.bg-green { background: linear-gradient(135deg, #10B981 0%, #059669 100%); }
+        .student-notification-icon.bg-orange { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); }
+        .student-notification-icon.bg-purple { background: linear-gradient(135deg, #6b277e 0%, #A67DB1 100%); }
+        .student-notification-content { flex: 1; min-width: 0; }
+        .student-notification-text { font-size: 0.938rem; color: var(--heading-light); margin: 0 0 6px 0; }
+        .student-notification-text strong { font-weight: 700; }
+        .student-notification-description { font-size: 0.875rem; color: #6B7280; margin: 0 0 8px 0; }
+        .student-notification-time { font-size: 0.813rem; color: #9CA3AF; font-weight: 500; }
+        .student-notification-time::before { content: '•'; color: #6b277e; margin-right: 4px; }
+        .student-notification-dropdown-footer { padding: 16px 24px; border-top: 2px solid rgba(107, 39, 126, 0.1); text-align: center; }
+        .student-notification-footer-link { font-size: 0.938rem; font-weight: 700; color: #6b277e; text-decoration: none; }
+
+        /* User Info */
+        .student-user-info-wrapper { position: relative; }
+        .student-user-info { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 6px 12px; border-radius: 8px; transition: background-color 0.3s ease; }
+        .student-user-info:hover { background-color: var(--gray-100); }
+        .student-user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+        .student-user-name { font-weight: 600; color: var(--heading-light); }
+        .student-user-dropdown { display: none; }
+        @media (min-width: 640px) { .student-user-name, .student-user-dropdown { display: block; } }
+
+        /* User Dropdown Menu */
+        .student-user-dropdown-menu {
+            position: absolute; top: calc(100% + 8px); right: 0; width: 280px;
+            background-color: var(--card-light); border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); opacity: 0; visibility: hidden;
+            transform: translateY(-10px); transition: all 0.3s ease; z-index: 1000; border: 1px solid var(--border-light);
+        }
+        .student-user-dropdown-menu.active { opacity: 1; visibility: visible; transform: translateY(0); }
+        .student-dropdown-header { display: flex; align-items: center; gap: 12px; padding: 20px; }
+        .student-dropdown-avatar { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; border: 3px solid var(--blue-500); }
+        .student-dropdown-user-info { flex: 1; }
+        .student-dropdown-user-name { font-size: 1rem; font-weight: 700; color: var(--heading-light); margin: 0 0 4px 0; }
+        .student-dropdown-user-email { font-size: 0.8125rem; color: var(--gray-500); margin: 0; }
+        .student-dropdown-divider { height: 1px; background-color: var(--border-light); margin: 0 12px; }
+        .student-dropdown-item { display: flex; align-items: center; gap: 12px; padding: 12px 20px; font-size: 0.9375rem; font-weight: 500; color: var(--gray-600); text-decoration: none; transition: all 0.3s ease; }
+        .student-dropdown-item:hover { background-color: var(--gray-100); }
+        .student-dropdown-item .material-symbols-outlined { font-size: 1.25rem; color: var(--gray-500); }
+        .student-dropdown-item.logout-item { color: var(--red-600); }
+        .student-dropdown-item.logout-item .material-symbols-outlined { color: var(--red-600); }
+        .student-dropdown-item.logout-item:hover { background-color: rgba(239, 68, 68, 0.1); }
+
+        /* Toast Messages */
+        .student-toast-container { position: fixed; top: 90px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 12px; max-width: 420px; width: 100%; }
+        .student-toast { display: flex; align-items: flex-start; gap: 14px; padding: 16px 18px; background: #ffffff; border-radius: 12px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12); position: relative; overflow: hidden; animation: student-toastSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); border-left: 4px solid; }
+        .student-toast-success { border-left-color: #10b981; }
+        .student-toast-error { border-left-color: #ef4444; }
+        .student-toast-warning { border-left-color: #f59e0b; }
+        .student-toast-info { border-left-color: #3b82f6; }
+        .student-toast-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .student-toast-success .student-toast-icon { background: rgba(16, 185, 129, 0.12); color: #10b981; }
+        .student-toast-error .student-toast-icon { background: rgba(239, 68, 68, 0.12); color: #ef4444; }
+        .student-toast-warning .student-toast-icon { background: rgba(245, 158, 11, 0.12); color: #f59e0b; }
+        .student-toast-info .student-toast-icon { background: rgba(59, 130, 246, 0.12); color: #3b82f6; }
+        .student-toast-icon .material-symbols-outlined { font-size: 22px; font-variation-settings: 'FILL' 1; }
+        .student-toast-content { flex: 1; min-width: 0; }
+        .student-toast-title { font-weight: 600; font-size: 15px; color: #1f2937; margin-bottom: 4px; }
+        .student-toast-message { font-size: 14px; color: #6b7280; line-height: 1.5; }
+        .student-toast-close { background: none; border: none; padding: 4px; cursor: pointer; color: #9ca3af; border-radius: 6px; transition: all 0.2s ease; }
+        .student-toast-close:hover { background: #f3f4f6; color: #4b5563; }
+        .student-toast-progress { position: absolute; bottom: 0; left: 0; right: 0; height: 4px; background: rgba(0, 0, 0, 0.06); }
+        .student-toast-progress-bar { height: 100%; width: 100%; animation: student-progressShrink 5s linear forwards; }
+        .student-toast-success .student-toast-progress-bar { background: linear-gradient(90deg, #10b981, #34d399); }
+        .student-toast-error .student-toast-progress-bar { background: linear-gradient(90deg, #ef4444, #f87171); }
+        .student-toast-warning .student-toast-progress-bar { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+        .student-toast-info .student-toast-progress-bar { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+        @keyframes student-toastSlideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes student-toastSlideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(120%); opacity: 0; } }
+        @keyframes student-progressShrink { from { width: 100%; } to { width: 0%; } }
+        .student-toast.closing { animation: student-toastSlideOut 0.3s ease-out forwards; }
+
+        /* Responsive */
+        @media (max-width: 1023px) {
+            .student-sidebar { position: fixed; left: -100%; top: 0; height: 100vh; z-index: 50; transition: left 0.3s ease-in-out; width: 280px; }
+            .student-sidebar.active { left: 0; }
+            .student-sidebar-overlay.active { display: block; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); z-index: 40; }
+            .student-sidebar-close { display: block; }
+            .student-header { padding: 0 16px; height: 64px; }
+            .student-main-container { padding: 1.5rem 1rem; }
+        }
+        @media (max-width: 767px) {
+            .student-notification-dropdown-menu { width: calc(100vw - 32px); right: -100px; }
+            .student-user-dropdown-menu { width: calc(100vw - 32px); right: -50px; }
+        }
+        @media (max-width: 479px) {
+            .student-header { padding: 0 12px; height: 56px; }
+            .student-notification-badge { width: 16px; height: 16px; font-size: 0.625rem; }
+            .student-sidebar { width: 260px; }
+            .student-main-container { padding: 1rem; }
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="student-dashboard-container">
+        <div class="student-sidebar-overlay" id="studentSidebarOverlay"></div>
+        <aside id="studentSidebar" class="student-sidebar">
+            <div class="student-sidebar-header">
+                <img src="{% static 'assets/images/enpower-logo (1).png' %}" alt="Enpower Logo" class="student-sidebar-logo" />
+                <button id="studentCloseSidebar" class="student-sidebar-close">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <nav class="student-sidebar-nav">
+                <p class="student-menu-label">Menu</p>
+
+                <!-- Dashboard -->
+                <a href="{% url 'student:student_dashboard' %}" id="nav-dashboard" class="student-sidebar-nav-link">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    Dashboard
+                </a>
+
+                <!-- Profile -->
+                <a href="{% url 'student:student_profile' %}" id="nav-profile" class="student-sidebar-nav-link">
+                    <span class="material-symbols-outlined">account_circle</span>
+                    My Profile
+                </a>
+
+                <!-- Attendance -->
+                <a href="#" id="nav-attendance" class="student-sidebar-nav-link">
+                    <span class="material-symbols-outlined">calendar_month</span>
+                    Attendance
+                </a>
+
+                <!-- LMS -->
+                <a href="#" id="nav-lms" class="student-sidebar-nav-link">
+                    <span class="material-symbols-outlined">school</span>
+                    LMS
+                </a>
+
+                <!-- Leader Board -->
+                <a href="#" id="nav-leaderboard" class="student-sidebar-nav-link">
+                    <span class="material-symbols-outlined">leaderboard</span>
+                    Leader Board
+                </a>
+
+                <!-- Assessment -->
+                <a href="#" id="nav-assessment" class="student-sidebar-nav-link">
+                    <span class="material-symbols-outlined">quiz</span>
+                    Assessment
+                </a>
+
+                <!-- Reports -->
+                <a href="#" id="nav-reports" class="student-sidebar-nav-link">
+                    <span class="material-symbols-outlined">assessment</span>
+                    Reports
+                </a>
+
+                <!-- Badges -->
+                <a href="#" id="nav-badges" class="student-sidebar-nav-link">
+                    <span class="material-symbols-outlined">military_tech</span>
+                    Badges
+                </a>
+
+                <!-- Event Calendar -->
+                <a href="#" id="nav-event-calendar" class="student-sidebar-nav-link">
+                    <span class="material-symbols-outlined">event</span>
+                    Event Calendar
+                </a>
+
+                <!-- Newsletter -->
+                <a href="#" id="nav-newsletter" class="student-sidebar-nav-link">
+                    <span class="material-symbols-outlined">newspaper</span>
+                    Newsletter
+                </a>
+
+                <!-- Announcements -->
+                <a href="#" id="nav-announcements" class="student-sidebar-nav-link">
+                    <span class="material-symbols-outlined">campaign</span>
+                    Announcements
+                </a>
+            </nav>
+        </aside>
+        <main class="student-main-content">
+            <header class="student-header">
+                <div class="student-header-left">
+                    <button id="studentMenuToggle"><span class="material-symbols-outlined">menu</span></button>
+                    <button class="student-fullscreen-btn"><span class="material-symbols-outlined">fullscreen</span></button>
+                </div>
+                <div class="student-header-right">
+                    <div class="student-notification-wrapper">
+                        <button id="studentNotificationToggle"><span class="material-symbols-outlined">notifications</span></button>
+                        <span class="student-notification-badge">4</span>
+                        <div class="student-notification-dropdown-menu" id="studentNotificationDropdownMenu">
+                            <div class="student-notification-dropdown-header">
+                                <h4 class="student-notification-dropdown-title"><span class="material-symbols-outlined">notifications</span>Notifications</h4>
+                                <span class="student-notification-count">4 new</span>
+                            </div>
+                            <div class="student-notification-dropdown-body">
+                                <a href="#" class="student-notification-item unread">
+                                    <div class="student-notification-icon bg-blue"><span class="material-symbols-outlined">assignment</span></div>
+                                    <div class="student-notification-content">
+                                        <p class="student-notification-text"><strong>New Assignment Posted</strong></p>
+                                        <p class="student-notification-description">Mathematics homework due by Friday</p>
+                                        <span class="student-notification-time">10 minutes ago</span>
+                                    </div>
+                                </a>
+                                <a href="#" class="student-notification-item unread">
+                                    <div class="student-notification-icon bg-green"><span class="material-symbols-outlined">grade</span></div>
+                                    <div class="student-notification-content">
+                                        <p class="student-notification-text"><strong>Grade Published</strong></p>
+                                        <p class="student-notification-description">Your Science test results are available</p>
+                                        <span class="student-notification-time">2 hours ago</span>
+                                    </div>
+                                </a>
+                                <a href="#" class="student-notification-item unread">
+                                    <div class="student-notification-icon bg-orange"><span class="material-symbols-outlined">event</span></div>
+                                    <div class="student-notification-content">
+                                        <p class="student-notification-text"><strong>Upcoming Test</strong></p>
+                                        <p class="student-notification-description">History exam scheduled for next Monday</p>
+                                        <span class="student-notification-time">4 hours ago</span>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="student-notification-dropdown-footer">
+                                <a href="#" class="student-notification-footer-link">View All Notifications</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="student-user-info-wrapper">
+                        <div class="student-user-info" id="studentUserInfoToggle">
+                            {% if user.student_profile and user.student_profile.student_photo %}
+                            <img alt="{{ user.student_profile.full_name }}" class="student-user-avatar" src="{{ user.student_profile.student_photo.url }}" />
+                            {% else %}
+                            <img alt="{{ user.get_full_name|default:user.username }}" class="student-user-avatar" src="https://ui-avatars.com/api/?name={{ user.get_full_name|default:user.username|urlencode }}&background=6b277e&color=fff&size=128" />
+                            {% endif %}
+                            <span class="student-user-name">{{ user.get_full_name|default:user.username }}</span>
+                            <span class="material-symbols-outlined student-user-dropdown">expand_more</span>
+                        </div>
+                        <div class="student-user-dropdown-menu" id="studentUserDropdownMenu">
+                            <div class="student-dropdown-header">
+                                {% if user.student_profile and user.student_profile.student_photo %}
+                                <img class="student-dropdown-avatar" src="{{ user.student_profile.student_photo.url }}" />
+                                {% else %}
+                                <img class="student-dropdown-avatar" src="https://ui-avatars.com/api/?name={{ user.get_full_name|default:user.username|urlencode }}&background=6b277e&color=fff&size=128" />
+                                {% endif %}
+                                <div class="student-dropdown-user-info">
+                                    <h4 class="student-dropdown-user-name">{{ user.get_full_name|default:user.username }}</h4>
+                                    <p class="student-dropdown-user-email">{{ user.email }}</p>
+                                    <p class="student-dropdown-user-email">Student</p>
+                                </div>
+                            </div>
+                            <div class="student-dropdown-divider"></div>
+                            <a href="{% url 'student:student_profile' %}" class="student-dropdown-item"><span class="material-symbols-outlined">account_circle</span><span>Profile</span></a>
+                            <a href="#" class="student-dropdown-item"><span class="material-symbols-outlined">settings</span><span>Settings</span></a>
+                            <a href="{% url 'student:student_dashboard' %}" class="student-dropdown-item"><span class="material-symbols-outlined">dashboard</span><span>Dashboard</span></a>
+                            <div class="student-dropdown-divider"></div>
+                            <a href="#" class="student-dropdown-item logout-item" id="studentLogoutBtn"><span class="material-symbols-outlined">logout</span><span>Logout</span></a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            {% if messages %}
+            <div class="student-toast-container">
+                {% for message in messages %}
+                <div class="student-toast student-toast-{{ message.tags }}" data-toast>
+                    <div class="student-toast-icon">
+                        <span class="material-symbols-outlined">{% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}cancel{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}</span>
+                    </div>
+                    <div class="student-toast-content">
+                        <div class="student-toast-title">{% if message.tags == 'success' %}Success{% elif message.tags == 'error' %}Error{% elif message.tags == 'warning' %}Warning{% else %}Info{% endif %}</div>
+                        <div class="student-toast-message">{{ message }}</div>
+                    </div>
+                    <button class="student-toast-close" onclick="studentCloseToast(this)"><span class="material-symbols-outlined">close</span></button>
+                    <div class="student-toast-progress"><div class="student-toast-progress-bar"></div></div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <div class="student-main-container">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function studentCloseToast(button) {
+            const toast = button.closest('.student-toast');
+            toast.classList.add('closing');
+            setTimeout(() => toast.remove(), 300);
+        }
+        document.querySelectorAll('[data-toast]').forEach(function(toast, index) {
+            setTimeout(function() {
+                if (toast.parentElement) {
+                    toast.classList.add('closing');
+                    setTimeout(() => toast.remove(), 300);
+                }
+            }, 5000 + (index * 200));
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sidebar functionality
+            const sidebar = document.getElementById('studentSidebar');
+            const sidebarOverlay = document.getElementById('studentSidebarOverlay');
+            const menuToggle = document.getElementById('studentMenuToggle');
+            const closeSidebar = document.getElementById('studentCloseSidebar');
+
+            if (menuToggle) {
+                menuToggle.addEventListener('click', function() {
+                    if (window.innerWidth < 1024) {
+                        sidebar.classList.add('active');
+                        sidebarOverlay.classList.add('active');
+                        document.body.style.overflow = 'hidden';
+                    } else {
+                        sidebar.classList.toggle('collapsed');
+                    }
+                });
+            }
+
+            if (closeSidebar) {
+                closeSidebar.addEventListener('click', closeSidebarMenu);
+            }
+
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', closeSidebarMenu);
+            }
+
+            function closeSidebarMenu() {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth >= 1024) closeSidebarMenu();
+            });
+
+            // Header functionality
+            const notificationToggle = document.getElementById('studentNotificationToggle');
+            const notificationDropdown = document.getElementById('studentNotificationDropdownMenu');
+            const userInfoToggle = document.getElementById('studentUserInfoToggle');
+            const userDropdown = document.getElementById('studentUserDropdownMenu');
+            const fullscreenBtn = document.querySelector('.student-fullscreen-btn');
+
+            if (notificationToggle && notificationDropdown) {
+                notificationToggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    notificationDropdown.classList.toggle('active');
+                    if (userDropdown) userDropdown.classList.remove('active');
+                });
+            }
+
+            if (userInfoToggle && userDropdown) {
+                userInfoToggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    userDropdown.classList.toggle('active');
+                    if (notificationDropdown) notificationDropdown.classList.remove('active');
+                });
+            }
+
+            document.addEventListener('click', function(e) {
+                if (notificationDropdown && !notificationDropdown.contains(e.target) && !notificationToggle.contains(e.target)) {
+                    notificationDropdown.classList.remove('active');
+                }
+                if (userDropdown && !userDropdown.contains(e.target) && !userInfoToggle.contains(e.target)) {
+                    userDropdown.classList.remove('active');
+                }
+            });
+
+            if (fullscreenBtn) {
+                fullscreenBtn.addEventListener('click', function() {
+                    if (!document.fullscreenElement) {
+                        document.documentElement.requestFullscreen().catch(err => console.log(err));
+                        this.querySelector('.material-symbols-outlined').textContent = 'fullscreen_exit';
+                    } else {
+                        document.exitFullscreen();
+                        this.querySelector('.material-symbols-outlined').textContent = 'fullscreen';
+                    }
+                });
+            }
+
+            // Active state handler
+            const currentPath = window.location.pathname;
+            const allSidebarLinks = document.querySelectorAll('.student-sidebar-nav a[href]');
+            allSidebarLinks.forEach(link => {
+                const linkPath = link.getAttribute('href');
+                if (linkPath && (linkPath === currentPath || linkPath === currentPath.replace(/\/$/, '') || linkPath + '/' === currentPath)) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const logoutBtn = document.getElementById('studentLogoutBtn');
+            if (logoutBtn) {
+                logoutBtn.onclick = function(e) {
+                    e.preventDefault();
+                    if (confirm('Are you sure you want to logout?')) {
+                        window.location.href = "{% url 'login' %}";
+                    }
+                    return false;
+                };
+            }
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

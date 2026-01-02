@@ -1,0 +1,332 @@
+{% extends 'student/base.html' %}
+{% load static %}
+
+{% block title %}My Profile - Student{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/student/profile.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- CSRF Token for AJAX requests -->
+{% csrf_token %}
+
+<!-- Profile Page Content -->
+<div class="stud-prof-page">
+    <!-- Page Header -->
+    <div class="stud-prof-page-header">
+        <div class="stud-prof-page-header-content">
+            <h1 class="stud-prof-page-title">
+                <span class="material-symbols-outlined stud-prof-page-title-icon">account_circle</span>
+                My Profile
+            </h1>
+            <p class="stud-prof-page-subtitle">View and manage your personal information</p>
+        </div>
+    </div>
+
+    <!-- Profile Content -->
+    <div class="stud-prof-content">
+        <!-- Profile Header Card -->
+        <div class="stud-prof-card stud-prof-header-card">
+            <div class="stud-prof-header-main">
+                <div class="stud-prof-avatar-section">
+                    <div class="stud-prof-avatar-wrapper" id="profileAvatarWrapper">
+                        {% if user.student_profile and user.student_profile.student_photo %}
+                        <img id="profileAvatar" class="stud-prof-avatar-medium" src="{{ user.student_profile.student_photo.url }}" alt="Profile Picture">
+                        {% else %}
+                        <img id="profileAvatar" class="stud-prof-avatar-medium" src="https://ui-avatars.com/api/?name={{ user.get_full_name|default:user.username|urlencode }}&background=6b277e&color=fff&size=128" alt="Profile Picture">
+                        {% endif %}
+                        <div class="stud-prof-avatar-overlay">
+                            <span class="material-symbols-outlined">photo_camera</span>
+                        </div>
+                    </div>
+                    <input type="file" id="profileAvatarInput" accept="image/*" style="display: none;">
+                </div>
+
+                <div class="stud-prof-basic-info">
+                    <div class="stud-prof-basic-row">
+                        <div class="stud-prof-basic-item">
+                            <label class="stud-prof-basic-label">Name</label>
+                            <p class="stud-prof-basic-value" id="headerName">{{ user.get_full_name|default:user.username }}</p>
+                            <input type="text" class="stud-prof-basic-input" id="headerNameInput" value="{{ user.get_full_name|default:user.username }}" style="display: none;">
+                        </div>
+                        <div class="stud-prof-basic-item">
+                            <label class="stud-prof-basic-label">Email</label>
+                            <p class="stud-prof-basic-value" id="headerEmail">{{ user.email|default:"Not provided" }}</p>
+                            <input type="email" class="stud-prof-basic-input" id="headerEmailInput" value="{{ user.email }}" style="display: none;">
+                        </div>
+                        <div class="stud-prof-basic-item">
+                            <label class="stud-prof-basic-label">Phone</label>
+                            <p class="stud-prof-basic-value" id="headerPhone">{{ user.student_profile.student_mobile|default:"+91 98765 43210" }}</p>
+                            <input type="tel" class="stud-prof-basic-input" id="headerPhoneInput" value="{{ user.student_profile.student_mobile|default:'+91 98765 43210' }}" style="display: none;">
+                        </div>
+                    </div>
+                    <div class="stud-prof-basic-row">
+                        <div class="stud-prof-basic-item">
+                            <label class="stud-prof-basic-label">Student ID</label>
+                            <p class="stud-prof-basic-value highlight">{{ user.student_profile.gr_number|default:"210903" }}</p>
+                        </div>
+                        <div class="stud-prof-basic-item">
+                            <label class="stud-prof-basic-label">Class</label>
+                            <p class="stud-prof-basic-value">{{ user.student_profile.student_class|default:"9" }}</p>
+                        </div>
+                        <div class="stud-prof-basic-item">
+                            <label class="stud-prof-basic-label">Section</label>
+                            <p class="stud-prof-basic-value">{{ user.student_profile.division|default:"A" }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stud-prof-header-actions">
+                    <button class="stud-prof-btn-toggle" id="headerToggleBtn">
+                        <span class="material-symbols-outlined" id="headerToggleIcon">edit</span>
+                        <span id="headerToggleText">Edit</span>
+                    </button>
+                    <div class="stud-prof-badges">
+                        <span class="stud-prof-badge active">
+                            <span class="material-symbols-outlined">verified</span>
+                            Active
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Information Grid -->
+        <div class="stud-prof-grid">
+            <!-- Personal Information -->
+            <div class="stud-prof-card stud-prof-section-card">
+                <div class="stud-prof-section-header">
+                    <h3 class="stud-prof-section-title">
+                        <span class="material-symbols-outlined">person</span>
+                        Personal Information
+                    </h3>
+                    <button class="stud-prof-btn-toggle" id="personalToggleBtn">
+                        <span class="material-symbols-outlined" id="personalToggleIcon">edit</span>
+                        <span id="personalToggleText">Edit</span>
+                    </button>
+                </div>
+                <div class="stud-prof-info-grid">
+                    <div class="stud-prof-info-item">
+                        <label class="stud-prof-info-label">Full Name</label>
+                        <p class="stud-prof-info-value" data-field="fullName">{{ user.get_full_name|default:"Kunal" }}</p>
+                        <input type="text" class="stud-prof-info-input" data-field="fullName" value="{{ user.get_full_name|default:'Kunal' }}" style="display: none;">
+                    </div>
+                    <div class="stud-prof-info-item">
+                        <label class="stud-prof-info-label">Date of Birth</label>
+                        <p class="stud-prof-info-value" data-field="dob">{{ user.student_profile.date_of_birth|date:"d F, Y"|default:"15 March, 2010" }}</p>
+                        <input type="date" class="stud-prof-info-input" data-field="dob" value="{{ user.student_profile.date_of_birth|date:'Y-m-d'|default:'2010-03-15' }}" style="display: none;">
+                    </div>
+                    <div class="stud-prof-info-item">
+                        <label class="stud-prof-info-label">Gender</label>
+                        <p class="stud-prof-info-value" data-field="gender">{{ user.student_profile.gender|default:"Male" }}</p>
+                        <select class="stud-prof-info-input" data-field="gender" style="display: none;">
+                            <option value="male" {% if user.student_profile.gender == "male" %}selected{% endif %}>Male</option>
+                            <option value="female" {% if user.student_profile.gender == "female" %}selected{% endif %}>Female</option>
+                            <option value="other" {% if user.student_profile.gender == "other" %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
+                    <div class="stud-prof-info-item">
+                        <label class="stud-prof-info-label">Blood Group</label>
+                        <p class="stud-prof-info-value" data-field="bloodGroup">{{ user.student_profile.blood_group|default:"O+" }}</p>
+                        <select class="stud-prof-info-input" data-field="bloodGroup" style="display: none;">
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                            <option value="O+" selected>O+</option>
+                            <option value="O-">O-</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Academic Information -->
+            <div class="stud-prof-card stud-prof-section-card">
+                <div class="stud-prof-section-header">
+                    <h3 class="stud-prof-section-title">
+                        <span class="material-symbols-outlined">school</span>
+                        Academic Information
+                    </h3>
+                </div>
+                <div class="stud-prof-info-grid">
+                    <div class="stud-prof-info-item">
+                        <label class="stud-prof-info-label">Student ID</label>
+                        <p class="stud-prof-info-value highlight">{{ user.student_profile.gr_number|default:"210903" }}</p>
+                    </div>
+                    <div class="stud-prof-info-item">
+                        <label class="stud-prof-info-label">Class</label>
+                        <p class="stud-prof-info-value">{{ user.student_profile.student_class|default:"9" }}</p>
+                    </div>
+                    <div class="stud-prof-info-item">
+                        <label class="stud-prof-info-label">Section</label>
+                        <p class="stud-prof-info-value">{{ user.student_profile.division|default:"A" }}</p>
+                    </div>
+                    <div class="stud-prof-info-item">
+                        <label class="stud-prof-info-label">Roll Number</label>
+                        <p class="stud-prof-info-value">{{ user.student_profile.roll_number|default:"15" }}</p>
+                    </div>
+                    <div class="stud-prof-info-item">
+                        <label class="stud-prof-info-label">Date of Admission</label>
+                        <p class="stud-prof-info-value">{{ user.student_profile.enrollment_date|date:"d F, Y"|default:"21 November, 2025" }}</p>
+                    </div>
+                    <div class="stud-prof-info-item">
+                        <label class="stud-prof-info-label">Academic Year</label>
+                        <p class="stud-prof-info-value">2025-2026</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="stud-prof-card stud-prof-section-card">
+                <div class="stud-prof-section-header">
+                    <h3 class="stud-prof-section-title">
+                        <span class="material-symbols-outlined">contact_phone</span>
+                        Contact Information
+                    </h3>
+                    <button class="stud-prof-btn-toggle" id="contactToggleBtn">
+                        <span class="material-symbols-outlined" id="contactToggleIcon">edit</span>
+                        <span id="contactToggleText">Edit</span>
+                    </button>
+                </div>
+                <div class="stud-prof-info-grid">
+                    <div class="stud-prof-info-item">
+                        <label class="stud-prof-info-label">Email Address</label>
+                        <p class="stud-prof-info-value" data-field="email">{{ user.email|default:"kunal@student.com" }}</p>
+                        <input type="email" class="stud-prof-info-input" data-field="email" value="{{ user.email|default:'kunal@student.com' }}" style="display: none;">
+                    </div>
+                    <div class="stud-prof-info-item">
+                        <label class="stud-prof-info-label">Phone Number</label>
+                        <p class="stud-prof-info-value" data-field="phone">{{ user.student_profile.student_mobile|default:"+91 98765 43210" }}</p>
+                        <input type="tel" class="stud-prof-info-input" data-field="phone" value="{{ user.student_profile.student_mobile|default:'+91 98765 43210' }}" style="display: none;">
+                    </div>
+                    <div class="stud-prof-info-item full-width">
+                        <label class="stud-prof-info-label">Address</label>
+                        <p class="stud-prof-info-value" data-field="address">{{ user.student_profile.address|default:"123, Sample Street, Sample City, State - 400001" }}</p>
+                        <input type="text" class="stud-prof-info-input" data-field="address" value="{{ user.student_profile.address|default:'123, Sample Street, Sample City, State - 400001' }}" style="display: none;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Parent/Guardian Information -->
+            <div class="stud-prof-card stud-prof-section-card">
+                <div class="stud-prof-section-header">
+                    <h3 class="stud-prof-section-title">
+                        <span class="material-symbols-outlined">family_restroom</span>
+                        Parent/Guardian Information
+                    </h3>
+                    <button class="stud-prof-btn-toggle" id="parentToggleBtn">
+                        <span class="material-symbols-outlined" id="parentToggleIcon">edit</span>
+                        <span id="parentToggleText">Edit</span>
+                    </button>
+                </div>
+                <div class="stud-prof-info-grid">
+                    <div class="stud-prof-info-item">
+                        <label class="stud-prof-info-label">Father's Name</label>
+                        <p class="stud-prof-info-value" data-field="fatherName">{{ user.student_profile.father_name|default:"Dinesh Darji" }}</p>
+                        <input type="text" class="stud-prof-info-input" data-field="fatherName" value="{{ user.student_profile.father_name|default:'Dinesh Darji' }}" style="display: none;">
+                    </div>
+                    <div class="stud-prof-info-item">
+                        <label class="stud-prof-info-label">Father's Occupation</label>
+                        <p class="stud-prof-info-value" data-field="fatherOccupation">{{ user.student_profile.father_occupation|default:"Business" }}</p>
+                        <input type="text" class="stud-prof-info-input" data-field="fatherOccupation" value="{{ user.student_profile.father_occupation|default:'Business' }}" style="display: none;">
+                    </div>
+                    <div class="stud-prof-info-item">
+                        <label class="stud-prof-info-label">Father's Phone</label>
+                        <p class="stud-prof-info-value" data-field="fatherPhone">{{ user.student_profile.father_phone|default:"+91 98765 00000" }}</p>
+                        <input type="tel" class="stud-prof-info-input" data-field="fatherPhone" value="{{ user.student_profile.father_phone|default:'+91 98765 00000' }}" style="display: none;">
+                    </div>
+                    <div class="stud-prof-info-item">
+                        <label class="stud-prof-info-label">Mother's Name</label>
+                        <p class="stud-prof-info-value" data-field="motherName">{{ user.student_profile.mother_name|default:"Mrs. Darji" }}</p>
+                        <input type="text" class="stud-prof-info-input" data-field="motherName" value="{{ user.student_profile.mother_name|default:'Mrs. Darji' }}" style="display: none;">
+                    </div>
+                    <div class="stud-prof-info-item">
+                        <label class="stud-prof-info-label">Mother's Occupation</label>
+                        <p class="stud-prof-info-value" data-field="motherOccupation">{{ user.student_profile.mother_occupation|default:"Teacher" }}</p>
+                        <input type="text" class="stud-prof-info-input" data-field="motherOccupation" value="{{ user.student_profile.mother_occupation|default:'Teacher' }}" style="display: none;">
+                    </div>
+                    <div class="stud-prof-info-item">
+                        <label class="stud-prof-info-label">Mother's Phone</label>
+                        <p class="stud-prof-info-value" data-field="motherPhone">{{ user.student_profile.mother_phone|default:"+91 98765 11111" }}</p>
+                        <input type="tel" class="stud-prof-info-input" data-field="motherPhone" value="{{ user.student_profile.mother_phone|default:'+91 98765 11111' }}" style="display: none;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Information -->
+            <div class="stud-prof-card stud-prof-section-card">
+                <div class="stud-prof-section-header">
+                    <h3 class="stud-prof-section-title">
+                        <span class="material-symbols-outlined">info</span>
+                        Additional Information
+                    </h3>
+                    <button class="stud-prof-btn-toggle" id="additionalToggleBtn">
+                        <span class="material-symbols-outlined" id="additionalToggleIcon">edit</span>
+                        <span id="additionalToggleText">Edit</span>
+                    </button>
+                </div>
+                <div class="stud-prof-info-grid">
+                    <div class="stud-prof-info-item">
+                        <label class="stud-prof-info-label">Nationality</label>
+                        <p class="stud-prof-info-value" data-field="nationality">{{ user.student_profile.nationality|default:"Indian" }}</p>
+                        <input type="text" class="stud-prof-info-input" data-field="nationality" value="{{ user.student_profile.nationality|default:'Indian' }}" style="display: none;">
+                    </div>
+                    <div class="stud-prof-info-item">
+                        <label class="stud-prof-info-label">Religion</label>
+                        <p class="stud-prof-info-value" data-field="religion">{{ user.student_profile.religion|default:"Hindu" }}</p>
+                        <input type="text" class="stud-prof-info-input" data-field="religion" value="{{ user.student_profile.religion|default:'Hindu' }}" style="display: none;">
+                    </div>
+                    <div class="stud-prof-info-item">
+                        <label class="stud-prof-info-label">Category</label>
+                        <p class="stud-prof-info-value" data-field="category">{{ user.student_profile.category|default:"General" }}</p>
+                        <input type="text" class="stud-prof-info-input" data-field="category" value="{{ user.student_profile.category|default:'General' }}" style="display: none;">
+                    </div>
+                    <div class="stud-prof-info-item">
+                        <label class="stud-prof-info-label">Previous School</label>
+                        <p class="stud-prof-info-value" data-field="previousSchool">{{ user.student_profile.previous_school|default:"ABC School" }}</p>
+                        <input type="text" class="stud-prof-info-input" data-field="previousSchool" value="{{ user.student_profile.previous_school|default:'ABC School' }}" style="display: none;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Emergency Contact -->
+            <div class="stud-prof-card stud-prof-section-card stud-prof-emergency-card">
+                <div class="stud-prof-section-header">
+                    <h3 class="stud-prof-section-title">
+                        <span class="material-symbols-outlined">emergency</span>
+                        Emergency Contact
+                    </h3>
+                    <button class="stud-prof-btn-toggle" id="emergencyToggleBtn">
+                        <span class="material-symbols-outlined" id="emergencyToggleIcon">edit</span>
+                        <span id="emergencyToggleText">Edit</span>
+                    </button>
+                </div>
+                <div class="stud-prof-info-grid">
+                    <div class="stud-prof-info-item">
+                        <label class="stud-prof-info-label">Contact Name</label>
+                        <p class="stud-prof-info-value" data-field="emergencyName">{{ user.student_profile.emergency_name|default:"Vivek P" }}</p>
+                        <input type="text" class="stud-prof-info-input" data-field="emergencyName" value="{{ user.student_profile.emergency_name|default:'Vivek P' }}" style="display: none;">
+                    </div>
+                    <div class="stud-prof-info-item">
+                        <label class="stud-prof-info-label">Relationship</label>
+                        <p class="stud-prof-info-value" data-field="emergencyRelation">{{ user.student_profile.emergency_relationship|default:"Friend" }}</p>
+                        <input type="text" class="stud-prof-info-input" data-field="emergencyRelation" value="{{ user.student_profile.emergency_relationship|default:'Friend' }}" style="display: none;">
+                    </div>
+                    <div class="stud-prof-info-item">
+                        <label class="stud-prof-info-label">Phone Number</label>
+                        <p class="stud-prof-info-value emergency" data-field="emergencyPhone">{{ user.student_profile.emergency_mobile|default:"+91 98765 99999" }}</p>
+                        <input type="tel" class="stud-prof-info-input" data-field="emergencyPhone" value="{{ user.student_profile.emergency_mobile|default:'+91 98765 99999' }}" style="display: none;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/student/profile.js' %}"></script>
+{% endblock %}

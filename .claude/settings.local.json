@@ -3,7 +3,9 @@
     "allow": [
       "Bash(dir:*)",
       "Bash(git checkout:*)",
-      "Bash(python manage.py shell:*)"
+      "Bash(python manage.py shell:*)",
+      "Bash(python manage.py check:*)",
+      "Bash(python:*)"
     ]
   }
 }

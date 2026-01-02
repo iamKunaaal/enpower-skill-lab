@@ -3,8 +3,9 @@
 
 git status
 git add .
-git commit -m "Lms Functionality Build"
+git commit -m "added student dashboard"
 git push origin main
+ 
 
 
 2️⃣ Then on DigitalOcean, pull your latest changes:
