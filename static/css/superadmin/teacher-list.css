@@ -1,0 +1,595 @@
+/* Teacher List Page Styles */
+
+.teacher-list-page {
+    padding: 1.5rem;
+    width: 100%;
+}
+
+/* Page Header */
+.teacher-list-page .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.teacher-list-page .page-header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1F2937;
+    margin: 0;
+}
+
+body.dark .teacher-list-page .page-header h1 {
+    color: #F9FAFB;
+}
+
+.header-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+/* Unified Modern Gradient Buttons */
+.btn-action {
+    border: none;
+    border-radius: 10px;
+    padding: 10px 22px;
+    font-weight: 600;
+    color: #fff !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    transition: all 0.2s ease-in-out;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.btn-action:hover {
+    opacity: 0.95;
+    color: #fff !important;
+}
+
+.btn-action .material-symbols-outlined {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+/* Individual Gradient Styles */
+.btn-download {
+    background: linear-gradient(90deg, #0EA5E9, #0284C7);
+}
+
+.btn-upload {
+    background: linear-gradient(90deg, #10B981, #059669);
+}
+
+.btn-add {
+    background: linear-gradient(90deg, #7E22CE, #6B21A8);
+}
+
+/* Status Pills */
+.control-pill {
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.6rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.status-active,
+.status-present {
+    background-color: #d1fae5;
+    color: #166534;
+}
+
+.status-pending,
+.status-leave {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.status-inactive,
+.status-absent {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+body.dark .status-active,
+body.dark .status-present {
+    background-color: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+}
+
+body.dark .status-pending,
+body.dark .status-leave {
+    background-color: rgba(234, 179, 8, 0.18);
+    color: #fcd34d;
+}
+
+body.dark .status-inactive,
+body.dark .status-absent {
+    background-color: rgba(248, 113, 113, 0.18);
+    color: #fca5a5;
+}
+
+/* Initial Badge */
+.initial-badge {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: #fff;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+}
+
+/* Table Card */
+.table-card {
+    background: #ffffff;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+    overflow: visible;
+}
+
+/* DataTables Filter Container */
+.dataTables_wrapper .dataTables_filter {
+    position: relative;
+    z-index: 10;
+}
+
+.dataTables_wrapper .dataTables_filter label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+body.dark .table-card {
+    background: #1F2937;
+}
+
+/* DataTables Wrapper */
+.dataTables_wrapper {
+    padding: 0;
+}
+
+/* DataTables Header - Show entries and Search */
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter {
+    padding: 1rem 1.5rem;
+}
+
+.dataTables_wrapper .dataTables_length {
+    float: left;
+}
+
+.dataTables_wrapper .dataTables_filter {
+    float: right;
+}
+
+.dataTables_wrapper .dataTables_length label,
+.dataTables_wrapper .dataTables_filter label {
+    font-size: 0.875rem;
+    color: #6B7280;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+}
+
+body.dark .dataTables_wrapper .dataTables_length label,
+body.dark .dataTables_wrapper .dataTables_filter label {
+    color: #9CA3AF;
+}
+
+.dataTables_wrapper .dataTables_length select {
+    padding: 0.375rem 2rem 0.375rem 0.75rem;
+    border: 1px solid #D1D5DB;
+    border-radius: 0.375rem;
+    background-color: #fff;
+    font-size: 0.875rem;
+    color: #374151;
+    cursor: pointer;
+    min-width: 70px;
+}
+
+body.dark .dataTables_wrapper .dataTables_length select {
+    background-color: #374151;
+    border-color: #4B5563;
+    color: #E5E7EB;
+}
+
+.dataTables_wrapper .dataTables_filter input,
+.dataTables_wrapper .dataTables_filter input[type="search"] {
+    padding: 0.5rem 1rem;
+    border: 1px solid #D1D5DB !important;
+    border-radius: 0.5rem;
+    background-color: #fff !important;
+    font-size: 0.875rem;
+    color: #374151;
+    min-width: 200px;
+    margin-left: 0.5rem;
+    pointer-events: auto !important;
+    opacity: 1 !important;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+body.dark .dataTables_wrapper .dataTables_filter input,
+body.dark .dataTables_wrapper .dataTables_filter input[type="search"] {
+    background-color: #374151 !important;
+    border-color: #4B5563 !important;
+    color: #E5E7EB;
+}
+
+.dataTables_wrapper .dataTables_filter input:focus,
+.dataTables_wrapper .dataTables_filter input[type="search"]:focus {
+    outline: none;
+    border-color: #6b277e !important;
+    box-shadow: 0 0 0 3px rgba(107, 39, 126, 0.1);
+}
+
+/* Table Styles */
+.teacher-table,
+.table {
+    width: 100% !important;
+    border-collapse: collapse;
+}
+
+.teacher-table > :not(caption) > * > *,
+.table > :not(caption) > * > * {
+    padding: 0.85rem 1.25rem;
+    vertical-align: middle;
+}
+
+.teacher-table thead th,
+.table thead th {
+    font-size: 0.75rem;
+    letter-spacing: 0.02em;
+    color: #6b7280;
+    text-transform: uppercase;
+    border-bottom: 1px solid #e5e7eb;
+    background: #f9fafb;
+    font-weight: 600;
+    text-align: left;
+    white-space: nowrap;
+}
+
+body.dark .teacher-table thead th,
+body.dark .table thead th {
+    color: #9ca3af;
+    background: rgba(55, 65, 81, 0.7);
+    border-color: #374151;
+}
+
+.teacher-table tbody td,
+.table tbody td {
+    color: #111827;
+    font-size: 0.875rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+body.dark .teacher-table tbody td,
+body.dark .table tbody td {
+    color: #e5e7eb;
+    border-color: #374151;
+}
+
+.teacher-table tbody tr:hover,
+.table tbody tr:hover {
+    background-color: #f9fafb;
+}
+
+body.dark .teacher-table tbody tr:hover,
+body.dark .table tbody tr:hover {
+    background-color: rgba(55, 65, 81, 0.3);
+}
+
+/* Teacher Name Cell */
+.teacher-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.teacher-avatar {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.initial-badge {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.teacher-name {
+    font-weight: 600;
+    color: #1F2937;
+}
+
+body.dark .teacher-name {
+    color: #F9FAFB;
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-present {
+    background-color: #D1FAE5;
+    color: #065F46;
+}
+
+.status-leave {
+    background-color: #FEF3C7;
+    color: #92400E;
+}
+
+.status-absent {
+    background-color: #FEE2E2;
+    color: #991B1B;
+}
+
+body.dark .status-present {
+    background-color: rgba(16, 185, 129, 0.2);
+    color: #34D399;
+}
+
+body.dark .status-leave {
+    background-color: rgba(251, 191, 36, 0.2);
+    color: #FBBF24;
+}
+
+body.dark .status-absent {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #F87171;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    padding: 0.25rem;
+}
+
+.action-btn:hover {
+    color: #6B21A8;
+}
+
+.action-btn .material-symbols-outlined {
+    font-size: 20px;
+}
+
+.action-btn-delete:hover {
+    color: #dc2626;
+}
+
+body.dark .action-btn {
+    color: #6b7280;
+}
+
+body.dark .action-btn:hover {
+    color: #a855f7;
+}
+
+body.dark .action-btn-delete:hover {
+    color: #f87171;
+}
+
+/* DataTables Footer - Info and Pagination */
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate {
+    padding: 1rem 1.5rem;
+}
+
+.dataTables_wrapper .dataTables_info {
+    float: left;
+    font-size: 0.875rem;
+    color: #0891b2;
+    padding-top: 0.75rem;
+}
+
+body.dark .dataTables_wrapper .dataTables_info {
+    color: #22d3ee;
+}
+
+.dataTables_wrapper .dataTables_paginate {
+    float: right;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 0.875rem;
+    margin: 0;
+    border: 1px solid #D1D5DB;
+    border-radius: 0.375rem;
+    background: #fff;
+    color: #374151 !important;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    min-width: 2.25rem;
+}
+
+body.dark .dataTables_wrapper .dataTables_paginate .paginate_button {
+    background: #374151;
+    border-color: #4B5563;
+    color: #E5E7EB !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover:not(.disabled):not(.current) {
+    background: #f9fafb;
+    border-color: #d1d5db;
+    color: #374151 !important;
+}
+
+body.dark .dataTables_wrapper .dataTables_paginate .paginate_button:hover:not(.disabled):not(.current) {
+    background: #4B5563;
+    color: #e5e7eb !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: #6B21A8;
+    border-color: #6B21A8;
+    color: #fff !important;
+    font-weight: 500;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem !important;
+    color: #6B7280;
+}
+
+.empty-state .material-symbols-outlined {
+    font-size: 3rem;
+    opacity: 0.5;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    margin: 0;
+}
+
+.empty-state a {
+    color: #6b277e;
+    text-decoration: none;
+}
+
+.empty-state a:hover {
+    text-decoration: underline;
+}
+
+/* Sorting Icons */
+.teacher-table thead th.sorting,
+.teacher-table thead th.sorting_asc,
+.teacher-table thead th.sorting_desc {
+    cursor: pointer;
+    position: relative;
+    padding-right: 1.75rem;
+}
+
+.teacher-table thead th.sorting::after,
+.teacher-table thead th.sorting_asc::after,
+.teacher-table thead th.sorting_desc::after {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Material Symbols Outlined';
+    font-size: 1rem;
+}
+
+.teacher-table thead th.sorting::after {
+    content: "unfold_more";
+    opacity: 0.3;
+}
+
+.teacher-table thead th.sorting_asc::after {
+    content: "arrow_upward";
+    opacity: 1;
+}
+
+.teacher-table thead th.sorting_desc::after {
+    content: "arrow_downward";
+    opacity: 1;
+}
+
+/* Clear floats */
+.dataTables_wrapper::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .teacher-list-page {
+        padding: 1rem;
+    }
+
+    .teacher-list-page .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .header-actions {
+        width: 100%;
+    }
+
+    .btn-action {
+        flex: 1;
+        justify-content: center;
+    }
+
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter {
+        float: none;
+        text-align: left;
+        padding: 0.75rem 1rem;
+    }
+
+    .dataTables_wrapper .dataTables_filter input {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 0.5rem;
+    }
+
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_paginate {
+        float: none;
+        text-align: center;
+        padding: 0.75rem 1rem;
+    }
+}
