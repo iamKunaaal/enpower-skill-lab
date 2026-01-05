@@ -34,6 +34,6 @@ urlpatterns = [
     path('coordinator/', include('coordinator.urls')),
     path('school-admin/', include('school_admin.urls')),
     path('teacher/', include('teacher.urls')),
-    # path('parent/', include('parent.urls')),
+    path('parent/', include('parent.urls')),
     path('student/', include('student.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

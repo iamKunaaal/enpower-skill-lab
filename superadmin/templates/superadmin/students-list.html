@@ -60,7 +60,7 @@
                                     <div class="d-flex align-items-center gap-3 student-list-new">
                                         {% if student.student_photo %}
                                         <img src="{{ student.student_photo.url }}" alt="{{ student.first_name }}" 
-                                             class="rounded-circle" style="width: 36px; height: 36px; object-fit: cover;">
+                                             class="rounded-circle" style="width: 36px; height: 36px; object-fit: cover; border-radius: 50%;">
                                         {% else %}
                                         <div class="initial-badge" style="background-color: {{ student.badge_color|default:'#6B21A8' }};">
                                             {{ student.first_name|slice:":1"|upper }}{{ student.last_name|slice:":1"|upper }}

@@ -1,0 +1,1550 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Parent - Enpower Skill Lab{% endblock %}</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+    <!-- Base Layout Styles -->
+    <style>
+        :root {
+            --primary: #6b277e;
+            --primary-light: rgba(107, 39, 126, 0.1);
+            --primary-lighter: rgba(107, 39, 126, 0.05);
+            --background-light: #f7f6f8;
+            --text-dark: #1f2937;
+            --text-muted: #6b7280;
+            --text-light: #9ca3af;
+            --white: #ffffff;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+            --border-radius: 0.75rem;
+            --card-light: #ffffff;
+            --border-light: #e5e7eb;
+            --border-dark: #374151;
+            --card-dark: #1f2937;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            --blue-500: #6b277e;
+            --blue-600: #6b277e;
+            --red-600: #dc2626;
+            --heading-light: #1f2937;
+            --heading-dark: #f9fafb;
+            --text-light: #4b5563;
+            --text-dark: #d1d5db;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            line-height: 1.5;
+        }
+
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined' !important;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+
+        /* Dashboard Container */
+        .dashboard-container { display: flex; min-height: 100vh; }
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow-x: hidden; }
+
+        /* ============================================
+           HEADER COMPONENT — STYLES
+           ============================================ */
+
+        .header {
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            border-bottom: 1px solid var(--border-light);
+            background-color: var(--card-light);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        body.dark .header {
+            border-bottom-color: var(--border-dark);
+            background-color: var(--card-dark);
+        }
+
+        .header-left,
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header button {
+            background: none;
+            border: none;
+            color: var(--heading-light);
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        body.dark .header button {
+            color: var(--heading-dark);
+        }
+
+        .fullscreen-btn {
+            display: none;
+        }
+
+        .notification-wrapper {
+            position: relative;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 700;
+            z-index: 1;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.5), 0 0 0 0 rgba(239, 68, 68, 0.7);
+            animation: pulse-badge 2s infinite;
+        }
+
+        @keyframes pulse-badge {
+            0%, 100% {
+                box-shadow: 0 2px 8px rgba(239, 68, 68, 0.5), 0 0 0 0 rgba(239, 68, 68, 0.7);
+            }
+            50% {
+                box-shadow: 0 2px 8px rgba(239, 68, 68, 0.5), 0 0 0 6px rgba(239, 68, 68, 0);
+            }
+        }
+
+        /* Notification Dropdown Menu */
+        .notification-dropdown-menu {
+            position: absolute;
+            top: calc(100% + 12px);
+            right: 0;
+            width: 420px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(249, 250, 251, 0.98) 100%);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.05);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-15px) scale(0.95);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 1000;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            max-height: 550px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        body.dark .notification-dropdown-menu {
+            background: linear-gradient(135deg, rgba(31, 41, 55, 0.98) 0%, rgba(17, 24, 39, 0.98) 100%);
+            border-color: rgba(75, 85, 99, 0.4);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
+        }
+
+        .notification-dropdown-menu.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
+        .notification-dropdown-menu::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            right: 20px;
+            width: 16px;
+            height: 16px;
+            background: var(--card-light);
+            transform: rotate(45deg);
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            border-left: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        body.dark .notification-dropdown-menu::before {
+            background: var(--card-dark);
+            border-top-color: rgba(255, 255, 255, 0.05);
+            border-left-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .notification-dropdown-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            border-bottom: 2px solid rgba(59, 130, 246, 0.1);
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.03) 0%, rgba(139, 92, 246, 0.03) 100%);
+        }
+
+        body.dark .notification-dropdown-header {
+            border-bottom-color: rgba(59, 130, 246, 0.15);
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%);
+        }
+
+        .notification-dropdown-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--heading-light);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .notification-dropdown-title::before {
+            content: '🔔';
+            font-size: 1.125rem;
+        }
+
+        body.dark .notification-dropdown-title {
+            color: var(--heading-dark);
+        }
+
+        .notification-count {
+            font-size: 0.813rem;
+            font-weight: 700;
+            color: white;
+            background: linear-gradient(135deg, #6b277e 0%, #A67DB1 100%);
+            padding: 6px 14px;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(107, 39, 126, 0.3);
+            letter-spacing: 0.3px;
+        }
+
+        body.dark .notification-count {
+            box-shadow: 0 4px 12px rgba(107, 39, 126, 0.4);
+        }
+
+        .notification-dropdown-body {
+            flex: 1;
+            overflow-y: auto;
+            max-height: 380px;
+        }
+
+        .notification-dropdown-body::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .notification-dropdown-body::-webkit-scrollbar-track {
+            background: var(--gray-100);
+        }
+
+        body.dark .notification-dropdown-body::-webkit-scrollbar-track {
+            background: var(--gray-800);
+        }
+
+        .notification-dropdown-body::-webkit-scrollbar-thumb {
+            background: var(--gray-300);
+            border-radius: 3px;
+        }
+
+        body.dark .notification-dropdown-body::-webkit-scrollbar-thumb {
+            background: var(--gray-600);
+        }
+
+        .notification-item {
+            display: flex;
+            gap: 14px;
+            padding: 18px 24px;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+            position: relative;
+            margin: 0 8px;
+            border-radius: 12px;
+        }
+
+        body.dark .notification-item {
+            border-bottom-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .notification-item:hover {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%);
+            margin-right: 4px;
+        }
+
+        body.dark .notification-item:hover {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(139, 92, 246, 0.12) 100%);
+            box-shadow: -4px 0 0 0 #3B82F6, 0 4px 12px rgba(59, 130, 246, 0.25);
+        }
+
+        .notification-item.unread {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.06) 0%, rgba(139, 92, 246, 0.06) 100%);
+        }
+
+        body.dark .notification-item.unread {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+        }
+
+        .notification-icon {
+            flex-shrink: 0;
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .notification-item:hover .notification-icon {
+            transform: scale(1.05) rotate(-5deg);
+        }
+
+        .notification-icon .material-symbols-outlined {
+            font-size: 1.5rem;
+            color: white;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+        }
+
+        .notification-icon.bg-blue {
+            background: linear-gradient(135deg, #6b277e 0%, #A67DB1 100%);
+            box-shadow: 0 4px 12px rgba(107, 39, 126, 0.4), inset 0 -2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .notification-icon.bg-green {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4), inset 0 -2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .notification-icon.bg-orange {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4), inset 0 -2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .notification-icon.bg-purple {
+            background: linear-gradient(135deg, #6b277e 0%, #A67DB1 100%);
+            box-shadow: 0 4px 12px rgba(107, 39, 126, 0.4), inset 0 -2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .notification-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .notification-text {
+            font-size: 0.938rem;
+            color: var(--heading-light);
+            margin: 0 0 6px 0;
+            line-height: 1.5;
+            letter-spacing: -0.01em;
+        }
+
+        body.dark .notification-text {
+            color: var(--heading-dark);
+        }
+
+        .notification-text strong {
+            font-weight: 700;
+            background: linear-gradient(135deg, #1F2937 0%, #374151 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        body.dark .notification-text strong {
+            background: linear-gradient(135deg, #F9FAFB 0%, #E5E7EB 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .notification-description {
+            font-size: 0.875rem;
+            color: #6B7280;
+            margin: 0 0 8px 0;
+            line-height: 1.6;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        body.dark .notification-description {
+            color: #9CA3AF;
+        }
+
+        .notification-time {
+            font-size: 0.813rem;
+            color: #9CA3AF;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .notification-time::before {
+            content: '•';
+            color: #3B82F6;
+            font-weight: 700;
+        }
+
+        body.dark .notification-time {
+            color: #6B7280;
+        }
+
+        .notification-dropdown-footer {
+            padding: 16px 24px;
+            border-top: 2px solid rgba(59, 130, 246, 0.1);
+            text-align: center;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.02) 0%, rgba(139, 92, 246, 0.02) 100%);
+        }
+
+        body.dark .notification-dropdown-footer {
+            border-top-color: rgba(59, 130, 246, 0.15);
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+        }
+
+        .notification-footer-link {
+            font-size: 0.938rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #6b277e 0%, #A67DB1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 8px;
+        }
+
+        .notification-footer-link:hover {
+            background: linear-gradient(135deg, #6b277e 0%, #A67DB1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* User Info Wrapper */
+        .user-info-wrapper {
+            position: relative;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+
+        .user-info:hover {
+            background-color: var(--gray-100);
+        }
+
+        body.dark .user-info:hover {
+            background-color: var(--gray-800);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--heading-light);
+        }
+
+        body.dark .user-name {
+            color: var(--heading-dark);
+        }
+
+        /* User Dropdown Menu */
+        .user-dropdown-menu {
+            position: absolute !important;
+            top: calc(100% + 8px) !important;
+            right: 0 !important;
+            width: auto !important;
+            min-width: 280px !important;
+            background-color: #ffffff !important;
+            border-radius: 12px !important;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+            transform: translateY(-10px) !important;
+            transition: all 0.3s ease !important;
+            z-index: 1000 !important;
+            border: 1px solid #e5e7eb !important;
+            padding: 0 !important;
+            overflow: visible !important;
+        }
+
+        body.dark .user-dropdown-menu {
+            background-color: #1f2937 !important;
+            border-color: #374151 !important;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+        }
+
+        .user-dropdown-menu.active {
+            opacity: 1 !important;
+            visibility: visible !important;
+            transform: translateY(0) !important;
+        }
+
+        .dropdown-header {
+            display: flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+            padding: 20px !important;
+            background-color: transparent !important;
+            border-bottom: none !important;
+        }
+
+        .dropdown-avatar {
+            width: 56px !important;
+            height: 56px !important;
+            border-radius: 50% !important;
+            object-fit: cover !important;
+            border: 3px solid #6b277e !important;
+        }
+
+        .dropdown-user-info {
+            flex: 1 !important;
+        }
+
+        .dropdown-user-name {
+            font-size: 1rem !important;
+            font-weight: 700 !important;
+            color: #1d1d1f !important;
+            margin: 0 0 4px 0 !important;
+        }
+
+        body.dark .dropdown-user-name {
+            color: #f9fafb !important;
+        }
+
+        .dropdown-user-email {
+            font-size: 0.8125rem !important;
+            color: #6b7280 !important;
+            margin: 0 !important;
+        }
+
+        body.dark .dropdown-user-email {
+            color: #9ca3af !important;
+        }
+
+        .dropdown-divider {
+            height: 1px !important;
+            background-color: #e5e7eb !important;
+            margin: 0 12px !important;
+        }
+
+        body.dark .dropdown-divider {
+            background-color: #374151 !important;
+        }
+
+        .dropdown-item {
+            display: flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+            padding: 12px 20px !important;
+            font-size: 0.9375rem !important;
+            font-weight: 500 !important;
+            color: #1f2937 !important;
+            text-decoration: none !important;
+            transition: all 0.3s ease !important;
+            border: none !important;
+            background: none !important;
+        }
+
+        body.dark .dropdown-item {
+            color: #f9fafb !important;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f3f4f6 !important;
+            color: #1f2937 !important;
+        }
+
+        body.dark .dropdown-item:hover {
+            background-color: #374151 !important;
+            color: #f9fafb !important;
+        }
+
+        .dropdown-item .material-symbols-outlined {
+            font-size: 1.25rem !important;
+            color: #6b7280 !important;
+        }
+
+        body.dark .dropdown-item .material-symbols-outlined {
+            color: #9ca3af !important;
+        }
+
+        .dropdown-item.logout-item {
+            color: #ef4444 !important;
+        }
+
+        .dropdown-item.logout-item .material-symbols-outlined {
+            color: #ef4444 !important;
+        }
+
+        .dropdown-item.logout-item:hover {
+            background-color: rgba(239, 68, 68, 0.1) !important;
+        }
+
+        /* Hidden utility classes */
+        .user-dropdown {
+            display: none;
+        }
+
+        /* ============================================
+           SIDEBAR COMPONENT — CLEAN ALIGNMENT
+           ============================================ */
+
+        div#sidebar-container {
+            background: #ffffff;
+        }
+
+        .sidebar {
+            width: 290px;
+            flex-shrink: 0;
+            background-color: #ffffff;
+            border-right: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            transition: width 0.3s ease-in-out, margin-left 0.3s ease-in-out;
+        }
+
+        .sidebar.collapsed {
+            width: 0;
+            min-width: 0;
+            border-right: none;
+            overflow: hidden;
+        }
+
+        body.dark .sidebar {
+            background-color: #1f2937;
+            border-right-color: #374151;
+        }
+
+        .sidebar-header {
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+        }
+
+        .sidebar-logo {
+            height: 40px;
+            width: auto;
+        }
+
+        .sidebar-close {
+            display: none;
+            background: none;
+            border: none;
+            color: #1f2937;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        body.dark .sidebar-close {
+            color: #f9fafb;
+        }
+
+        /* LEFT ALIGNMENT FIXES */
+        .sidebar-nav {
+            flex: 1;
+            padding: 20px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .sidebar-nav .menu-label {
+            padding: 0 16px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #9ca3af;
+            margin-bottom: 8px;
+        }
+
+        body.dark .sidebar-nav .menu-label {
+            color: #6b7280;
+        }
+
+        .sidebar-nav a,
+        .sidebar-dropdown-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 12px;
+            padding: 12px 16px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            color: #4b5563;
+            transition: background-color 0.2s;
+            text-align: left;
+            width: 100%;
+        }
+
+        body.dark .sidebar-nav a,
+        body.dark .sidebar-dropdown-toggle {
+            color: #d1d5db;
+        }
+
+        .sidebar-nav a:hover {
+            background-color: #f3f4f6;
+        }
+
+        body.dark .sidebar-nav a:hover {
+            background-color: #374151;
+        }
+
+        .sidebar-nav a.active {
+            background-color: rgba(107, 39, 126, 0.1);
+            color: #6b277e;
+            border-left: 4px solid #6b277e;
+            padding-left: 12px;
+        }
+
+        body.dark .sidebar-nav a.active {
+            background-color: rgba(107, 39, 126, 0.3);
+        }
+
+        .sidebar-nav a .material-symbols-outlined,
+        .sidebar-dropdown-toggle .material-symbols-outlined:first-child {
+            margin: 0;
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Sidebar Dropdown */
+        .sidebar-dropdown {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .sidebar-dropdown-toggle {
+            cursor: pointer;
+            position: relative;
+            display: grid !important;
+            grid-template-columns: 24px 1fr 24px;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+        }
+
+        .sidebar-dropdown-toggle:hover {
+            background-color: #f3f4f6;
+        }
+
+        body.dark .sidebar-dropdown-toggle:hover {
+            background-color: #374151;
+        }
+
+        .sidebar-dropdown-toggle .material-symbols-outlined:not(.dropdown-icon) {
+            margin: 0;
+            width: 24px;
+            height: 24px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            grid-column: 1;
+        }
+
+        .sidebar-dropdown-toggle .dropdown-icon {
+            transition: transform 0.3s ease;
+            font-size: 20px;
+            margin: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            grid-column: 3;
+        }
+
+        .sidebar-dropdown.active .dropdown-icon {
+            transform: rotate(180deg);
+        }
+
+        /* CLEAN SUBMENU ALIGNMENT */
+        .sidebar-dropdown-menu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            padding-left: 0;
+        }
+
+        .sidebar-dropdown.active .sidebar-dropdown-menu {
+            max-height: 600px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .sidebar-dropdown-menu a {
+            padding: 10px 16px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-left: 0;
+            border: none;
+            text-align: left;
+            justify-content: flex-start;
+        }
+
+        .sidebar-dropdown-menu a .material-symbols-outlined {
+            width: 20px;
+            height: 20px;
+            font-size: 18px;
+        }
+
+        .sidebar-dropdown-menu a:hover {
+            background-color: #f3f4f6;
+        }
+
+        body.dark .sidebar-dropdown-menu a:hover {
+            background-color: #374151;
+        }
+
+        .sidebar-dropdown-menu a.active {
+            background-color: #f3e8ff;
+            color: #7c3aed;
+            font-weight: 600;
+            border-left: 4px solid #7c3aed;
+        }
+
+        body.dark .sidebar-dropdown-menu a.active {
+            background-color: rgba(124, 58, 237, 0.3);
+        }
+
+        /* Sidebar Overlay */
+        .sidebar-overlay {
+            display: none;
+        }
+
+        /* Responsive Header Styles */
+        @media (max-width: 1023px) {
+            .header {
+                padding: 0 12px;
+                height: 64px;
+            }
+
+            .header-left,
+            .header-right {
+                gap: 8px;
+            }
+
+            .user-name,
+            .user-dropdown {
+                display: none;
+            }
+
+            .user-avatar {
+                width: 32px;
+                height: 32px;
+            }
+        }
+
+        @media (min-width: 640px) {
+            .user-name,
+            .user-dropdown {
+                display: block;
+            }
+
+            .fullscreen-btn {
+                display: block;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .header {
+                padding: 0 32px;
+            }
+
+            .header-left,
+            .header-right {
+                gap: 16px;
+            }
+        }
+
+        @media (max-width: 479px) {
+            .header {
+                padding: 0 8px;
+                height: 56px;
+            }
+
+            .header button {
+                padding: 4px;
+            }
+
+            .notification-badge {
+                width: 14px;
+                height: 14px;
+                font-size: 0.625rem;
+            }
+
+            .notification-dropdown-menu {
+                width: calc(100vw - 24px);
+                right: 5px;
+            }
+
+            .notification-dropdown-header {
+                padding: 12px 16px;
+            }
+
+            .notification-dropdown-title {
+                font-size: 1rem;
+            }
+
+            .notification-count {
+                font-size: 0.75rem;
+                padding: 3px 8px;
+            }
+
+            .notification-item {
+                padding: 12px 16px;
+            }
+
+            .notification-icon {
+                width: 36px;
+                height: 36px;
+            }
+
+            .notification-icon .material-symbols-outlined {
+                font-size: 1.125rem;
+            }
+
+            .notification-text {
+                font-size: 0.813rem;
+            }
+
+            .notification-description {
+                font-size: 0.75rem;
+            }
+
+            .user-dropdown-menu {
+                width: calc(100vw - 24px) !important;
+                min-width: unset !important;
+                right: 5px !important;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .notification-dropdown-menu {
+                width: calc(100vw - 48px);
+                right: 10px;
+            }
+        }
+
+        /* Responsive Sidebar Styles */
+        @media (max-width: 1023px) {
+            .sidebar {
+                position: fixed;
+                left: -100%;
+                top: 0;
+                height: 100vh;
+                z-index: 50;
+                transition: left 0.3s ease-in-out;
+                width: 280px;
+            }
+
+            .sidebar.active {
+                left: 0;
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 40;
+            }
+
+            .sidebar-close {
+                display: block;
+            }
+        }
+
+        @media (max-width: 479px) {
+            .sidebar {
+                width: 260px;
+            }
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Mobile sidebar overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <img src="{% static 'assets/images/enpower-logo (1).png' %}" alt="Enpower Logo" class="sidebar-logo" />
+                <button id="closeSidebar" class="sidebar-close">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <nav class="sidebar-nav">
+                <p class="menu-label">menu</p>
+
+                <!-- Dashboard -->
+                <a href="{% url 'parent_dashboard' %}" id="nav-dashboard" class="sidebar-nav-link">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    Dashboard
+                </a>
+
+                <!-- Child Profiles -->
+                <div class="sidebar-dropdown">
+                    <a href="#" class="sidebar-dropdown-toggle" id="child-profiles-dropdown">
+                        <span class="material-symbols-outlined">child_care</span>
+                        Child Profiles
+                        <span class="material-symbols-outlined dropdown-icon">expand_more</span>
+                    </a>
+                    <div class="sidebar-dropdown-menu">
+                        <a href="#" id="nav-switch-child">
+                            <span class="material-symbols-outlined">swap_horiz</span>
+                            Switch Child
+                        </a>
+                        <a href="#" id="nav-child-performance">
+                            <span class="material-symbols-outlined">analytics</span>
+                            Child Performance Summary
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Attendance -->
+                <div class="sidebar-dropdown">
+                    <a href="#" class="sidebar-dropdown-toggle" id="attendance-dropdown">
+                        <span class="material-symbols-outlined">how_to_reg</span>
+                        Attendance
+                        <span class="material-symbols-outlined dropdown-icon">expand_more</span>
+                    </a>
+                    <div class="sidebar-dropdown-menu">
+                        <a href="#" id="nav-attendance">
+                            <span class="material-symbols-outlined">calendar_month</span>
+                            Daily & Monthly Attendance
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Assessments -->
+                <div class="sidebar-dropdown">
+                    <a href="#" class="sidebar-dropdown-toggle" id="assessments-dropdown">
+                        <span class="material-symbols-outlined">quiz</span>
+                        Assessments
+                        <span class="material-symbols-outlined dropdown-icon">expand_more</span>
+                    </a>
+                    <div class="sidebar-dropdown-menu">
+                        <a href="#" id="nav-skill-passport">
+                            <span class="material-symbols-outlined">workspace_premium</span>
+                            Skill Passport
+                        </a>
+                        <a href="#" id="nav-assessment-summary">
+                            <span class="material-symbols-outlined">summarize</span>
+                            Assessment Summary
+                        </a>
+                    </div>
+                </div>
+
+                <!-- LMS -->
+                <div class="sidebar-dropdown">
+                    <a href="#" class="sidebar-dropdown-toggle" id="lms-dropdown">
+                        <span class="material-symbols-outlined">library_books</span>
+                        LMS
+                        <span class="material-symbols-outlined dropdown-icon">expand_more</span>
+                    </a>
+                    <div class="sidebar-dropdown-menu">
+                        <a href="#" id="nav-lesson-progress">
+                            <span class="material-symbols-outlined">trending_up</span>
+                            Lesson Progress
+                        </a>
+                        <a href="#" id="nav-suggested-lessons">
+                            <span class="material-symbols-outlined">recommend</span>
+                            Suggested Lessons
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Reports -->
+                <div class="sidebar-dropdown">
+                    <a href="#" class="sidebar-dropdown-toggle" id="reports-dropdown">
+                        <span class="material-symbols-outlined">assessment</span>
+                        Reports
+                        <span class="material-symbols-outlined dropdown-icon">expand_more</span>
+                    </a>
+                    <div class="sidebar-dropdown-menu">
+                        <a href="#" id="nav-download-report">
+                            <span class="material-symbols-outlined">file_download</span>
+                            Download Report
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Events & Notices -->
+                <div class="sidebar-dropdown">
+                    <a href="#" class="sidebar-dropdown-toggle" id="events-notices-dropdown">
+                        <span class="material-symbols-outlined">event</span>
+                        Events & Notices
+                        <span class="material-symbols-outlined dropdown-icon">expand_more</span>
+                    </a>
+                    <div class="sidebar-dropdown-menu">
+                        <a href="#" id="nav-notices">
+                            <span class="material-symbols-outlined">notifications</span>
+                            Notices
+                        </a>
+                        <a href="#" id="nav-events">
+                            <span class="material-symbols-outlined">event_available</span>
+                            Events
+                        </a>
+                        <a href="#" id="nav-announcements">
+                            <span class="material-symbols-outlined">campaign</span>
+                            Announcements
+                        </a>
+                    </div>
+                </div>
+
+                <!-- My Account -->
+                <div class="sidebar-dropdown">
+                    <a href="#" class="sidebar-dropdown-toggle" id="account-dropdown">
+                        <span class="material-symbols-outlined">account_circle</span>
+                        My Account
+                        <span class="material-symbols-outlined dropdown-icon">expand_more</span>
+                    </a>
+                    <div class="sidebar-dropdown-menu">
+                        <a href="#" id="nav-profile">
+                            <span class="material-symbols-outlined">person</span>
+                            Profile
+                        </a>
+                        <a href="#" id="nav-change-password">
+                            <span class="material-symbols-outlined">lock</span>
+                            Change Password
+                        </a>
+                        <a href="#" id="nav-logout">
+                            <span class="material-symbols-outlined">logout</span>
+                            Logout
+                        </a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header Component -->
+            <header class="header">
+                <div class="header-left">
+                    <button id="menuToggle">
+                        <span class="material-symbols-outlined">menu</span>
+                    </button>
+                    <button class="fullscreen-btn">
+                        <span class="material-symbols-outlined">fullscreen</span>
+                    </button>
+                </div>
+                <div class="header-right">
+                    <div class="notification-wrapper">
+                        <button id="notificationToggle">
+                            <span class="material-symbols-outlined">notifications</span>
+                        </button>
+                        <span class="notification-badge">4</span>
+
+                        <!-- Notification Dropdown Menu -->
+                        <div class="notification-dropdown-menu" id="notificationDropdownMenu">
+                            <div class="notification-dropdown-header">
+                                <h4 class="notification-dropdown-title">Notifications</h4>
+                                <span class="notification-count">4 new</span>
+                            </div>
+                            <div class="notification-dropdown-body">
+                                <a href="#" class="notification-item unread">
+                                    <div class="notification-icon bg-blue">
+                                        <span class="material-symbols-outlined">assignment</span>
+                                    </div>
+                                    <div class="notification-content">
+                                        <p class="notification-text"><strong>New Assignment Posted</strong></p>
+                                        <p class="notification-description">Mathematics homework due by Friday</p>
+                                        <span class="notification-time">10 minutes ago</span>
+                                    </div>
+                                </a>
+
+                                <a href="#" class="notification-item unread">
+                                    <div class="notification-icon bg-green">
+                                        <span class="material-symbols-outlined">grade</span>
+                                    </div>
+                                    <div class="notification-content">
+                                        <p class="notification-text"><strong>Grade Published</strong></p>
+                                        <p class="notification-description">Your child's Science test results are available</p>
+                                        <span class="notification-time">2 hours ago</span>
+                                    </div>
+                                </a>
+
+                                <a href="#" class="notification-item unread">
+                                    <div class="notification-icon bg-orange">
+                                        <span class="material-symbols-outlined">event</span>
+                                    </div>
+                                    <div class="notification-content">
+                                        <p class="notification-text"><strong>Upcoming Test</strong></p>
+                                        <p class="notification-description">History exam scheduled for next Monday</p>
+                                        <span class="notification-time">4 hours ago</span>
+                                    </div>
+                                </a>
+
+                                <a href="#" class="notification-item unread">
+                                    <div class="notification-icon bg-purple">
+                                        <span class="material-symbols-outlined">emoji_events</span>
+                                    </div>
+                                    <div class="notification-content">
+                                        <p class="notification-text"><strong>Achievement Unlocked</strong></p>
+                                        <p class="notification-description">Your child earned a Perfect Attendance badge!</p>
+                                        <span class="notification-time">1 day ago</span>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="notification-dropdown-footer">
+                                <a href="#" class="notification-footer-link">View All Notifications</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="user-info-wrapper">
+                        <div class="user-info" id="userInfoToggle">
+                            <img alt="{{ user.get_full_name|default:user.username }}" class="user-avatar"
+                                src="https://ui-avatars.com/api/?name={{ user.get_full_name|default:user.username|urlencode }}&background=6b277e&color=fff&size=128" />
+                            <span class="user-name">{{ user.get_full_name|default:user.username }}</span>
+                            <span class="material-symbols-outlined user-dropdown">expand_more</span>
+                        </div>
+
+                        <!-- User Dropdown Menu -->
+                        <div class="user-dropdown-menu" id="userDropdownMenu">
+                            <div class="dropdown-header">
+                                <img alt="{{ user.get_full_name|default:user.username }}" class="dropdown-avatar"
+                                    src="https://ui-avatars.com/api/?name={{ user.get_full_name|default:user.username|urlencode }}&background=6b277e&color=fff&size=128" />
+                                <div class="dropdown-user-info">
+                                    <h4 class="dropdown-user-name">{{ user.get_full_name|default:user.username }}</h4>
+                                    <p class="dropdown-user-email">{{ user.email }}</p>
+                                </div>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item" id="profileBtn">
+                                <span class="material-symbols-outlined">account_circle</span>
+                                <span>My Profile</span>
+                            </a>
+                            <a href="#" class="dropdown-item" id="accountSettingsBtn">
+                                <span class="material-symbols-outlined">settings</span>
+                                <span>Account Settings</span>
+                            </a>
+                            <a href="#" class="dropdown-item">
+                                <span class="material-symbols-outlined">dashboard</span>
+                                <span>Dashboard</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item logout-item" id="logoutBtn">
+                                <span class="material-symbols-outlined">logout</span>
+                                <span>Logout</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content Area -->
+            {% block content %}
+            {% endblock %}
+        </main>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Header functionality
+        let isHeaderInitialized = false;
+        let retryCount = 0;
+        const MAX_RETRIES = 20;
+
+        function initializeHeader() {
+            if (isHeaderInitialized) {
+                return;
+            }
+
+            const userInfoToggle = document.getElementById('userInfoToggle');
+            const userDropdownMenu = document.getElementById('userDropdownMenu');
+            const notificationToggle = document.getElementById('notificationToggle');
+            const notificationDropdownMenu = document.getElementById('notificationDropdownMenu');
+
+            if (!userInfoToggle || !userDropdownMenu || !notificationToggle || !notificationDropdownMenu) {
+                retryCount++;
+                if (retryCount < MAX_RETRIES) {
+                    setTimeout(initializeHeader, 100);
+                } else {
+                    console.error('Header elements not found after maximum retries');
+                }
+                return;
+            }
+
+            isHeaderInitialized = true;
+
+            userInfoToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                userDropdownMenu.classList.toggle('active');
+                notificationDropdownMenu.classList.remove('active');
+            });
+
+            notificationToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                notificationDropdownMenu.classList.toggle('active');
+                userDropdownMenu.classList.remove('active');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!userDropdownMenu.contains(e.target) && !userInfoToggle.contains(e.target)) {
+                    userDropdownMenu.classList.remove('active');
+                }
+                if (!notificationDropdownMenu.contains(e.target) && !notificationToggle.contains(e.target)) {
+                    notificationDropdownMenu.classList.remove('active');
+                }
+            });
+
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (confirm('Are you sure you want to logout?')) {
+                        window.location.href = '/login';
+                    }
+                });
+            }
+
+            const fullscreenBtn = document.querySelector('.fullscreen-btn');
+            if (fullscreenBtn) {
+                fullscreenBtn.addEventListener('click', function() {
+                    toggleFullscreen();
+                });
+            }
+
+            document.addEventListener('fullscreenchange', updateFullscreenIcon);
+            document.addEventListener('webkitfullscreenchange', updateFullscreenIcon);
+            document.addEventListener('mozfullscreenchange', updateFullscreenIcon);
+            document.addEventListener('MSFullscreenChange', updateFullscreenIcon);
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement &&
+                !document.mozFullScreenElement && !document.msFullscreenElement) {
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                } else if (document.documentElement.webkitRequestFullscreen) {
+                    document.documentElement.webkitRequestFullscreen();
+                } else if (document.documentElement.mozRequestFullScreen) {
+                    document.documentElement.mozRequestFullScreen();
+                } else if (document.documentElement.msRequestFullscreen) {
+                    document.documentElement.msRequestFullscreen();
+                }
+
+                const fullscreenIcon = document.querySelector('.fullscreen-btn .material-symbols-outlined');
+                if (fullscreenIcon) {
+                    fullscreenIcon.textContent = 'fullscreen_exit';
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+
+                const fullscreenIcon = document.querySelector('.fullscreen-btn .material-symbols-outlined');
+                if (fullscreenIcon) {
+                    fullscreenIcon.textContent = 'fullscreen';
+                }
+            }
+        }
+
+        function updateFullscreenIcon() {
+            const fullscreenIcon = document.querySelector('.fullscreen-btn .material-symbols-outlined');
+            if (fullscreenIcon) {
+                if (document.fullscreenElement || document.webkitFullscreenElement ||
+                    document.mozFullScreenElement || document.msFullscreenElement) {
+                    fullscreenIcon.textContent = 'fullscreen_exit';
+                } else {
+                    fullscreenIcon.textContent = 'fullscreen';
+                }
+            }
+        }
+
+        // Sidebar Component JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSidebar();
+            initializeHeader();
+        });
+
+        function initializeSidebar() {
+            const menuToggle = document.getElementById('menuToggle');
+            const closeSidebar = document.getElementById('closeSidebar');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+            if (!menuToggle || !closeSidebar || !sidebar || !sidebarOverlay) {
+                setTimeout(initializeSidebar, 100);
+                return;
+            }
+
+            function toggleSidebar() {
+                if (window.innerWidth >= 1024) {
+                    sidebar.classList.toggle('collapsed');
+                } else {
+                    sidebar.classList.add('active');
+                    sidebarOverlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                }
+            }
+
+            function closeSidebarFunc() {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            menuToggle.addEventListener('click', toggleSidebar);
+            closeSidebar.addEventListener('click', closeSidebarFunc);
+            sidebarOverlay.addEventListener('click', closeSidebarFunc);
+
+            const sidebarLinks = sidebar.querySelectorAll('.sidebar-dropdown-menu a, .sidebar-nav > a:not(.sidebar-dropdown-toggle)');
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    if (window.innerWidth < 1024) {
+                        closeSidebarFunc();
+                    }
+                });
+            });
+
+            window.addEventListener('resize', () => {
+                if (window.innerWidth >= 1024) {
+                    closeSidebarFunc();
+                } else {
+                    sidebar.classList.remove('collapsed');
+                }
+            });
+
+            setActiveLink();
+            initializeDropdowns();
+        }
+
+        function setActiveLink() {
+            const currentPage = window.location.pathname.split('/').pop();
+            const navLinks = {
+                'dashboard.html': 'nav-dashboard',
+                'switch-child.html': 'nav-switch-child',
+                'child-performance-summary.html': 'nav-child-performance',
+                'daily-monthly-attendance.html': 'nav-attendance',
+                'skill-passport.html': 'nav-skill-passport',
+                'assessment-summary.html': 'nav-assessment-summary',
+                'lesson-progress.html': 'nav-lesson-progress',
+                'suggested-lessons.html': 'nav-suggested-lessons',
+                'download-report.html': 'nav-download-report',
+                'notices.html': 'nav-notices',
+                'events.html': 'nav-events',
+                'announcements.html': 'nav-announcements',
+                'profile.html': 'nav-profile',
+                'change-password.html': 'nav-change-password'
+            };
+
+            const allSidebarLinks = document.querySelectorAll('.sidebar-nav a, .sidebar-dropdown-menu a');
+            allSidebarLinks.forEach(link => link.classList.remove('active'));
+
+            if (navLinks[currentPage]) {
+                const activeLink = document.getElementById(navLinks[currentPage]);
+                if (activeLink) {
+                    activeLink.classList.add('active');
+                }
+            }
+        }
+
+        function initializeDropdowns() {
+            const dropdownToggles = document.querySelectorAll('.sidebar-dropdown-toggle');
+
+            dropdownToggles.forEach(toggle => {
+                toggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    const dropdown = this.closest('.sidebar-dropdown');
+                    const isActive = dropdown.classList.contains('active');
+
+                    document.querySelectorAll('.sidebar-dropdown').forEach(d => {
+                        if (d !== dropdown) {
+                            d.classList.remove('active');
+                        }
+                    });
+
+                    if (isActive) {
+                        dropdown.classList.remove('active');
+                    } else {
+                        dropdown.classList.add('active');
+                    }
+                });
+            });
+
+            const activeDropdownLinks = document.querySelectorAll('.sidebar-dropdown-menu a');
+            activeDropdownLinks.forEach(link => {
+                if (link.classList.contains('active')) {
+                    const dropdown = link.closest('.sidebar-dropdown');
+                    if (dropdown) {
+                        dropdown.classList.add('active');
+                    }
+                }
+            });
+        }
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

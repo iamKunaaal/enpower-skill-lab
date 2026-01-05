@@ -1,0 +1,460 @@
+{% extends 'parent/base.html' %}
+{% load static %}
+
+{% block title %}Parent Dashboard - Enpower Skill Lab{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/parent/parent-dashboard.css' %}">
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-page">
+    <!-- Page Heading & Child Switcher -->
+    <div class="page-header">
+        <div class="row align-items-end g-3">
+            <div class="col-12 col-md-6">
+                <h1 class="page-title">Parent Dashboard</h1>
+                <p class="page-subtitle">Track your child's progress and school activity.</p>
+            </div>
+            <!-- Child Switcher Tabs -->
+            <div class="col-12 col-md-6 d-flex justify-content-md-end">
+                <div class="child-switcher">
+                    <button class="child-tab active" data-child="alex">
+                        <span class="material-symbols-outlined">face</span>
+                        <div class="child-tab-info">
+                            <span class="child-tab-name">Alex</span>
+                            <span class="child-tab-grade">Grade 10</span>
+                        </div>
+                    </button>
+                    <button class="child-tab" data-child="sarah">
+                        <span class="material-symbols-outlined">face_3</span>
+                        <div class="child-tab-info">
+                            <span class="child-tab-name">Sarah</span>
+                            <span class="child-tab-grade">Grade 8</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Selected Child Summary Card -->
+    <div class="summary-card">
+        <div class="student-profile">
+            <div class="student-avatar" id="studentAvatar"></div>
+            <div class="student-info">
+                <div>
+                    <span class="student-name" id="studentName">Alex Doe</span>
+                    <span class="status-badge">Active</span>
+                </div>
+                <p class="student-grade" id="studentGrade">Grade 10 - Section B</p>
+                <div class="student-meta">
+                    <div class="student-meta-item">
+                        <span class="material-symbols-outlined">school</span>
+                        <span id="studentSchool">Greenwood High</span>
+                    </div>
+                    <div class="student-meta-item">
+                        <span class="material-symbols-outlined">psychology</span>
+                        <span>Thinking Coach: <strong style="color: var(--text-dark);" id="studentCoach">Mr. Anderson</strong></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Grid -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <div class="kpi-icon blue">
+                    <span class="material-symbols-outlined">calendar_month</span>
+                </div>
+                <span class="kpi-badge" id="kpiAttendanceBadge">+2%</span>
+            </div>
+            <div>
+                <p class="kpi-label">Attendance %</p>
+                <p class="kpi-value" id="kpiAttendanceValue">92%</p>
+            </div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <div class="kpi-icon purple">
+                    <span class="material-symbols-outlined">monitoring</span>
+                </div>
+                <span class="kpi-badge" id="kpiPerformanceBadge">+5%</span>
+            </div>
+            <div>
+                <p class="kpi-label">Overall Performance</p>
+                <p class="kpi-value" id="kpiPerformanceValue">85%</p>
+            </div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <div class="kpi-icon orange">
+                    <span class="material-symbols-outlined">assignment_turned_in</span>
+                </div>
+            </div>
+            <div>
+                <p class="kpi-label">Assessments Done</p>
+                <p class="kpi-value" id="kpiAssessmentsValue">12</p>
+            </div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <div class="kpi-icon teal">
+                    <span class="material-symbols-outlined">book</span>
+                </div>
+            </div>
+            <div>
+                <p class="kpi-label">Lessons Completed</p>
+                <p class="kpi-value" id="kpiLessonsValue">45</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="content-grid">
+        <!-- Left Column (Data & Charts) -->
+        <div>
+            <!-- Attendance Overview -->
+            <div class="card-custom">
+                <div class="card-header-custom">
+                    <h3 class="card-title-custom">Attendance Overview</h3>
+                    <select class="select-filter" id="attendanceFilter">
+                        <option>Last 6 Months</option>
+                        <option>This Year</option>
+                    </select>
+                </div>
+                <div class="chart-container">
+                    <div class="bar-chart" id="attendanceBarChart"></div>
+                </div>
+            </div>
+
+            <!-- Academic Performance -->
+            <div class="card-custom">
+                <div class="card-header-custom">
+                    <h3 class="card-title-custom">Academic Performance</h3>
+                    <a href="#" class="card-action-link">View All</a>
+                </div>
+                <div id="performanceContainer"></div>
+            </div>
+
+            <!-- Learning Progress -->
+            <div class="card-custom">
+                <div class="learning-progress">
+                    <div class="circular-progress">
+                        <svg viewBox="0 0 36 36">
+                            <!-- Background Circle -->
+                            <path class="text-gray-100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#e5e7eb" stroke-width="4"></path>
+                            <!-- Progress Circle -->
+                            <path id="learningProgressPath" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#5b1f6f" stroke-dasharray="75, 100" stroke-linecap="round" stroke-width="4"></path>
+                        </svg>
+                        <div class="circular-progress-text">
+                            <span class="circular-progress-value" id="learningProgressValue">75%</span>
+                        </div>
+                    </div>
+                    <div class="learning-details">
+                        <h3 class="learning-title" id="learningModuleTitle">Current Module: Business Basics</h3>
+                        <p class="learning-description" id="learningModuleDesc">You have completed 9 out of 12 lessons. Keep up the great work!</p>
+                        <div class="learning-stats">
+                            <div>
+                                <span class="learning-stat-value" id="learningTotalLessons">12</span> <span class="learning-stat-label">Assigned</span>
+                            </div>
+                            <div>
+                                <span class="learning-stat-value" style="color: var(--primary);" id="learningCompletedLessons">9</span> <span class="learning-stat-label">Completed</span>
+                            </div>
+                        </div>
+                        <button class="btn-view-details">View Learning Details</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column (Sidebar) -->
+        <div>
+            <!-- Recent Activity & Alerts -->
+            <div class="card-custom">
+                <div class="card-header-custom">
+                    <h3 class="card-title-custom">Recent Activity</h3>
+                    <span class="material-symbols-outlined" style="color: var(--text-muted);">notifications</span>
+                </div>
+                <div class="activity-timeline">
+                    <div class="activity-item">
+                        <div class="activity-icon blue">
+                            <span class="material-symbols-outlined">assignment_turned_in</span>
+                        </div>
+                        <div class="activity-content">
+                            <p class="activity-title">Math Assessment Submitted</p>
+                            <p class="activity-description">Score: 92/100</p>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon yellow">
+                            <span class="material-symbols-outlined">campaign</span>
+                        </div>
+                        <div class="activity-content">
+                            <p class="activity-title">Annual Sports Meet</p>
+                            <p class="activity-description">Registration closes tomorrow.</p>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon purple">
+                            <span class="material-symbols-outlined">comment</span>
+                        </div>
+                        <div class="activity-content">
+                            <p class="activity-title">Comment from Mr. Anderson</p>
+                            <p class="activity-description" style="font-style: italic;">"Alex showed great leadership today..."</p>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon red">
+                            <span class="material-symbols-outlined">warning</span>
+                        </div>
+                        <div class="activity-content">
+                            <p class="activity-title">Absent Alert</p>
+                            <p class="activity-description">Alex was marked absent on Monday.</p>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-view-all">View All Activity</button>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card-custom">
+                <h3 class="card-title-custom mb-3">Reports & Actions</h3>
+                <div>
+                    <button class="action-item" id="downloadReportBtn">
+                        <div class="action-item-left">
+                            <span class="material-symbols-outlined">download</span>
+                            <span class="action-item-title">Download Progress Report</span>
+                        </div>
+                        <div class="action-item-right">
+                            <span class="material-symbols-outlined">chevron_right</span>
+                        </div>
+                    </button>
+                    <button class="action-item" id="viewReportBtn">
+                        <div class="action-item-left">
+                            <span class="material-symbols-outlined">visibility</span>
+                            <span class="action-item-title">View Detailed Report</span>
+                        </div>
+                        <div class="action-item-right">
+                            <span class="material-symbols-outlined">chevron_right</span>
+                        </div>
+                    </button>
+                    <button class="action-item" id="requestMeetingBtn">
+                        <div class="action-item-left">
+                            <span class="material-symbols-outlined">calendar_add_on</span>
+                            <span class="action-item-title">Request Meeting</span>
+                        </div>
+                        <div class="action-item-right">
+                            <span class="material-symbols-outlined">chevron_right</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Child data storage
+    const childrenData = {
+        'alex': {
+            name: 'Alex Doe',
+            grade: 'Grade 10 - Section B',
+            gradeShort: 'Grade 10',
+            school: 'Greenwood High',
+            coach: 'Mr. Anderson',
+            avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAQJwOX2S4o51MmWTO5c_rSF9tXr_fNP3Sr3we4s-_ELfN29pLbcXDT_aYsYTJWFOdsVGOdJ59ay7JYBSJ_TP0-Gn0d0isUyyBlCuY21SQDqte1nOXoo1zrEojrrquqXkV2Ksoz8GpTAOqmHaqKRnxSN5k53YGBSeLDj-LiW0L2sPKtUAXO5VyE413e805Z2UCyeYkVylprHmY1wDUmI4f_AHbTEPdP5Uqj_r1IScsl0YCPhvQ2vaGWTPWVWuBq14RdH4m9XJi0izvR',
+            kpis: {
+                attendance: { value: '92%', badge: '+2%' },
+                performance: { value: '85%', badge: '+5%' },
+                assessments: { value: '12' },
+                lessons: { value: '45' }
+            },
+            performance: [
+                { subject: 'Mathematics', score: 85, badge: 'Good', color: '' },
+                { subject: 'Science', score: 78, badge: 'Good', color: '' },
+                { subject: 'English Literature', score: 62, badge: 'Needs Attention', color: 'orange' },
+                { subject: 'Public Speaking', score: 92, badge: 'Excellent', color: '' }
+            ],
+            learningProgress: {
+                percent: 75,
+                module: 'Business Basics',
+                completed: 9,
+                total: 12
+            },
+            attendance: [
+                { month: 'Jul', value: 88 },
+                { month: 'Aug', value: 92 },
+                { month: 'Sep', value: 85 },
+                { month: 'Oct', value: 95 },
+                { month: 'Nov', value: 90 },
+                { month: 'Dec', value: 93 }
+            ]
+        },
+        'sarah': {
+            name: 'Sarah Doe',
+            grade: 'Grade 8 - Section A',
+            gradeShort: 'Grade 8',
+            school: 'Greenwood High',
+            coach: 'Ms. Roberts',
+            avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA0XUhc3rwEPcwWj94M7GQcb6UHOhH4eNrVdz0rl_9UKm4J-LENnCBNjdS-qRy3SmwtP4uwztNgU26erUzaNeedvW-wdtAFwZbQ4455POQ_3gOebWnSZdrGOWRvmiqp0_a8_yk49BiRFc6LtXKklmmlymvasM_o272yG3du2LYSytAOewgVcjdwr0AostKW53_C1hZB9m4th7CAYUXZrDPaOu5g67xOhjNuVLE6ozVuCqo5hdUN0ChEgiVdOncm8tFckp1OJe0aOuW1',
+            kpis: {
+                attendance: { value: '96%', badge: '+3%' },
+                performance: { value: '91%', badge: '+8%' },
+                assessments: { value: '15' },
+                lessons: { value: '52' }
+            },
+            performance: [
+                { subject: 'Mathematics', score: 92, badge: 'Excellent', color: '' },
+                { subject: 'Science', score: 88, badge: 'Good', color: '' },
+                { subject: 'English Literature', score: 94, badge: 'Excellent', color: '' },
+                { subject: 'Public Speaking', score: 85, badge: 'Good', color: '' }
+            ],
+            learningProgress: {
+                percent: 87,
+                module: 'Creative Writing',
+                completed: 13,
+                total: 15
+            },
+            attendance: [
+                { month: 'Jul', value: 94 },
+                { month: 'Aug', value: 96 },
+                { month: 'Sep', value: 91 },
+                { month: 'Oct', value: 98 },
+                { month: 'Nov', value: 95 },
+                { month: 'Dec', value: 97 }
+            ]
+        }
+    };
+
+    let currentChild = 'alex';
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize child switcher
+        initializeChildSwitcher();
+        // Initialize dashboard with default child
+        updateDashboardData(currentChild);
+        // Initialize action buttons
+        initializeActionButtons();
+    });
+
+    // Initialize child switcher functionality
+    function initializeChildSwitcher() {
+        const childTabs = document.querySelectorAll('.child-tab');
+        childTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Update active state
+                childTabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+
+                // Switch child data
+                currentChild = this.dataset.child;
+                updateDashboardData(currentChild);
+            });
+        });
+    }
+
+    // Update dashboard with child data
+    function updateDashboardData(childKey) {
+        const data = childrenData[childKey];
+
+        // Update student profile
+        document.getElementById('studentAvatar').style.backgroundImage = `url("${data.avatar}")`;
+        document.getElementById('studentName').textContent = data.name;
+        document.getElementById('studentGrade').textContent = data.grade;
+        document.getElementById('studentSchool').textContent = data.school;
+        document.getElementById('studentCoach').textContent = data.coach;
+
+        // Update KPIs
+        document.getElementById('kpiAttendanceValue').textContent = data.kpis.attendance.value;
+        document.getElementById('kpiPerformanceValue').textContent = data.kpis.performance.value;
+        document.getElementById('kpiAssessmentsValue').textContent = data.kpis.assessments.value;
+        document.getElementById('kpiLessonsValue').textContent = data.kpis.lessons.value;
+        document.getElementById('kpiAttendanceBadge').textContent = data.kpis.attendance.badge;
+        document.getElementById('kpiPerformanceBadge').textContent = data.kpis.performance.badge;
+
+        // Update academic performance
+        updatePerformance(data.performance);
+
+        // Update learning progress
+        const progress = data.learningProgress;
+        document.getElementById('learningProgressValue').textContent = `${progress.percent}%`;
+        document.getElementById('learningProgressPath').setAttribute('stroke-dasharray', `${progress.percent}, 100`);
+        document.getElementById('learningModuleTitle').textContent = `Current Module: ${progress.module}`;
+        document.getElementById('learningModuleDesc').textContent =
+            `You have completed ${progress.completed} out of ${progress.total} lessons. Keep up the great work!`;
+        document.getElementById('learningTotalLessons').textContent = progress.total;
+        document.getElementById('learningCompletedLessons').textContent = progress.completed;
+
+        // Update attendance bar chart
+        updateAttendanceChart(data.attendance);
+    }
+
+    // Update academic performance section
+    function updatePerformance(performanceData) {
+        const container = document.getElementById('performanceContainer');
+        container.innerHTML = performanceData.map(item => `
+            <div class="performance-item">
+                <div class="performance-header">
+                    <span class="performance-subject">${item.subject}</span>
+                    <span class="performance-badge ${item.badge.toLowerCase().replace(' ', '-')}">${item.badge}</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill ${item.color}" style="width: ${item.score}%"></div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Update attendance chart
+    function updateAttendanceChart(attendanceData) {
+        const chartContainer = document.getElementById('attendanceBarChart');
+        chartContainer.innerHTML = attendanceData.map(item => `
+            <div class="bar-item">
+                <div class="bar-wrapper">
+                    <div class="bar" style="height: ${item.value}%;">
+                        <span class="bar-value">${item.value}%</span>
+                    </div>
+                </div>
+                <span class="bar-label">${item.month}</span>
+            </div>
+        `).join('');
+    }
+
+    // Initialize action buttons
+    function initializeActionButtons() {
+        document.getElementById('downloadReportBtn')?.addEventListener('click', function() {
+            alert('Downloading progress report for ' + childrenData[currentChild].name + '...');
+        });
+
+        document.getElementById('viewReportBtn')?.addEventListener('click', function() {
+            alert('Opening detailed report for ' + childrenData[currentChild].name + '...');
+        });
+
+        document.getElementById('requestMeetingBtn')?.addEventListener('click', function() {
+            alert('Request meeting with ' + childrenData[currentChild].coach + '...');
+        });
+
+        document.querySelector('.btn-view-all')?.addEventListener('click', function() {
+            alert('Viewing all activities for ' + childrenData[currentChild].name + '...');
+        });
+
+        document.querySelector('.btn-view-details')?.addEventListener('click', function() {
+            alert('Viewing learning details for ' + childrenData[currentChild].learningProgress.module + '...');
+        });
+
+        document.querySelector('.card-action-link')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('Viewing all academic performance for ' + childrenData[currentChild].name + '...');
+        });
+    }
+</script>
+{% endblock %}

@@ -3,7 +3,7 @@
 
 git status
 git add .
-git commit -m "added student dashboard"
+git commit -m "Added all the dashboards"
 git push origin main
  
 

@@ -243,6 +243,8 @@ body {
 .stat-change .material-symbols-outlined {
     font-size: 1rem;
     line-height: 1;
+    display: flex;
+    align-items: center;
 }
 
 /* Card Styles */
