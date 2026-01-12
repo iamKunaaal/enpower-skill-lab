@@ -82,37 +82,37 @@ def school_admin_change_password(request):
         current_password = request.POST.get('current_password', '')
         new_password = request.POST.get('new_password', '')
         confirm_password = request.POST.get('confirm_password', '')
-        
+
         # Validate current password
         if not request.user.check_password(current_password):
             messages.error(request, 'Current password is incorrect.')
             return redirect('school_admin_change_password')
-        
+
         # Validate new password
         if not new_password:
             messages.error(request, 'New password is required.')
             return redirect('school_admin_change_password')
-        
+
         # Check password requirements
         if len(new_password) < 8:
             messages.error(request, 'Password must be at least 8 characters long.')
             return redirect('school_admin_change_password')
-        
+
         # Validate confirm password
         if new_password != confirm_password:
             messages.error(request, 'New passwords do not match.')
             return redirect('school_admin_change_password')
-        
+
         # Check if new password is same as current
         if current_password == new_password:
             messages.error(request, 'New password must be different from current password.')
             return redirect('school_admin_change_password')
-        
+
         try:
             # Update password
             request.user.set_password(new_password)
             request.user.save()
-            
+
             # Update SchoolAdmin profile if exists
             from .models import SchoolAdmin
             from django.utils import timezone
@@ -120,30 +120,260 @@ def school_admin_change_password(request):
                 profile = SchoolAdmin.objects.get(user=request.user)
                 profile.password_changed = True
                 profile.last_password_change = timezone.now()
-                
+
                 # Activate account if it was pending (first login password change)
                 if profile.account_status == 'pending':
                     profile.account_status = 'active'
                     profile.mark_first_login()
-                
+
                 profile.save()
             except SchoolAdmin.DoesNotExist:
                 pass
-            
+
             messages.success(request, 'Your password has been changed successfully!')
-            
+
             # Keep user logged in after password change
             from django.contrib.auth import update_session_auth_hash
             update_session_auth_hash(request, request.user)
-            
+
             return redirect('school_admin_change_password')
-            
+
         except Exception as e:
             messages.error(request, f'Error changing password: {str(e)}')
             return redirect('school_admin_change_password')
-    
+
     # GET request - render the change password page
     context = {
         'page_title': 'Change Password',
     }
     return render(request, 'school_admin/change_password.html', context)
+
+@login_required
+@user_passes_test(is_school_admin)
+def school_admin_onboard_student(request):
+    """View for school admin to onboard new students to their school"""
+    from schools.models import School
+    from .models import SchoolAdmin
+
+    # Get the school admin's school
+    try:
+        school_admin_profile = SchoolAdmin.objects.get(user=request.user)
+        school = school_admin_profile.school
+    except SchoolAdmin.DoesNotExist:
+        messages.error(request, 'School admin profile not found.')
+        return redirect('school_admin_dashboard')
+
+    if not school:
+        messages.error(request, 'No school assigned to your account. Please contact the administrator.')
+        return redirect('school_admin_dashboard')
+
+    if request.method == 'POST':
+        try:
+            from student.models import Student
+            from django.contrib.auth import get_user_model
+            from django.core.mail import send_mail
+            from django.conf import settings
+            import uuid
+            from datetime import date
+            import secrets
+            import string
+
+            # Generate unique skill lab registration ID
+            year = date.today().year
+            random_str = ''.join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+            skill_lab_reg_id = f"SKILL{year}{random_str}"
+
+            # Create student instance
+            student = Student()
+
+            # Automatically assign to school admin's school
+            student.school = school
+
+            # A. Basic Information
+            if 'student_photo' in request.FILES:
+                student.student_photo = request.FILES['student_photo']
+            student.first_name = request.POST.get('first_name', '')
+            student.middle_name = request.POST.get('middle_name', '')
+            student.last_name = request.POST.get('last_name', '')
+            student.gender = request.POST.get('gender', '')
+            student.date_of_birth = request.POST.get('date_of_birth', '')
+            student.nationality = request.POST.get('nationality', 'Indian')
+            student.mother_tongue = request.POST.get('mother_tongue', '')
+            student.blood_group = request.POST.get('blood_group', '')
+            student.aadhar_number = request.POST.get('aadhar_number', '')
+
+            # B. Academic Details
+            student.school_name = request.POST.get('school_name', '')
+            student.school_branch = request.POST.get('school_branch', '')
+            student.student_class = request.POST.get('student_class', '')
+            student.division = request.POST.get('division', '')
+            student.roll_number = request.POST.get('roll_number', '')
+            student.academic_year = request.POST.get('academic_year', '')
+            student.gr_number = request.POST.get('gr_number', '')
+            student.previous_school = request.POST.get('previous_school', '')
+            student.stream = request.POST.get('stream', '')
+            student.school_board = request.POST.get('school_board', '')
+
+            # C. Contact Details
+            student.student_mobile = request.POST.get('student_mobile', '')
+            student.school_email = request.POST.get('school_email', '')
+            student.personal_email = request.POST.get('personal_email', '')
+            student.address = request.POST.get('address', '')
+
+            # D. Skill Lab Specific Details
+            student.skill_lab_reg_id = skill_lab_reg_id
+            student.enrollment_date = request.POST.get('enrollment_date', '')
+            student.skills_enrolled = request.POST.get('skills_enrolled', '')
+            student.current_skill_level = request.POST.get('current_skill_level', '')
+            student.assigned_trainer = request.POST.get('assigned_trainer', '')
+            student.batch_timing = request.POST.get('batch_timing', '')
+            student.learning_style = request.POST.get('learning_style', '')
+            student.interests_aptitude = request.POST.get('interests_aptitude', '')
+            student.preferred_language = request.POST.get('preferred_language', '')
+            student.attendance_status = request.POST.get('attendance_status', 'active')
+
+            # E. Health & Safety
+            student.medical_conditions = request.POST.get('medical_conditions', '')
+            student.allergies = request.POST.get('allergies', '')
+            student.emergency_instructions = request.POST.get('emergency_instructions', '')
+            student.doctor_name = request.POST.get('doctor_name', '')
+            student.doctor_contact = request.POST.get('doctor_contact', '')
+            student.physical_limitations = request.POST.get('physical_limitations', '')
+
+            # F. Emergency Contact
+            student.emergency_name = request.POST.get('emergency_name', '')
+            student.emergency_relationship = request.POST.get('emergency_relationship', '')
+            student.emergency_mobile = request.POST.get('emergency_mobile', '')
+            student.emergency_alt_mobile = request.POST.get('emergency_alt_mobile', '')
+            student.emergency_address = request.POST.get('emergency_address', '')
+
+            # G. Family Details
+            student.sibling_1_name = request.POST.get('sibling_1_name', '')
+            student.sibling_1_class_school = request.POST.get('sibling_1_class_school', '')
+            student.sibling_1_skill_lab_id = request.POST.get('sibling_1_skill_lab_id', '')
+            student.sibling_2_name = request.POST.get('sibling_2_name', '')
+            student.sibling_2_class_school = request.POST.get('sibling_2_class_school', '')
+            student.sibling_2_skill_lab_id = request.POST.get('sibling_2_skill_lab_id', '')
+            student.sibling_3_name = request.POST.get('sibling_3_name', '')
+            student.sibling_3_class_school = request.POST.get('sibling_3_class_school', '')
+            student.sibling_3_skill_lab_id = request.POST.get('sibling_3_skill_lab_id', '')
+
+            # Set metadata
+            student.created_by = request.user
+
+            # Create User account for student login
+            User = get_user_model()
+            email = student.school_email
+
+            # Check if user already exists
+            if User.objects.filter(email=email).exists():
+                messages.error(request, f'A user with email {email} already exists.')
+                return redirect('school_admin_onboard_student')
+
+            # Generate temporary password
+            temp_password = ''.join(secrets.choice(string.ascii_letters + string.digits + '!@#$%') for _ in range(12))
+
+            # Create User with STUDENT role
+            user = User.objects.create_user(
+                username=email,
+                email=email,
+                password=temp_password,
+                first_name=student.first_name,
+                last_name=student.last_name,
+                is_active=True,
+                role='STUDENT'
+            )
+
+            # Link user to student
+            student.user = user
+
+            # Save the student
+            student.save()
+
+            # Send welcome email with credentials
+            try:
+                email_subject = 'Welcome to ENpower Skill Lab - Your Login Credentials'
+                email_body = f"""
+Dear {student.full_name},
+
+Welcome to ENpower Skill Lab! Your student account has been created successfully by {school.school_name}.
+
+Here are your login credentials:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📧 Email: {email}
+🔑 Temporary Password: {temp_password}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔗 Login URL: http://127.0.0.1:8000/login/
+
+Skill Lab ID: {skill_lab_reg_id}
+School: {school.school_name}
+Class: {student.student_class} - {student.division}
+Role: Student
+
+⚠️ IMPORTANT: Please change your password after your first login for security purposes.
+
+If you have any questions, please contact your teacher or the school administration.
+
+Best regards,
+ENpower Skill Lab Team
+                """
+
+                send_mail(
+                    email_subject,
+                    email_body,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [email],
+                    fail_silently=False,
+                )
+                messages.success(request, f'Student {student.full_name} added successfully! Credentials sent to {email}')
+            except Exception as mail_error:
+                messages.warning(request, f'Student added but email failed: {str(mail_error)}. Password: {temp_password}')
+
+            return redirect('school_admin_dashboard')
+
+        except Exception as e:
+            messages.error(request, f'Error adding student: {str(e)}')
+            return redirect('school_admin_onboard_student')
+
+    # GET request - render the onboarding form
+    context = {
+        'school': school,
+        'page_title': 'Add New Student',
+    }
+    return render(request, 'school_admin/onboard-student.html', context)
+
+@login_required
+@user_passes_test(is_school_admin)
+def school_admin_student_list(request):
+    """View to display list of students for the school admin's school"""
+    from student.models import Student
+    from .models import SchoolAdmin
+    import random
+
+    # Get the school admin's school
+    try:
+        school_admin_profile = SchoolAdmin.objects.get(user=request.user)
+        school = school_admin_profile.school
+    except SchoolAdmin.DoesNotExist:
+        messages.error(request, 'School admin profile not found.')
+        return redirect('school_admin_dashboard')
+
+    if not school:
+        messages.error(request, 'No school assigned to your account. Please contact the administrator.')
+        return redirect('school_admin_dashboard')
+
+    # Get all students for this school only
+    students = Student.objects.filter(school=school).order_by('-created_at')
+
+    # Add badge colors for students without photos
+    badge_colors = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899', '#a855f7']
+    for student in students:
+        student.badge_color = random.choice(badge_colors)
+
+    context = {
+        'students': students,
+        'school': school,
+        'page_title': 'Student List',
+    }
+    return render(request, 'school_admin/students-list.html', context)
