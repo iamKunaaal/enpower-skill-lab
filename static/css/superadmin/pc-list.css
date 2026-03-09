@@ -194,8 +194,17 @@ body.dark .status-inactive {
 /* Material Icons */
 .material-symbols-outlined {
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-  font-size: 20px;
+  /* font-size: 20px; */
   line-height: 1;
+}
+
+.action-pc{
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.action-pc .material-symbols-outlined{
+    font-size: 22px;
 }
 
 /* Initial Badge - Support both prefixed and non-prefixed */
@@ -338,7 +347,7 @@ body.dark #coordinatorTable tbody td.text-muted {
 
 .pcl-btn-gradient .material-symbols-outlined,
 .btn-gradient .material-symbols-outlined {
-  font-size: 20px;
+  /* font-size: 20px; */
   font-weight: 600;
 }
 
@@ -589,6 +598,8 @@ table.dataTable tbody td:nth-child(9) {
 .hover-primary {
   color: #6b7280;
   transition: all 0.2s ease;
+  background-color: transparent;
+  border: none;
 }
 
 .pcl-hover-primary:hover,

@@ -1281,7 +1281,7 @@ body.dark .notification-dropdown-header {
 }
 
 .notification-dropdown-title::before {
-    content: 'ðŸ””';
+    content: '';
     font-size: 1.125rem;
 }
 
@@ -1339,7 +1339,7 @@ body.dark .notification-dropdown-body::-webkit-scrollbar-thumb {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border-bottom: 1px solid rgba(0, 0, 0, 0.04);
     position: relative;
-    margin: 0 8px;
+    margin: 8px;
     border-radius: 12px;
 }
 
@@ -1473,7 +1473,7 @@ body.dark .notification-description {
 }
 
 .notification-time::before {
-    content: 'â€¢';
+    content: '•';
     color: #3B82F6;
     font-weight: 700;
 }
@@ -1561,7 +1561,7 @@ body.dark .user-name {
     top: calc(100% + 8px) !important;
     right: 0 !important;
     width: auto !important;
-    min-width: 280px !important;
+    min-width: auto !important;
     background-color: #ffffff !important;
     border-radius: 12px !important;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
@@ -2094,7 +2094,7 @@ body.dark .btn-edit {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    width: 100%;
+    width: auto;
     padding: 12px 24px;
     background-color: #6b277e;
     color: white;

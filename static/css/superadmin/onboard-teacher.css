@@ -224,7 +224,7 @@ body.dark .section-title {
 }
 
 .section-title .material-symbols-outlined {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     color: #6b277e;
 }
 
@@ -298,9 +298,9 @@ body.dark .photo-preview {
     color: #6B7280;
 }
 
-.photo-preview .material-symbols-outlined {
-    font-size: 3rem;
-}
+/* .photo-preview .material-symbols-outlined {
+   
+} */
 
 .photo-preview-text {
     font-size: 0.875rem;
@@ -498,6 +498,7 @@ body.dark .form-actions {
 .btn-cancel {
     background-color: #F3F4F6;
     color: #6B7280;
+    text-decoration: none;
 }
 
 .btn-cancel:hover {
@@ -561,7 +562,7 @@ body.dark .btn-back:hover {
 .btn-back .material-symbols-outlined,
 .btn-next .material-symbols-outlined,
 .btn-submit .material-symbols-outlined {
-    font-size: 1.25rem;
+    font-size: 1.5rem;
 }
 
 /* Step Content Animation */

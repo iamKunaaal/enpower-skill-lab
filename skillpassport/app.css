@@ -1,0 +1,148 @@
+/* ===== GLOBAL STYLES ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Lexend', 'Inter', 'Public Sans', sans-serif;
+    overflow-x: hidden;
+}
+
+/* ===== SCREEN TRANSITIONS ===== */
+.screen-transition {
+    animation: screenFadeIn 0.3s ease-out;
+}
+
+@keyframes screenFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== CUSTOM SCROLLBAR ===== */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #E5E7EB;
+    border-radius: 10px;
+}
+
+/* ===== FLOW NAV BUTTONS ===== */
+.flow-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #5A1F6E, #4a1a5a);
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 14px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 15px rgba(25, 230, 94, 0.25);
+}
+.flow-nav-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(25, 230, 94, 0.35);
+}
+.flow-nav-btn:active {
+    transform: scale(0.97);
+}
+
+.flow-nav-btn.secondary {
+    background: white;
+    color: #334155;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.flow-nav-btn.secondary:hover {
+    background: #f8fafc;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* ===== FLOW NAV BAR (bottom bar on each screen) ===== */
+.flow-nav-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 32px;
+    background: white;
+    border-top: 1px solid #e2e8f0;
+    margin-top: 32px;
+    border-radius: 16px;
+    box-shadow: 0 -2px 20px rgba(0,0,0,0.04);
+}
+
+/* ===== DEBUG MENU ANIMATION ===== */
+#debug-menu {
+    transform-origin: top right;
+    transition: all 0.2s ease;
+}
+#debug-menu.show {
+    display: block !important;
+    animation: debugSlideIn 0.2s ease-out;
+}
+@keyframes debugSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* ===== TABLE HOVER ===== */
+.student-row {
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.student-row:hover {
+    background-color: rgba(25, 230, 94, 0.04) !important;
+}
+
+/* ===== MATERIAL SYMBOLS ===== */
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* ===== TOAST NOTIFICATION ===== */
+.toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #1F2937;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 10000;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.toast.show {
+    transform: translateX(-50%) translateY(0);
+}
+.toast .material-symbols-outlined {
+    color: #5A1F6E;
+}

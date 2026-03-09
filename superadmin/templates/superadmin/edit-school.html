@@ -25,6 +25,17 @@
     .back-link:hover {
         color: #A67DB1;
     }
+
+    /* sh css */
+    .school-cancel{
+        display: flex;
+        gap: 12px;
+        background: #dedede80;
+        color: #1d1d1f;
+        text-decoration: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+    }
 </style>
 {% endblock %}
 
@@ -190,7 +201,7 @@
 
             <!-- Form Actions -->
             <div class="form-actions">
-                <a href="{% url 'school_list' %}" class="btn btn-secondary">Cancel</a>
+                <a href="{% url 'school_list' %}" class="btn btn-secondary school-cancel"><span class="material-symbols-outlined">close</span>Cancel</a>
                 <button type="submit" class="btn btn-primary">
                     <span class="material-symbols-outlined">save</span>
                     Save Changes

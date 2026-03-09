@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Annual Student Skill Passport Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#11d411",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#102210",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Public Sans', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="max-w-[1200px] mx-auto px-6 py-10">
+<header class="flex flex-col md:flex-row md:items-end justify-between border-b border-primary/20 pb-8 mb-10">
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-3 text-primary">
+<span class="material-symbols-outlined text-4xl">school</span>
+<h1 class="text-3xl font-black tracking-tight uppercase">Annual Skill Passport</h1>
+</div>
+<div class="flex flex-col">
+<p class="text-2xl font-semibold text-slate-800 dark:text-slate-200">Alex Johnson</p>
+<p class="text-sm font-medium text-slate-500 uppercase tracking-widest">Academic Year 2023 — 2024</p>
+</div>
+</div>
+<div class="mt-6 md:mt-0 flex gap-3">
+<button class="flex items-center gap-2 bg-primary text-background-dark px-6 py-3 rounded-lg font-bold hover:opacity-90 transition-all shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined">download</span>
+                    Download PDF Passport
+                </button>
+<div class="size-12 rounded-full border-2 border-primary/30 p-1">
+<div class="w-full h-full rounded-full bg-cover bg-center" data-alt="Professional student portrait of Alex Johnson" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAsFhUXGqfD6A2j9Uae2gkZC6sMckTQ6PprV6W-OCyCZCpEr8q5r0mGh188LoWUMfq1xCn1WFgGtrKhGanehNZI5LkUidInnnvq3eHExCArfZQyHySMVocRVZYoTSWAO9RPcHdgRA2MCFUlT5Kf5AG9aOvsvs4GoUVvORm2msmWGNKkYnu0APWeEX674LD5oVNl710xpfmnEAJPL06nSstJM_OaEZ4cFPzkF0EVCj-_5ePANSIyWsuIuqKpRKctzGOyUrKbVoCjqwHK')"></div>
+</div>
+</div>
+</header>
+<section class="mb-12">
+<h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+<span class="w-8 h-[2px] bg-primary"></span>
+                Final Top 3 Profiles
+            </h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+<div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center text-primary mb-4">
+<span class="material-symbols-outlined text-3xl">insights</span>
+</div>
+<h3 class="text-lg font-bold mb-2">Analytical Thinker</h3>
+<p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">Excels in breaking down complex data into actionable insights with precision and logical rigor.</p>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+<div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center text-primary mb-4">
+<span class="material-symbols-outlined text-3xl">lightbulb</span>
+</div>
+<h3 class="text-lg font-bold mb-2">Creative Problem Solver</h3>
+<p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">Approaches challenges with innovative, out-of-the-box solutions that bridge multiple disciplines.</p>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+<div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center text-primary mb-4">
+<span class="material-symbols-outlined text-3xl">groups</span>
+</div>
+<h3 class="text-lg font-bold mb-2">Strategic Leader</h3>
+<p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">Demonstrates strong initiative and team coordination skills, guiding groups toward shared objectives.</p>
+</div>
+</div>
+</section>
+<section class="mb-12">
+<h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+<span class="w-8 h-[2px] bg-primary"></span>
+                Cumulative Top Competencies
+            </h2>
+<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+<div class="flex items-center justify-between bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 py-3 rounded-lg">
+<span class="text-sm font-semibold">Critical Research</span>
+<span class="bg-primary/20 text-primary text-xs font-bold px-2 py-1 rounded">Level 4</span>
+</div>
+<div class="flex items-center justify-between bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 py-3 rounded-lg">
+<span class="text-sm font-semibold">Data Science</span>
+<span class="bg-primary/20 text-primary text-xs font-bold px-2 py-1 rounded">Level 4</span>
+</div>
+<div class="flex items-center justify-between bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 py-3 rounded-lg">
+<span class="text-sm font-semibold">Public Speaking</span>
+<span class="bg-primary/20 text-primary text-xs font-bold px-2 py-1 rounded">Level 3</span>
+</div>
+<div class="flex items-center justify-between bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 py-3 rounded-lg">
+<span class="text-sm font-semibold">Ethics</span>
+<span class="bg-primary/20 text-primary text-xs font-bold px-2 py-1 rounded">Level 5</span>
+</div>
+<div class="flex items-center justify-between bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 py-3 rounded-lg">
+<span class="text-sm font-semibold">Collaboration</span>
+<span class="bg-primary/20 text-primary text-xs font-bold px-2 py-1 rounded">Level 4</span>
+</div>
+</div>
+</section>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+<section class="lg:col-span-2">
+<h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+<span class="w-8 h-[2px] bg-primary"></span>
+                    Skill Growth Trend
+                </h2>
+<div class="bg-white dark:bg-slate-900 p-8 rounded-xl border border-slate-200 dark:border-slate-800 h-64 flex flex-col justify-end relative">
+<div class="absolute inset-x-8 bottom-16 h-32 border-l border-b border-slate-200 dark:border-slate-700 flex items-end">
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 400 100">
+<path d="M0,80 Q100,60 200,40 T400,10" fill="none" stroke="#11d411" stroke-linecap="round" stroke-width="3"></path>
+<circle class="shadow-lg" cx="0" cy="80" fill="#11d411" r="5"></circle>
+<circle class="shadow-lg" cx="133" cy="65" fill="#11d411" r="5"></circle>
+<circle class="shadow-lg" cx="266" cy="35" fill="#11d411" r="5"></circle>
+<circle class="shadow-lg" cx="400" cy="10" fill="#11d411" r="5"></circle>
+</svg>
+</div>
+<div class="flex justify-between mt-4 text-xs font-bold text-slate-400 uppercase tracking-widest px-2">
+<span>Quarter 1</span>
+<span>Quarter 2</span>
+<span>Quarter 3</span>
+<span>Quarter 4</span>
+</div>
+<div class="absolute top-8 right-8 flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-primary"></span>
+<span class="text-xs font-medium text-slate-500">Average Mastery Score</span>
+</div>
+</div>
+</section>
+<section>
+<h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+<span class="w-8 h-[2px] bg-primary"></span>
+                    Improvement Areas
+                </h2>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 space-y-6">
+<div class="flex gap-4">
+<div class="text-primary mt-1">
+<span class="material-symbols-outlined">trending_up</span>
+</div>
+<div>
+<h4 class="font-bold text-sm">Advanced Statistical Modeling</h4>
+<p class="text-xs text-slate-500 mt-1">Focus on multivariate analysis and predictive forecasting techniques.</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="text-primary mt-1">
+<span class="material-symbols-outlined">history_edu</span>
+</div>
+<div>
+<h4 class="font-bold text-sm">Technical Documentation</h4>
+<p class="text-xs text-slate-500 mt-1">Refining clarity in complex system walkthroughs and user manuals.</p>
+</div>
+</div>
+<div class="pt-4 border-t border-slate-100 dark:border-slate-800">
+<p class="text-[10px] text-slate-400 uppercase font-bold tracking-tighter">Next Year Goal</p>
+<p class="text-sm italic text-slate-600 dark:text-slate-400">"Aim for Senior Mastery in Quantitative Methods."</p>
+</div>
+</div>
+</section>
+</div>
+<section class="mb-12">
+<h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+<span class="w-8 h-[2px] bg-primary"></span>
+                Final Written Summary
+            </h2>
+<div class="bg-white dark:bg-slate-900 p-10 rounded-xl border border-slate-200 dark:border-slate-800 relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+<span class="material-symbols-outlined text-9xl">format_quote</span>
+</div>
+<div class="max-w-3xl">
+<p class="text-slate-700 dark:text-slate-300 leading-loose mb-6">
+                        Alex has demonstrated exceptional growth throughout the 2023-2024 academic year. Their performance in the Capstone Project showcased a rare combination of technical proficiency and strategic vision. While Alex's analytical skills remain their strongest asset, we have observed a significant maturation in their leadership style—moving from an individual contributor to a collaborative catalyst. 
+                    </p>
+<p class="text-slate-700 dark:text-slate-300 leading-loose">
+                        As they progress into the next cycle, we encourage Alex to lean into mentorship roles. Their ability to simplify complex concepts makes them an ideal candidate for peer-led workshops. Overall, an exemplary year of academic and professional development.
+                    </p>
+<div class="mt-8 pt-8 border-t border-slate-100 dark:border-slate-800 flex items-center gap-4">
+<div class="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+<span class="material-symbols-outlined text-slate-400">signature</span>
+</div>
+<div>
+<p class="text-sm font-bold">Dr. Elena Rodriguez</p>
+<p class="text-xs text-slate-500">Department Head, Faculty of Applied Sciences</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<footer class="flex justify-center py-10 border-t border-slate-200 dark:border-slate-800">
+<button class="group flex items-center gap-3 bg-gradient-to-r from-primary to-primary/80 text-background-dark px-10 py-4 rounded-full font-bold shadow-xl hover:shadow-primary/30 transition-all active:scale-95">
+<span class="material-symbols-outlined transition-transform group-hover:translate-y-1">download</span>
+                Download Official Annual Passport
+            </button>
+</footer>
+</div>
+</body></html>

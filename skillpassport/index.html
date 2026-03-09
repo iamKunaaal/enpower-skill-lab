@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Skill Passport — Demo</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#5A1F6E",
+                        "background-light": "#F9FAFB",
+                        "background-dark": "#2d1a35",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "Inter", "Public Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <link rel="stylesheet" href="app.css" />
+</head>
+
+<body class="bg-background-light text-slate-900 min-h-screen font-[Lexend,Inter,sans-serif]">
+
+    <!-- ===== FLOATING DEBUG NAV ===== -->
+    <div id="debug-nav" class="fixed top-4 right-4 z-[9999]">
+        <button id="debug-toggle" onclick="toggleDebugMenu()"
+            class="bg-slate-900 text-white px-4 py-2 rounded-full text-xs font-bold shadow-xl hover:bg-slate-700 transition-all flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm">menu</span>
+            Demo Nav
+        </button>
+        <div id="debug-menu"
+            class="hidden mt-2 bg-slate-900/95 backdrop-blur-xl text-white rounded-xl shadow-2xl p-4 min-w-[260px] border border-slate-700">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3 px-2">Quick Navigation</p>
+            <div class="flex flex-col gap-1">
+                <a onclick="navigateTo('#/admin/competencies')"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/10 cursor-pointer transition-colors text-sm">
+                    <span class="material-symbols-outlined text-purple-400 text-lg">account_tree</span>
+                    <span><span class="text-purple-400 font-bold">Admin</span> — Competency CMS</span>
+                </a>
+                <a onclick="navigateTo('#/admin/profiles')"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/10 cursor-pointer transition-colors text-sm">
+                    <span class="material-symbols-outlined text-purple-400 text-lg">shield_person</span>
+                    <span><span class="text-purple-400 font-bold">Admin</span> — Profiles</span>
+                </a>
+                <a onclick="navigateTo('#/admin/projects')"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/10 cursor-pointer transition-colors text-sm">
+                    <span class="material-symbols-outlined text-purple-400 text-lg">architecture</span>
+                    <span><span class="text-purple-400 font-bold">Admin</span> — Project Setup</span>
+                </a>
+                <div class="h-px bg-slate-700 my-1"></div>
+                <a href="js/Screen-9/screen-9.html"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/10 cursor-pointer transition-colors text-sm">
+                    <span class="material-symbols-outlined text-blue-400 text-lg">dashboard_customize</span>
+                    <span><span class="text-blue-400 font-bold">Teacher</span> — Dashboard</span>
+                </a>
+                <a href="Screen-10/screen-10.html"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/10 cursor-pointer transition-colors text-sm">
+                    <span class="material-symbols-outlined text-blue-400 text-lg">assignment</span>
+                    <span><span class="text-blue-400 font-bold">Teacher</span> — Assessment Details</span>
+                </a>
+                <a onclick="navigateTo('#/teacher/assessments')"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/10 cursor-pointer transition-colors text-sm">
+                    <span class="material-symbols-outlined text-blue-400 text-lg">school</span>
+                    <span><span class="text-blue-400 font-bold">Teacher</span> — Assessment Entry</span>
+                </a>
+                <a onclick="navigateTo('#/teacher/analytics')"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/10 cursor-pointer transition-colors text-sm">
+                    <span class="material-symbols-outlined text-blue-400 text-lg">analytics</span>
+                    <span><span class="text-blue-400 font-bold">Teacher</span> — Analytics</span>
+                </a>
+                <div class="h-px bg-slate-700 my-1"></div>
+                <a href="Screen-11/screen-11.html"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/10 cursor-pointer transition-colors text-sm">
+                    <span class="material-symbols-outlined text-amber-400 text-lg">person_apron</span>
+                    <span><span class="text-amber-400 font-bold">Student</span> — Dashboard</span>
+                </a>
+                <a onclick="navigateTo('#/student/project-report')"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/10 cursor-pointer transition-colors text-sm">
+                    <span class="material-symbols-outlined text-amber-400 text-lg">auto_stories</span>
+                    <span><span class="text-amber-400 font-bold">Student</span> — Project Report</span>
+                </a>
+                <a onclick="navigateTo('#/student/annual-passport')"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/10 cursor-pointer transition-colors text-sm">
+                    <span class="material-symbols-outlined text-amber-400 text-lg">card_membership</span>
+                    <span><span class="text-amber-400 font-bold">Student</span> — Annual Passport</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== APP CONTAINER ===== -->
+    <div id="app" class="screen-transition"></div>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script src="js/data.js"></script>
+    <script src="js/screens/screen1.js"></script>
+    <script src="js/screens/screen2.js"></script>
+    <script src="js/screens/screen3.js"></script>
+    <script src="js/screens/screen4.js"></script>
+    <script src="js/screens/screen5.js"></script>
+    <script src="js/screens/screen6.js"></script>
+    <script src="js/screens/screen7.js"></script>
+    <script src="js/screens/screen8.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>

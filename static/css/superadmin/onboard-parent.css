@@ -231,7 +231,7 @@ body.dark .section-title {
 }
 
 .section-title .material-symbols-outlined {
-    font-size: 1.75rem;
+    /* font-size: 1.75rem; */
     color: #6b277e;
 }
 
@@ -311,7 +311,7 @@ body.dark .photo-preview {
 }
 
 .photo-preview .material-symbols-outlined {
-    font-size: 3rem;
+    /* font-size: 3rem; */
 }
 
 .photo-preview-text {

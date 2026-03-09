@@ -173,7 +173,7 @@
 
         /* User Dropdown Menu */
         .user-dropdown-menu {
-            position: absolute; top: calc(100% + 8px); right: 0; width: 280px;
+            position: absolute; top: calc(100% + 8px); right: 0; width: 300px;
             background-color: var(--card-light); border-radius: 12px;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); opacity: 0; visibility: hidden;
             transform: translateY(-10px); transition: all 0.3s ease; z-index: 1000; border: 1px solid var(--border-light);
@@ -268,16 +268,16 @@
                         <span class="material-symbols-outlined dropdown-icon">expand_more</span>
                     </a>
                     <div class="sidebar-dropdown-menu">
-                        <a href="#" id="nav-student-list"><span class="material-symbols-outlined">school</span>Student List</a>
-                        <a href="#" id="nav-add-student"><span class="material-symbols-outlined">person_add</span>Onboard Student</a>
-                        <a href="#" id="nav-teacher-list"><span class="material-symbols-outlined">psychology</span>Teacher List</a>
-                        <a href="#" id="nav-add-teacher"><span class="material-symbols-outlined">person_add</span>Onboard Teacher</a>
-                        <a href="#" id="nav-parent-list"><span class="material-symbols-outlined">family_restroom</span>Parent List</a>
-                        <a href="#" id="nav-add-parent"><span class="material-symbols-outlined">person_add</span>Onboard Parent</a>
+                        <a href="#" id="nav-teacher-list"><span class="material-symbols-outlined">psychology</span>Thinking Coaches</a>
+                        <a href="#" id="nav-add-teacher"><span class="material-symbols-outlined">person_add</span>Onboard Thinking Coaches</a>
+                        <a href="{% url 'school_admin_student_list' %}" id="nav-student-list"><span class="material-symbols-outlined">school</span>Student List</a>
+                        <a href="{% url 'school_admin_onboard_student' %}" id="nav-add-student"><span class="material-symbols-outlined">person_add</span>Onboard Student</a>
+                        <a href="{% url 'school_admin_parent_list' %}" id="nav-parent-list"><span class="material-symbols-outlined">family_restroom</span>Parent List</a>
+                        <a href="{% url 'school_admin_onboard_parent' %}" id="nav-add-parent"><span class="material-symbols-outlined">person_add</span>Onboard Parent</a>
                     </div>
                 </div>
                 <div class="sidebar-dropdown">
-                    <a href="#" class="sidebar-dropdown-toggle" id="classes-dropdown">
+                    <a href="#" class="sidebar-dropdown-toggle" id="classes-dropdown">  
                         <span class="material-symbols-outlined">class</span>
                         Classes
                         <span class="material-symbols-outlined dropdown-icon">expand_more</span>

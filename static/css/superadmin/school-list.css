@@ -226,7 +226,7 @@ body.dark .pagination .page-link.active {
 }
 
 .btn-gradient .material-symbols-outlined {
-  font-size: 20px;
+  /* font-size: 20px; */
   font-weight: 600;
 }
 

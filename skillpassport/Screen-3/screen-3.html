@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Project &amp; Assessment Setup</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800;900&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#19e65e",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#112116",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Lexend', sans-serif;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #dce5df;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+    <div class="layout-container flex h-full grow flex-col">
+        <!-- Top Navigation -->
+        <header
+            class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-10 py-3 sticky top-0 z-50">
+            <div class="flex items-center gap-8">
+                <div class="flex items-center gap-4 text-slate-900 dark:text-slate-100">
+                    <div class="size-8 bg-primary/20 text-primary flex items-center justify-center rounded-lg">
+                        <span class="material-symbols-outlined">architecture</span>
+                    </div>
+                    <h2 class="text-lg font-bold leading-tight tracking-[-0.015em]">Admin Dashboard</h2>
+                </div>
+                <nav class="flex items-center gap-9">
+                    <a class="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors"
+                        href="#">Projects</a>
+                    <a class="text-primary text-sm font-bold border-b-2 border-primary py-1" href="#">Assessments</a>
+                    <a class="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors"
+                        href="#">Library</a>
+                    <a class="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors"
+                        href="#">Students</a>
+                </nav>
+            </div>
+            <div class="flex flex-1 justify-end gap-8 items-center">
+                <label class="flex flex-col min-w-40 h-10 max-w-64">
+                    <div
+                        class="flex w-full flex-1 items-stretch rounded-xl h-full border border-slate-200 dark:border-slate-700">
+                        <div
+                            class="text-slate-400 flex bg-slate-50 dark:bg-slate-800 items-center justify-center pl-4 rounded-l-xl border-r-0">
+                            <span class="material-symbols-outlined text-xl">search</span>
+                        </div>
+                        <input
+                            class="form-input flex w-full min-w-0 flex-1 border-none bg-slate-50 dark:bg-slate-800 focus:ring-0 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 text-sm rounded-r-xl"
+                            placeholder="Search resources..." value="" />
+                    </div>
+                </label>
+                <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-primary/30"
+                    data-alt="User profile avatar of the administrator"
+                    style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAjNbpCXEi4PZvPnALZtu2dDyNYpcBi1muZndrFKkB7bFLs145kpRwLIsffwvYbuxQZqz9Nsk_WiSYU1Ej7On4KAUm44i-PVopXtC5qmKtmpLLGT7JdBtcQxX2c0NSrOwNEuFOnOqp1dIOchncLF7VibF1Ltr_lOjkNCecdzkGMk42w0gxTKf1TAJHSOk3Um9zwEwvHVBYMRjD4Sa3p5lGqMFRcfpQLS5UFa90NRFQDUoUMDmq9PRyNVglMM4GretUgPJFsvaHu8W5l");'>
+                </div>
+            </div>
+        </header>
+        <main class="px-10 lg:px-40 py-8 flex flex-col gap-8 max-w-[1440px] mx-auto w-full">
+            <!-- Header Section -->
+            <div class="flex flex-col gap-2">
+                <h1 class="text-slate-900 dark:text-slate-100 text-3xl font-black tracking-tight">Project &amp;
+                    Assessment Setup</h1>
+                <p class="text-slate-500 dark:text-slate-400 text-base">Define project parameters, design assessments,
+                    and map student competencies.</p>
+            </div>
+            <!-- Horizontal Configuration Bar -->
+            <div
+                class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-wrap gap-6 items-end">
+                <div class="flex-1 min-w-[150px]">
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Grade /
+                        Level</label>
+                    <select
+                        class="form-select w-full rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:border-primary focus:ring-primary text-sm h-11">
+                        <option>Grade 10</option>
+                        <option>Grade 11</option>
+                        <option>Grade 12</option>
+                        <option>Year 1 (University)</option>
+                    </select>
+                </div>
+                <div class="flex-[3] min-w-[300px]">
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Project
+                        Title</label>
+                    <input
+                        class="form-input w-full rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:border-primary focus:ring-primary text-sm h-11"
+                        placeholder="e.g. Sustainable Urban Development Capstone" type="text" />
+                </div>
+                <div class="flex-1 min-w-[150px]">
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Project
+                        Type</label>
+                    <select
+                        class="form-select w-full rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:border-primary focus:ring-primary text-sm h-11">
+                        <option>Capstone</option>
+                        <option>Formative</option>
+                        <option>Summative</option>
+                        <option>Research Paper</option>
+                    </select>
+                </div>
+            </div>
+            <!-- Main Content: Assessment Stack -->
+            <div class="flex flex-col gap-4">
+                <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200 px-1">Assessments &amp; Competency
+                    Mapping</h3>
+                <!-- Assessment 1 (Expanded) -->
+                <div
+                    class="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
+                    <button
+                        class="w-full flex items-center justify-between px-6 py-4 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                        <div class="flex items-center gap-3">
+                            <span
+                                class="size-6 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold tracking-tight">1</span>
+                            <span class="font-semibold text-slate-900 dark:text-slate-100">Assessment 1: Initial
+                                Proposal &amp; Literature Review</span>
+                        </div>
+                        <span class="material-symbols-outlined text-slate-400 rotate-180">expand_more</span>
+                    </button>
+                    <div class="p-8 flex flex-col gap-8 border-t border-slate-200 dark:border-slate-800">
+                        <!-- Row 1: Name and Type -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="flex flex-col gap-2">
+                                <label
+                                    class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Assessment
+                                    Name</label>
+                                <input
+                                    class="form-input rounded-lg border-slate-200 dark:border-slate-700 focus:border-primary focus:ring-primary bg-white dark:bg-slate-900 h-11"
+                                    type="text" value="Initial Proposal &amp; Literature Review" />
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <label
+                                    class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Assessment
+                                    Type</label>
+                                <select
+                                    class="form-select rounded-lg border-slate-200 dark:border-slate-700 focus:border-primary focus:ring-primary bg-white dark:bg-slate-900 h-11">
+                                    <option>Written Assignment</option>
+                                    <option>Presentation</option>
+                                    <option>Peer Review</option>
+                                    <option>Lab Report</option>
+                                </select>
+                            </div>
+                        </div>
+                        <!-- Row 2: Descriptor -->
+                        <div class="flex flex-col gap-2">
+                            <label
+                                class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Output
+                                Descriptor</label>
+                            <textarea
+                                class="form-textarea rounded-lg border-slate-200 dark:border-slate-700 focus:border-primary focus:ring-primary bg-white dark:border-slate-900"
+                                placeholder="Describe the expected student output and key requirements for this assessment..."
+                                rows="4"></textarea>
+                        </div>
+                        <!-- Row 3: Upload Rubric -->
+                        <div class="flex flex-col gap-2">
+                            <label
+                                class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Assessment
+                                Framework</label>
+                            <div>
+                                <button
+                                    class="flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors font-medium text-sm">
+                                    <span class="material-symbols-outlined text-xl">attach_file</span>
+                                    Upload Scoring Rubric (PDF/CSV)
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Section: Assign Competencies -->
+                        <div
+                            class="bg-slate-50 dark:bg-slate-800/30 p-6 rounded-xl border border-slate-100 dark:border-slate-800">
+                            <h4
+                                class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary text-xl">account_tree</span>
+                                Assign Competencies
+                            </h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                                <!-- Grid of 8 slots -->
+                                <div class="flex flex-col gap-1">
+                                    <select
+                                        class="form-select w-full rounded-lg border-slate-200 dark:border-slate-700 text-xs bg-white dark:bg-slate-900">
+                                        <option disabled="" selected="">Slot 1: Select Competency</option>
+                                        <option>Critical Thinking 1.1</option>
+                                        <option>Effective Communication 2.4</option>
+                                    </select>
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <select
+                                        class="form-select w-full rounded-lg border-slate-200 dark:border-slate-700 text-xs bg-white dark:bg-slate-900">
+                                        <option disabled="" selected="">Slot 2: Select Competency</option>
+                                        <option>Analytical Reasoning 3.2</option>
+                                        <option>Information Literacy 4.1</option>
+                                    </select>
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <select
+                                        class="form-select w-full rounded-lg border-slate-200 dark:border-slate-700 text-xs bg-white dark:bg-slate-900">
+                                        <option disabled="" selected="">Slot 3: Select Competency</option>
+                                        <option>Digital Literacy 5.0</option>
+                                    </select>
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <select
+                                        class="form-select w-full rounded-lg border-slate-200 dark:border-slate-700 text-xs bg-white dark:bg-slate-900">
+                                        <option disabled="" selected="">Slot 4: Select Competency</option>
+                                    </select>
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <select
+                                        class="form-select w-full rounded-lg border-slate-200 dark:border-slate-700 text-xs bg-white dark:bg-slate-900">
+                                        <option disabled="" selected="">Slot 5: Select Competency</option>
+                                    </select>
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <select
+                                        class="form-select w-full rounded-lg border-slate-200 dark:border-slate-700 text-xs bg-white dark:bg-slate-900">
+                                        <option disabled="" selected="">Slot 6: Select Competency</option>
+                                    </select>
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <select
+                                        class="form-select w-full rounded-lg border-slate-200 dark:border-slate-700 text-xs bg-white dark:bg-slate-900">
+                                        <option disabled="" selected="">Slot 7: Select Competency</option>
+                                    </select>
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <select
+                                        class="form-select w-full rounded-lg border-slate-200 dark:border-slate-700 text-xs bg-white dark:bg-slate-900">
+                                        <option disabled="" selected="">Slot 8: Select Competency</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Collapsed Accordions -->
+                <div class="flex flex-col gap-3">
+                    <button
+                        class="w-full flex items-center justify-between px-6 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <span
+                                class="size-6 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center text-xs font-bold tracking-tight">2</span>
+                            <span class="font-semibold text-slate-700 dark:text-slate-300">Assessment 2: Data Collection
+                                &amp; Methodology</span>
+                        </div>
+                        <span class="material-symbols-outlined text-slate-400">expand_more</span>
+                    </button>
+                    <button
+                        class="w-full flex items-center justify-between px-6 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <span
+                                class="size-6 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center text-xs font-bold tracking-tight">3</span>
+                            <span class="font-semibold text-slate-700 dark:text-slate-300">Assessment 3: Mid-Project
+                                Progress Review</span>
+                        </div>
+                        <span class="material-symbols-outlined text-slate-400">expand_more</span>
+                    </button>
+                    <button
+                        class="w-full flex items-center justify-between px-6 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <span
+                                class="size-6 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center text-xs font-bold tracking-tight">4</span>
+                            <span class="font-semibold text-slate-700 dark:text-slate-300">Assessment 4: Final Draft
+                                Submission</span>
+                        </div>
+                        <span class="material-symbols-outlined text-slate-400">expand_more</span>
+                    </button>
+                    <button
+                        class="w-full flex items-center justify-between px-6 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <span
+                                class="size-6 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center text-xs font-bold tracking-tight">5</span>
+                            <span class="font-semibold text-slate-700 dark:text-slate-300">Assessment 5: Oral Defense
+                                &amp; Presentation</span>
+                        </div>
+                        <span class="material-symbols-outlined text-slate-400">expand_more</span>
+                    </button>
+                    <button
+                        class="w-full flex items-center justify-between px-6 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <span
+                                class="size-6 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center text-xs font-bold tracking-tight">6</span>
+                            <span class="font-semibold text-slate-700 dark:text-slate-300">Assessment 6: Self-Reflection
+                                &amp; Portfolio Entry</span>
+                        </div>
+                        <span class="material-symbols-outlined text-slate-400">expand_more</span>
+                    </button>
+                </div>
+            </div>
+        </main>
+        <!-- Footer Actions -->
+        <footer
+            class="mt-auto border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-10 py-6 sticky bottom-0">
+            <div class="max-w-[1440px] mx-auto w-full flex justify-between items-center">
+                <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm italic">
+                    <span class="material-symbols-outlined text-sm">cloud_done</span>
+                    All changes autosaved at 14:23
+                </div>
+                <div class="flex items-center gap-4">
+                    <button
+                        class="px-6 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
+                        Cancel Changes
+                    </button>
+                    <button
+                        class="px-8 py-2.5 rounded-lg bg-primary text-slate-900 font-bold hover:brightness-105 active:scale-[0.98] transition-all shadow-md flex items-center gap-2">
+                        <span class="material-symbols-outlined">save</span>
+                        Save Project &amp; Mapping
+                    </button>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+
+</html>

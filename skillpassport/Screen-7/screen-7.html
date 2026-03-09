@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Student Skill Report - SkillGrow</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#20df60",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#112116",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Lexend', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="layout-container flex flex-col min-h-screen">
+<!-- Navigation Bar -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-primary/10 bg-white dark:bg-background-dark/50 px-6 md:px-20 py-4 sticky top-0 z-50 backdrop-blur-md">
+<div class="flex items-center gap-4">
+<div class="size-8 bg-primary rounded-lg flex items-center justify-center text-background-dark">
+<span class="material-symbols-outlined">auto_stories</span>
+</div>
+<h2 class="text-slate-900 dark:text-slate-100 text-xl font-bold leading-tight tracking-tight">SkillGrow</h2>
+</div>
+<div class="flex flex-1 justify-end gap-6 items-center">
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-sm font-medium" href="#">Dashboard</a>
+<a class="text-slate-900 dark:text-slate-100 border-b-2 border-primary text-sm font-medium" href="#">Projects</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-sm font-medium" href="#">My Skills</a>
+</nav>
+<div class="flex gap-4 items-center">
+<button class="flex size-10 cursor-pointer items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-primary/20 transition-all">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="size-10 rounded-full bg-primary/20 border-2 border-primary/30 flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Student profile avatar with friendly smile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCF5GZHlcnUsFKNt0S4j4mN6DEl_m-eMx1fMjulxNjgSwyWBhpxLu9Dza2kHw_Hex65A3Y4YoyCLhV7Aj7-T2dUn5Nw_tiL_NZzU3kfGxeRZCNMpuhoXg3PnlLtpuzyyW-lREAIrTuF0Vnl5dZITdkcbO5yVxah12Kqw60V_ipKIeuUql_C0skucI3JqZaDGcWSGxS5Haa-dgfe5MMVj1jVo90onidPcWevtmHydek_7-zD1Pkp1AIMv97-XQsKRjeXEC6Ahy5RdKZn"/>
+</div>
+</div>
+</div>
+</header>
+<main class="flex-1 px-6 md:px-20 py-10 max-w-[1400px] mx-auto w-full">
+<!-- Project Header -->
+<div class="mb-10">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider mb-4">
+<span class="material-symbols-outlined text-sm">workspace_premium</span> Project Completion Report
+                </div>
+<h1 class="text-4xl md:text-5xl font-black text-slate-900 dark:text-slate-50 mb-2">Sustainable Future Cities</h1>
+<p class="text-slate-500 dark:text-slate-400 text-lg">Detailed competency breakdown and mastery assessment.</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Left Column: My Top Skills -->
+<div class="lg:col-span-5 space-y-6">
+<div class="flex items-center justify-between mb-4">
+<h2 class="text-2xl font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">trending_up</span> My Top Skills
+                        </h2>
+</div>
+<div class="space-y-4">
+<!-- Skill Card 1 -->
+<div class="flex items-center gap-4 p-5 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-shadow">
+<div class="size-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined">lightbulb</span>
+</div>
+<div class="flex-1">
+<h3 class="font-bold text-slate-800 dark:text-slate-100">Creative Problem Solving</h3>
+<p class="text-xs text-slate-500">Applied in urban infrastructure design</p>
+</div>
+<span class="px-3 py-1 rounded-full bg-primary text-background-dark text-xs font-bold">Mastered</span>
+</div>
+<!-- Skill Card 2 -->
+<div class="flex items-center gap-4 p-5 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-shadow">
+<div class="size-12 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center">
+<span class="material-symbols-outlined">psychology</span>
+</div>
+<div class="flex-1">
+<h3 class="font-bold text-slate-800 dark:text-slate-100">Critical Thinking</h3>
+<p class="text-xs text-slate-500">Analysis of resource allocation</p>
+</div>
+<span class="px-3 py-1 rounded-full bg-primary/20 text-primary dark:text-primary/80 text-xs font-bold border border-primary/30">Level 4</span>
+</div>
+<!-- Skill Card 3 -->
+<div class="flex items-center gap-4 p-5 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-shadow">
+<div class="size-12 rounded-lg bg-green-100 text-green-600 flex items-center justify-center">
+<span class="material-symbols-outlined">eco</span>
+</div>
+<div class="flex-1">
+<h3 class="font-bold text-slate-800 dark:text-slate-100">Environmental Literacy</h3>
+<p class="text-xs text-slate-500">Renewable energy systems knowledge</p>
+</div>
+<span class="px-3 py-1 rounded-full bg-primary/20 text-primary dark:text-primary/80 text-xs font-bold border border-primary/30">Level 4</span>
+</div>
+<!-- Skill Card 4 -->
+<div class="flex items-center gap-4 p-5 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-shadow">
+<div class="size-12 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
+<span class="material-symbols-outlined">groups</span>
+</div>
+<div class="flex-1">
+<h3 class="font-bold text-slate-800 dark:text-slate-100">Collaboration</h3>
+<p class="text-xs text-slate-500">Team project coordination</p>
+</div>
+<span class="px-3 py-1 rounded-full bg-primary/20 text-primary dark:text-primary/80 text-xs font-bold border border-primary/30">Level 4</span>
+</div>
+<!-- Skill Card 5 -->
+<div class="flex items-center gap-4 p-5 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-shadow">
+<div class="size-12 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center">
+<span class="material-symbols-outlined">apartment</span>
+</div>
+<div class="flex-1">
+<h3 class="font-bold text-slate-800 dark:text-slate-100">Urban Planning</h3>
+<p class="text-xs text-slate-500">Zoning and transit logic</p>
+</div>
+<span class="px-3 py-1 rounded-full bg-primary/20 text-primary dark:text-primary/80 text-xs font-bold border border-primary/30">Level 4</span>
+</div>
+</div>
+</div>
+<!-- Right Column: Skill Profile -->
+<div class="lg:col-span-7 space-y-6">
+<h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">analytics</span> Skill Profile
+                    </h2>
+<div class="flex flex-col gap-6">
+<!-- Very Strong -->
+<div class="bg-white dark:bg-slate-800 p-6 rounded-xl border-l-4 border-primary shadow-sm">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-primary">stars</span>
+<h3 class="text-lg font-bold">Very Strong (Level 4)</h3>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-4 py-2 bg-primary/10 text-slate-700 dark:text-slate-200 rounded-lg text-sm font-medium border border-primary/20">Data Literacy</span>
+<span class="px-4 py-2 bg-primary/10 text-slate-700 dark:text-slate-200 rounded-lg text-sm font-medium border border-primary/20">Creative Design</span>
+<span class="px-4 py-2 bg-primary/10 text-slate-700 dark:text-slate-200 rounded-lg text-sm font-medium border border-primary/20">Systems Thinking</span>
+<span class="px-4 py-2 bg-primary/10 text-slate-700 dark:text-slate-200 rounded-lg text-sm font-medium border border-primary/20">Public Speaking</span>
+</div>
+</div>
+<!-- Strong -->
+<div class="bg-white dark:bg-slate-800 p-6 rounded-xl border-l-4 border-emerald-400 shadow-sm">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-emerald-500">check_circle</span>
+<h3 class="text-lg font-bold">Strong (Level 3)</h3>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-4 py-2 bg-emerald-50 dark:bg-emerald-900/20 text-slate-700 dark:text-slate-200 rounded-lg text-sm font-medium border border-emerald-100 dark:border-emerald-800">Budget Analysis</span>
+<span class="px-4 py-2 bg-emerald-50 dark:bg-emerald-900/20 text-slate-700 dark:text-slate-200 rounded-lg text-sm font-medium border border-emerald-100 dark:border-emerald-800">Technical Writing</span>
+<span class="px-4 py-2 bg-emerald-50 dark:bg-emerald-900/20 text-slate-700 dark:text-slate-200 rounded-lg text-sm font-medium border border-emerald-100 dark:border-emerald-800">Resource Management</span>
+</div>
+</div>
+<!-- Emerging -->
+<div class="bg-white dark:bg-slate-800 p-6 rounded-xl border-l-4 border-amber-300 shadow-sm">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-amber-500">clover_spark</span>
+<h3 class="text-lg font-bold">Emerging (Level 1-2)</h3>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-4 py-2 bg-amber-50 dark:bg-amber-900/20 text-slate-700 dark:text-slate-200 rounded-lg text-sm font-medium border border-amber-100 dark:border-amber-800">CAD Modeling</span>
+<span class="px-4 py-2 bg-amber-50 dark:bg-amber-900/20 text-slate-700 dark:text-slate-200 rounded-lg text-sm font-medium border border-amber-100 dark:border-amber-800">Statistical Simulation</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Section -->
+<div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8">
+<!-- Skills to Work On -->
+<div class="bg-white dark:bg-slate-800 p-8 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
+<h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-amber-500">construction</span> Skills to Work On
+                    </h2>
+<div class="space-y-4">
+<div class="flex gap-4 items-start">
+<div class="size-10 shrink-0 rounded-full bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center text-amber-600">
+<span class="material-symbols-outlined text-xl">architecture</span>
+</div>
+<div>
+<h4 class="font-bold text-slate-800 dark:text-slate-100">Technical Precision</h4>
+<p class="text-sm text-slate-500 dark:text-slate-400">Try to focus more on the exact measurements in your scale models next time. It will help with structural integrity!</p>
+</div>
+</div>
+<div class="flex gap-4 items-start">
+<div class="size-10 shrink-0 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600">
+<span class="material-symbols-outlined text-xl">query_stats</span>
+</div>
+<div>
+<h4 class="font-bold text-slate-800 dark:text-slate-100">Advanced Data Interpretation</h4>
+<p class="text-sm text-slate-500 dark:text-slate-400">Great job collecting data; let's work on using more complex formulas to predict growth patterns.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Teacher's Feedback -->
+<div class="bg-primary/5 dark:bg-slate-800/40 p-8 rounded-xl shadow-sm border-2 border-primary/20 relative overflow-hidden">
+<div class="absolute -right-10 -top-10 text-primary/10 opacity-50">
+<span class="material-symbols-outlined text-[160px]">format_quote</span>
+</div>
+<div class="relative z-10">
+<div class="flex items-center gap-4 mb-6">
+<img class="size-12 rounded-full object-cover ring-2 ring-primary" data-alt="Teacher profile picture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKKjU5_4iLiTVWXxjrCOSV9H594_wkftHkNPsJdZRiprDOJ5Uw4xZq2h-j0bAS5CpuuUlCWKh3iq9YXE182hfroKmP8PwqVyw2ITm_v0E-CvVVBBxdawDYZ7KrIS3YkNoyGIukXxDid0Ilqcg4_S5SDG5mPBaxj_G1_vFQa_RiLc0vKaocBqbn3mzP7PlQtRjCotkXEiXhgGaLU1DTANhuPpx2PwlYiWYkExDFhpzrQ4U-LXEct4A-eDHw6TDT9spDWVeAva1uX5sj"/>
+<div>
+<h3 class="font-bold text-slate-900 dark:text-slate-50">Ms. Sarah Jenkins</h3>
+<p class="text-xs text-primary font-semibold uppercase tracking-tight">Project Mentor</p>
+</div>
+</div>
+<h2 class="text-xl font-bold mb-3">Teacher's Feedback</h2>
+<p class="text-slate-700 dark:text-slate-300 italic leading-relaxed text-lg">
+                            "Alex, your work on the sustainable city prototype was truly exceptional. I was particularly impressed with how you integrated green corridors into the residential zones. Your leadership during the group presentation showed great maturity. Keep pushing your creative boundaries—you have a natural talent for solving complex spatial problems!"
+                        </p>
+</div>
+</div>
+</div>
+<!-- Action Footer -->
+<div class="mt-12 flex justify-center gap-4">
+<button class="flex items-center gap-2 px-6 py-3 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 transition-colors">
+<span class="material-symbols-outlined">download</span> Download PDF
+                </button>
+<button class="flex items-center gap-2 px-8 py-3 bg-primary text-background-dark font-bold rounded-xl hover:shadow-lg transition-all transform hover:-translate-y-1">
+                    Share Success <span class="material-symbols-outlined">share</span>
+</button>
+</div>
+</main>
+<footer class="mt-auto py-8 border-t border-slate-200 dark:border-slate-800 text-center">
+<p class="text-slate-400 dark:text-slate-600 text-sm">© 2024 SkillGrow Education Platform • Empowering Future Leaders</p>
+</footer>
+</div>
+</body></html>

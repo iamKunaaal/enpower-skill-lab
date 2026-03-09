@@ -377,3 +377,233 @@ def school_admin_student_list(request):
         'page_title': 'Student List',
     }
     return render(request, 'school_admin/students-list.html', context)
+
+
+@login_required
+def school_admin_onboard_parent(request):
+    """View for school admin to onboard new parents to their school"""
+    from schools.models import School
+    from .models import SchoolAdmin
+    from parent.models import Parent
+    from student.models import Student
+    from django.contrib.auth import get_user_model
+    from django.core.mail import send_mail
+    from django.conf import settings
+    import secrets
+    import string
+
+    # Get the school admin's school
+    try:
+        school_admin_profile = SchoolAdmin.objects.get(user=request.user)
+        school = school_admin_profile.school
+    except SchoolAdmin.DoesNotExist:
+        messages.error(request, 'School admin profile not found.')
+        return redirect('school_admin_dashboard')
+
+    if not school:
+        messages.error(request, 'No school assigned to your account. Please contact the administrator.')
+        return redirect('school_admin_dashboard')
+
+    if request.method == 'POST':
+        try:
+            data = request.POST
+
+            # Create parent
+            parent = Parent(
+                # Primary Parent Details
+                full_name=data.get('full_name', ''),
+                relation_to_student=data.get('relation_to_student', ''),
+                mobile_number=data.get('mobile_number', ''),
+                alternate_mobile=data.get('alternate_mobile', '') or None,
+                email=data.get('email', ''),
+                occupation=data.get('occupation', '') or None,
+                organization=data.get('organization', '') or None,
+                education_level=data.get('education_level', '') or None,
+                id_proof=data.get('id_proof', '') or None,
+
+                # Secondary Parent Details
+                secondary_full_name=data.get('secondary_full_name', '') or None,
+                secondary_relation=data.get('secondary_relation', '') or None,
+                secondary_mobile=data.get('secondary_mobile', '') or None,
+                secondary_email=data.get('secondary_email', '') or None,
+                secondary_occupation=data.get('secondary_occupation', '') or None,
+                preferred_contact=data.get('preferred_contact', 'primary'),
+
+                # Address
+                residential_address=data.get('residential_address', ''),
+                landmark=data.get('landmark', '') or None,
+                city=data.get('city', ''),
+                state=data.get('state', ''),
+                pin_code=data.get('pin_code', ''),
+                permanent_address=data.get('permanent_address', '') or None,
+
+                # Communication Preferences
+                contact_method=data.get('contact_method', 'whatsapp'),
+                preferred_language=data.get('preferred_language', 'english'),
+                dnd_timings=data.get('dnd_timings', '') or None,
+                whatsapp_consent=data.get('whatsapp_consent', 'yes') == 'yes',
+                photo_consent=data.get('photo_consent', 'yes') == 'yes',
+
+                # Financial
+                fee_category=data.get('fee_category', 'regular'),
+                payment_mode=data.get('payment_mode', '') or None,
+                billing_email=data.get('billing_email', '') or None,
+                gst_number=data.get('gst_number', '') or None,
+
+                # Emergency Contact
+                emergency_name=data.get('emergency_name', ''),
+                emergency_relation=data.get('emergency_relation', ''),
+                emergency_phone=data.get('emergency_phone', ''),
+                emergency_address=data.get('emergency_address', '') or None,
+
+                # Parent Involvement
+                meeting_availability=data.get('meeting_availability', '') or None,
+                volunteer_interest=data.get('volunteer_interest', '') or None,
+                parent_skills=data.get('parent_skills', '') or None,
+
+                # Status
+                account_status='pending',
+                created_by=request.user,
+            )
+
+            # Handle profile photo
+            if 'profile_photo' in request.FILES:
+                parent.profile_photo = request.FILES['profile_photo']
+
+            # Create User account for parent login
+            User = get_user_model()
+            email = parent.email
+
+            # Check if user already exists
+            if User.objects.filter(email=email).exists():
+                messages.error(request, f'A user with email {email} already exists.')
+                return redirect('school_admin_onboard_parent')
+
+            # Generate temporary password
+            temp_password = ''.join(secrets.choice(string.ascii_letters + string.digits + '!@#$%') for _ in range(12))
+
+            # Create User with PARENT role
+            user = User.objects.create_user(
+                username=email,
+                email=email,
+                password=temp_password,
+                first_name=parent.full_name.split()[0] if parent.full_name else '',
+                last_name=' '.join(parent.full_name.split()[1:]) if len(parent.full_name.split()) > 1 else '',
+                is_active=True,
+                role='PARENT'
+            )
+
+            # Link user to parent
+            parent.user = user
+
+            parent.save()
+
+            # Link to students (ManyToMany relationship) - only students from this school
+            student_ids = request.POST.getlist('students')
+            linked_students = []
+            if student_ids:
+                students = Student.objects.filter(id__in=student_ids, school=school)
+                parent.students.set(students)
+                linked_students = [f"{s.first_name} {s.last_name}" for s in students]
+
+            # Send welcome email with credentials
+            try:
+                email_subject = 'Welcome to ENpower Skill Lab - Your Login Credentials'
+                students_text = ', '.join(linked_students) if linked_students else 'Not yet linked'
+                email_body = f"""
+Dear {parent.full_name},
+
+Welcome to ENpower Skill Lab! Your parent account has been created successfully for {school.school_name}.
+
+Here are your login credentials:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📧 Email: {email}
+🔑 Temporary Password: {temp_password}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔗 Login URL: http://127.0.0.1:8000/login/
+
+Parent ID: {parent.parent_id}
+School: {school.school_name}
+Linked Student(s): {students_text}
+Role: Parent/Guardian
+
+⚠️ IMPORTANT: Please change your password after your first login for security purposes.
+
+You can use the parent portal to:
+- Track your child's progress
+- View attendance records
+- Communicate with teachers
+- Access reports and certificates
+
+If you have any questions, please contact the school administration.
+
+Best regards,
+ENpower Skill Lab Team
+                """
+
+                send_mail(
+                    email_subject,
+                    email_body,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [email],
+                    fail_silently=False,
+                )
+                messages.success(request, f'Parent "{parent.full_name}" onboarded successfully! Credentials sent to {email}')
+            except Exception as mail_error:
+                messages.warning(request, f'Parent added but email failed: {str(mail_error)}. Password: {temp_password}')
+
+            return redirect('school_admin_dashboard')
+
+        except Exception as e:
+            messages.error(request, f'Error onboarding parent: {str(e)}')
+
+    # GET request - pass only students from this school to template
+    students = Student.objects.filter(school=school).order_by('first_name', 'last_name')
+    context = {
+        'students': students,
+        'school': school,
+    }
+    return render(request, 'school_admin/onboard-parent.html', context)
+
+
+@login_required
+def school_admin_parent_list(request):
+    """View to display list of all parents for this school"""
+    from schools.models import School
+    from .models import SchoolAdmin
+    from parent.models import Parent
+    import random
+
+    # Get the school admin's school
+    try:
+        school_admin_profile = SchoolAdmin.objects.get(user=request.user)
+        school = school_admin_profile.school
+    except SchoolAdmin.DoesNotExist:
+        messages.error(request, 'School admin profile not found.')
+        return redirect('school_admin_dashboard')
+
+    if not school:
+        messages.error(request, 'No school assigned to your account. Please contact the administrator.')
+        return redirect('school_admin_dashboard')
+
+    # Get all parents for this school only (filter through students' school)
+    parents = Parent.objects.filter(students__school=school).prefetch_related('students').distinct().order_by('-created_at')
+
+    # Add badge color for each parent (initials and children are already properties in Parent model)
+    colors = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#06b6d4', '#f97316', '#6366f1', '#ec4899', '#14b8a6']
+    for parent in parents:
+        # Assign badge color based on first character
+        if parent.full_name:
+            parent.badge_color = colors[ord(parent.full_name[0]) % len(colors)]
+        else:
+            parent.badge_color = random.choice(colors)
+
+    context = {
+        'parents': parents,
+        'school': school,
+        'total_parents': parents.count(),
+        'active_parents': parents.filter(account_status='active').count(),
+        'pending_parents': parents.filter(account_status='pending').count(),
+    }
+    return render(request, 'school_admin/parent-list.html', context)

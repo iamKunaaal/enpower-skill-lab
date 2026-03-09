@@ -1,0 +1,138 @@
+{% extends 'school_admin/base.html' %}
+{% load static %}
+
+{% block title %}Parent List - Enpower Skill Lab{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="{% static 'css/school_admin/sa-parent-list.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="sa-parent-list-page">
+    <!-- Page Header -->
+    <div class="sa-page-header">
+        <h1>Parent List - {{ school.school_name }}</h1>
+        <div class="sa-header-actions">
+            <button class="sa-btn-gradient sa-btn-download">
+                <span class="material-symbols-outlined">download</span>
+                Download Sample CSV
+            </button>
+            <button class="sa-btn-gradient sa-btn-upload">
+                <span class="material-symbols-outlined">upload</span>
+                Upload CSV
+            </button>
+            <a href="{% url 'school_admin_onboard_parent' %}" class="sa-btn-gradient sa-btn-add">
+                <span class="material-symbols-outlined">add</span>
+                Add New Parent
+            </a>
+        </div>
+    </div>
+
+    <!-- Table Card -->
+    <div class="sa-table-card">
+        <table id="saParentTable" class="display sa-parent-table" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Parent ID</th>
+                    <th>Name</th>
+                    <th>Contact</th>
+                    <th>Child's Name</th>
+                    <th>Child's Grade</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for parent in parents %}
+                <tr>
+                    <td>{{ parent.parent_id }}</td>
+                    <td>
+                        <div class="sa-parent-name-cell">
+                            <div class="sa-initial-badge" style="background-color: {{ parent.badge_color }};">{{ parent.initials }}</div>
+                            <span class="sa-parent-name">{{ parent.full_name }}</span>
+                        </div>
+                    </td>
+                    <td>{{ parent.email }}</td>
+                    <td>{{ parent.children_names|default:"-" }}</td>
+                    <td>{{ parent.children_grades|default:"-" }}</td>
+                    <td>
+                        {% if parent.account_status == 'active' %}
+                        <span class="sa-status-pill sa-status-active">Active</span>
+                        {% elif parent.account_status == 'pending' %}
+                        <span class="sa-status-pill sa-status-pending">Pending</span>
+                        {% else %}
+                        <span class="sa-status-pill sa-status-inactive">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="sa-action-buttons">
+                            <a href="#" class="sa-action-btn" title="Edit" onclick="alert('Edit functionality coming soon'); return false;">
+                                <span class="material-symbols-outlined">edit</span>
+                            </a>
+                            <a href="#" class="sa-action-btn" title="View" onclick="alert('View functionality coming soon'); return false;">
+                                <span class="material-symbols-outlined">visibility</span>
+                            </a>
+                            <a href="#" class="sa-action-btn sa-action-btn-delete" title="Delete" onclick="alert('Delete functionality coming soon'); return false;">
+                                <span class="material-symbols-outlined">delete</span>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="sa-empty-state">
+                        <span class="material-symbols-outlined">person_off</span>
+                        <p>No parents found for your school. <a href="{% url 'school_admin_onboard_parent' %}">Add a new parent</a></p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script>
+    $(document).ready(function() {
+        var parentTable = $('#saParentTable');
+
+        if (parentTable.length) {
+            var hasData = parentTable.find('tbody tr').length > 0 &&
+                          parentTable.find('tbody tr td[colspan]').length === 0;
+
+            if (hasData) {
+                parentTable.DataTable({
+                    paging: true,
+                    searching: true,
+                    ordering: true,
+                    info: true,
+                    pageLength: 10,
+                    lengthMenu: [[5, 10, 25, 50, 100], [5, 10, 25, 50, 100]],
+                    order: [[1, 'asc']],
+                    columnDefs: [
+                        { orderable: false, targets: 6 }
+                    ],
+                    language: {
+                        search: 'Search parents:',
+                        searchPlaceholder: 'Type to search...',
+                        lengthMenu: 'Show _MENU_ entries',
+                        info: 'Showing _START_ to _END_ of _TOTAL_ parents',
+                        infoEmpty: 'No parents to show',
+                        infoFiltered: '(filtered from _MAX_ total entries)',
+                        zeroRecords: 'No matching parents found',
+                        paginate: {
+                            next: 'Next',
+                            previous: 'Previous'
+                        }
+                    }
+                });
+            }
+        }
+    });
+</script>
+{% endblock %}

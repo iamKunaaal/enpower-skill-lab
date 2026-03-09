@@ -244,7 +244,7 @@ body.dark .pagination .page-link.active {
 }
 
 .btn-gradient .material-symbols-outlined {
-  font-size: 20px;
+  /* font-size: 20px; */
   font-weight: 600;
 }
 
@@ -446,3 +446,4 @@ body.dark .dataTables_wrapper .dataTables_paginate .paginate_button:hover:not(.d
 body.dark .dataTables_wrapper .dataTables_info {
     color: #22d3ee;
 }
+

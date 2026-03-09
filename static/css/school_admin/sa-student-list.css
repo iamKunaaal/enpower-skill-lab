@@ -1,5 +1,9 @@
 /* Student List Page Styles */
 
+.main-container {
+    padding: 0px !important;
+}
+
 /* Page Container */
 .student-list-page {
     padding: 1rem;

@@ -1,0 +1,216 @@
+{% extends 'parent/base.html' %}
+{% load static %}
+
+{% block title %}My Profile - Parent{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/parent/parent-profile.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-page">
+    <div class="profile-container">
+        <div class="page-header">
+            <h1>My Profile</h1>
+            <p>Manage your personal information and account settings</p>
+        </div>
+
+        <div class="profile-grid">
+            <!-- Personal Information Card -->
+            <div class="profile-card full-width">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">person</span>
+                    <h2>Personal Information</h2>
+                </div>
+
+                <form id="profileForm" method="POST" action="{% url 'parent_profile_update' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <!-- Photo Upload Section -->
+                    <div class="photo-section">
+                        <div class="profile-photo-wrapper">
+                            <div class="profile-photo" id="profilePhotoPreview" {% if parent.profile_photo %}style="background-image: url('{{ parent.profile_photo.url }}'); background-size: cover; background-position: center;"{% endif %}>
+                                {% if not parent.profile_photo %}
+                                <span class="material-symbols-outlined">account_circle</span>
+                                {% endif %}
+                            </div>
+                            <label class="photo-upload-btn" for="profilePhotoInput">
+                                <span class="material-symbols-outlined">photo_camera</span>
+                            </label>
+                            <input type="file" id="profilePhotoInput" name="profile_photo" class="photo-input" accept="image/*">
+                        </div>
+                        <p class="photo-hint">Upload a profile photo (Max 2MB, JPG, PNG)</p>
+                    </div>
+
+                    <!-- Personal Details -->
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Full Name <span class="required">*</span></label>
+                            <input type="text" id="fullName" name="full_name" class="form-input" value="{{ parent.full_name }}" readonly>
+                            <span class="error-message" id="fullNameError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Email Address <span class="required">*</span></label>
+                            <input type="email" id="email" name="email" class="form-input" value="{{ parent.email }}" readonly>
+                            <span class="error-message" id="emailError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Phone Number <span class="required">*</span></label>
+                            <input type="tel" id="phone" name="mobile_number" class="form-input" value="{{ parent.mobile_number }}" readonly>
+                            <span class="error-message" id="phoneError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Alternate Phone Number</label>
+                            <input type="tel" id="alternatePhone" name="alternate_mobile" class="form-input" value="{{ parent.alternate_mobile|default:'' }}" placeholder="Enter alternate phone" readonly>
+                            <span class="error-message" id="alternatePhoneError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Relation to Student</label>
+                            <select id="gender" name="relation_to_student" class="form-select" disabled>
+                                <option value="">Select relation</option>
+                                <option value="mother" {% if parent.relation_to_student == 'mother' %}selected{% endif %}>Mother</option>
+                                <option value="father" {% if parent.relation_to_student == 'father' %}selected{% endif %}>Father</option>
+                                <option value="guardian" {% if parent.relation_to_student == 'guardian' %}selected{% endif %}>Guardian</option>
+                            </select>
+                            <span class="error-message" id="genderError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Occupation</label>
+                            <input type="text" id="occupation" name="occupation" class="form-input" value="{{ parent.occupation|default:'' }}" placeholder="Enter occupation" readonly>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label class="form-label">Organization</label>
+                            <input type="text" id="organization" name="organization" class="form-input" value="{{ parent.organization|default:'' }}" placeholder="Enter organization" readonly>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-cancel" id="cancelBtn" style="display: none;">
+                            <span class="material-symbols-outlined">close</span>
+                            Cancel
+                        </button>
+                        <button type="button" class="btn btn-edit-profile" id="editBtn">
+                            <span class="material-symbols-outlined">edit</span>
+                            Edit Profile
+                        </button>
+                        <button type="submit" class="btn btn-save" id="saveBtn" style="display: none;">
+                            <span class="material-symbols-outlined">save</span>
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Children Information Card -->
+            <div class="profile-card full-width">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">groups</span>
+                    <h2>My Children</h2>
+                </div>
+
+                <div class="children-list">
+                    {% for student in parent.students.all %}
+                    <div class="child-item">
+                        <div class="child-avatar">{{ student.first_name.0 }}{{ student.last_name.0 }}</div>
+                        <div class="child-details">
+                            <div class="child-name">{{ student.first_name }} {{ student.last_name }}</div>
+                            <div class="child-info">
+                                <span class="child-grade">
+                                    <span class="material-symbols-outlined">school</span>
+                                    Class {{ student.student_class }}-{{ student.division }}
+                                </span>
+                                <span style="color: #d1d5db;">|</span>
+                                <span class="child-school">
+                                    <span class="material-symbols-outlined">domain</span>
+                                    {{ student.school.school_name }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p style="text-align: center; color: #6b7280;">No children linked yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Role Information Card -->
+            <div class="profile-card">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">family_restroom</span>
+                    <h2>Role Information</h2>
+                </div>
+
+                <div class="role-info-grid">
+                    <div class="info-item full-width">
+                        <span class="info-label">Role</span>
+                        <div class="role-badge">
+                            <span class="material-symbols-outlined">verified</span>
+                            Parent
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <span class="info-label">Parent ID</span>
+                        <span class="info-value">{{ parent.parent_id }}</span>
+                    </div>
+
+                    <div class="info-item">
+                        <span class="info-label">Account Created On</span>
+                        <span class="info-value">{{ parent.created_at|date:"F d, Y" }}</span>
+                    </div>
+
+                    <div class="info-item">
+                        <span class="info-label">Last Login</span>
+                        <span class="info-value">{% if parent.user.last_login %}{{ parent.user.last_login|date:"F d, Y g:i A" }}{% else %}Never{% endif %}</span>
+                    </div>
+
+                    <div class="info-item full-width" style="margin-top: 12px;">
+                        <span class="info-label">Assigned Permissions</span>
+                        <div class="permission-badge">
+                            <span class="material-symbols-outlined">visibility</span>
+                            Child Progress Monitoring
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Security Card -->
+            <div class="profile-card">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">lock</span>
+                    <h2>Account Security</h2>
+                </div>
+
+                <div class="role-info-grid single-column">
+                    <div class="info-item">
+                        <span class="info-label">Password</span>
+                        <span class="info-value">••••••••••</span>
+                    </div>
+
+                    <div class="info-item">
+                        <span class="info-label">Email</span>
+                        <span class="info-value">{{ parent.email }}</span>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a href="#" class="btn btn-edit-profile">
+                        <span class="material-symbols-outlined">key</span>
+                        Change Password
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/parent/parent-profile.js' %}"></script>
+{% endblock %}

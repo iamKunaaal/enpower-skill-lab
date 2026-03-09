@@ -499,7 +499,7 @@
             top: calc(100% + 8px) !important;
             right: 0 !important;
             width: auto !important;
-            min-width: 280px !important;
+            min-width: auto !important;
             background-color: #ffffff !important;
             border-radius: 12px !important;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
@@ -1162,7 +1162,7 @@
                         <span class="material-symbols-outlined dropdown-icon">expand_more</span>
                     </a>
                     <div class="sidebar-dropdown-menu">
-                        <a href="#" id="nav-profile">
+                        <a href="{% url 'parent_profile' %}" id="nav-profile">
                             <span class="material-symbols-outlined">person</span>
                             Profile
                         </a>
@@ -1270,6 +1270,7 @@
                                 <div class="dropdown-user-info">
                                     <h4 class="dropdown-user-name">{{ user.get_full_name|default:user.username }}</h4>
                                     <p class="dropdown-user-email">{{ user.email }}</p>
+                                    <p class="dropdown-user-email">Parent</p>
                                 </div>
                             </div>
                             <div class="dropdown-divider"></div>
