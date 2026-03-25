@@ -52,4 +52,8 @@ urlpatterns = [
     path('change-password/', views.change_password, name='superadmin_change_password'),
     path('logout/', views.superadmin_logout, name='superadmin_logout'),
     path('test-messages/', views.test_messages, name='test_messages'),  # Remove in production
+    # Skill Passport — Admin Setup
+    path('skill-passport/learning-pillars/', views.learning_pillars, name='learning_pillars'),
+    path('skill-passport/profiles-competencies/', views.profiles_competencies, name='profiles_competencies'),
+    path('skill-passport/project-assessment/', views.project_assessment, name='project_assessment'),
 ]

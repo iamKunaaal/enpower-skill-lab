@@ -1,0 +1,648 @@
+{% extends 'superadmin/base.html' %}
+{% load static %}
+
+{% block title %}Profiles & Competencies — Super Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+.pc-wrapper *:not(.material-symbols-outlined) {
+    font-family: 'Poppins', sans-serif;
+    box-sizing: border-box;
+}
+.pc-wrapper .material-symbols-outlined {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    vertical-align: middle;
+    flex-shrink: 0;
+}
+.pc-wrapper {
+    display: flex;
+    height: calc(100vh - 80px);
+    overflow: hidden;
+    background: var(--background-color, #f7f6f8);
+}
+
+/* ── LEFT SIDEBAR ── */
+.pc-sidebar {
+    width: 260px;
+    min-width: 260px;
+    background: #fff;
+    border-right: 1px solid var(--border-color, #e5e7eb);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex-shrink: 0;
+    transition: width .25s ease, min-width .25s ease;
+}
+.pc-sidebar.collapsed { width: 0; min-width: 0; border-right: none; }
+
+.pc-sidebar-head {
+    padding: 14px 14px 12px;
+    border-bottom: 1px solid var(--border-color, #e5e7eb);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+.pc-sidebar-head .label {
+    font-size: 0.65rem; font-weight: 700;
+    letter-spacing: .1em; text-transform: uppercase;
+    color: var(--text-secondary, #6b7280); margin: 0 0 2px;
+    white-space: nowrap;
+}
+.pc-sidebar-head .sub {
+    font-size: 0.72rem; color: var(--text-secondary, #6b7280);
+    margin: 0; white-space: nowrap;
+}
+.pc-toggle-btn {
+    flex-shrink: 0;
+    width: 26px; height: 26px;
+    background: none;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: var(--text-secondary, #6b7280);
+    transition: color .15s, background .15s;
+}
+.pc-toggle-btn:hover { background: var(--primary-lighter,#f5f0f7); color: var(--primary,#5A1F6E); }
+.pc-toggle-btn .material-symbols-outlined { font-size: 16px; }
+.pc-tog-icon { display: inline-flex; transition: transform .25s ease; }
+.pc-sidebar.collapsed .pc-tog-icon { transform: rotate(180deg); }
+
+.pc-sidebar-nav {
+    flex: 1; overflow-y: auto; padding: 8px;
+}
+.pc-sidebar-nav::-webkit-scrollbar { width: 4px; }
+.pc-sidebar-nav::-webkit-scrollbar-track { background: transparent; }
+.pc-sidebar-nav::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 4px; }
+
+.pc-profile-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background .12s;
+}
+.pc-profile-item:hover { background: var(--primary-lighter, #f5f0f7); }
+.pc-profile-item.active { background: var(--primary, #5A1F6E); }
+
+.pc-profile-num {
+    width: 26px; height: 26px;
+    border-radius: 7px;
+    background: rgba(90,31,110,.1);
+    color: var(--primary, #5A1F6E);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700;
+    flex-shrink: 0;
+}
+.pc-profile-item.active .pc-profile-num {
+    background: rgba(255,255,255,.2);
+    color: #fff;
+}
+.pc-profile-name {
+    font-size: 0.8rem; font-weight: 600;
+    color: var(--text-color, #1f2937);
+    flex: 1;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pc-profile-item.active .pc-profile-name { color: #fff; }
+.pc-profile-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--primary, #5A1F6E);
+    flex-shrink: 0;
+}
+.pc-profile-item.active .pc-profile-dot { background: rgba(255,255,255,.6); }
+
+/* ── MAIN PANEL ── */
+.pc-main {
+    flex: 1; overflow-y: auto;
+    padding: 24px 28px;
+    min-width: 0;
+}
+.pc-main::-webkit-scrollbar { width: 5px; }
+.pc-main::-webkit-scrollbar-track { background: transparent; }
+.pc-main::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+
+/* Header row */
+.pc-header-row {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 16px; margin-bottom: 20px; flex-wrap: wrap;
+}
+.pc-header-left { display: flex; align-items: flex-start; gap: 10px; }
+.pc-show-btn {
+    display: none; align-items: center; gap: 5px;
+    background: #fff; border: 1px solid var(--border-color,#e5e7eb);
+    border-radius: 8px; padding: 7px 12px;
+    font-size: 0.75rem; font-weight: 600;
+    color: var(--primary,#5A1F6E); cursor: pointer; flex-shrink: 0;
+    transition: background .15s;
+}
+.pc-show-btn:hover { background: var(--primary-lighter,#f5f0f7); }
+.pc-show-btn .material-symbols-outlined { font-size: 16px; }
+
+.pc-breadcrumb {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 0.75rem; color: var(--text-secondary,#6b7280);
+    margin-bottom: 4px; flex-wrap: wrap;
+}
+.pc-breadcrumb .sep { font-size: 14px; }
+.pc-breadcrumb .cur { color: var(--primary,#5A1F6E); font-weight: 600; }
+
+.pc-profile-badge {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: rgba(90,31,110,.1);
+    color: var(--primary,#5A1F6E);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; font-weight: 700; flex-shrink: 0;
+}
+.pc-title {
+    font-size: 1.4rem; font-weight: 700;
+    color: var(--text-color,#1f2937);
+    margin: 0 0 3px; line-height: 1.2;
+}
+.pc-subtitle { font-size: 0.8rem; color: var(--text-secondary,#6b7280); margin: 0; }
+
+.pc-btn-save {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 0.65rem 1.25rem;
+    background: var(--primary,#5A1F6E); color: #fff;
+    border: none; border-radius: 8px;
+    font-size: 0.85rem; font-weight: 500;
+    cursor: pointer; font-family: 'Poppins',sans-serif;
+    transition: all .25s ease; white-space: nowrap; flex-shrink: 0;
+}
+.pc-btn-save:hover {
+    background: rgba(90,31,110,.9);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(90,31,110,.25);
+}
+.pc-btn-save .material-symbols-outlined { font-size: 18px; }
+
+/* Rename inline form */
+.pc-rename-row {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 20px;
+}
+.pc-rename-input {
+    border: none; border-bottom: 2px solid transparent;
+    font-size: 1.4rem; font-weight: 700;
+    color: var(--text-color,#1f2937);
+    background: transparent; padding: 0;
+    font-family: 'Poppins',sans-serif;
+    flex: 1; min-width: 0;
+    transition: border-color .15s;
+}
+.pc-rename-input:focus { outline: none; border-bottom-color: var(--primary,#5A1F6E); }
+
+/* Grid of two cards */
+.pc-comp-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 18px; margin-bottom: 20px;
+}
+@media (max-width: 900px) { .pc-comp-grid { grid-template-columns: 1fr; } }
+
+.pc-comp-card {
+    background: #fff; border-radius: 12px;
+    border: 1px solid var(--border-color,#e5e7eb);
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    padding: 20px;
+}
+.pc-comp-card-head {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 16px;
+}
+.pc-comp-card-icon {
+    width: 34px; height: 34px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.pc-comp-card-icon.primary { background: rgba(90,31,110,.1); }
+.pc-comp-card-icon.secondary { background: #f3f4f6; }
+.pc-comp-card-icon .material-symbols-outlined { font-size: 18px; }
+.pc-comp-card-icon.primary .material-symbols-outlined { color: var(--primary,#5A1F6E); }
+.pc-comp-card-icon.secondary .material-symbols-outlined { color: #6b7280; }
+
+.pc-comp-card-title { font-size: 0.9rem; font-weight: 700; color: var(--text-color,#1f2937); margin: 0 0 2px; }
+.pc-comp-card-sub   { font-size: 0.72rem; color: var(--text-secondary,#6b7280); margin: 0; }
+.pc-comp-count {
+    margin-left: auto;
+    font-size: 0.7rem; font-weight: 700;
+    padding: 3px 10px; border-radius: 20px;
+}
+.pc-comp-count.primary   { background: rgba(90,31,110,.1); color: var(--primary,#5A1F6E); }
+.pc-comp-count.secondary { background: #f3f4f6; color: #6b7280; }
+
+/* Competency slots */
+.pc-slot {
+    display: flex; align-items: center; gap: 10px;
+    background: #f9fafb; border: 1px solid var(--border-color,#e5e7eb);
+    border-radius: 9px; padding: 10px 12px; margin-bottom: 8px;
+    transition: border-color .15s, background .15s;
+}
+.pc-slot:last-child { margin-bottom: 0; }
+.pc-slot:focus-within { border-color: rgba(90,31,110,.4); background: #faf8fc; }
+.pc-slot-num {
+    font-size: 0.65rem; font-weight: 800;
+    color: #9ca3af; width: 14px; flex-shrink: 0; text-align: center;
+}
+.pc-slot select {
+    flex: 1; border: none; background: transparent;
+    font-size: 0.8rem; font-weight: 500;
+    color: var(--text-color,#1f2937);
+    font-family: 'Poppins',sans-serif;
+    cursor: pointer; min-width: 0;
+}
+.pc-slot select:focus { outline: none; }
+.pc-slot select option { font-size: 0.8rem; }
+.pc-slot-clear {
+    background: none; border: none; cursor: pointer;
+    color: #d1d5db; padding: 2px; border-radius: 4px;
+    display: flex; align-items: center;
+    transition: color .15s;
+    flex-shrink: 0;
+}
+.pc-slot-clear:hover { color: var(--danger-color,#ef4444); }
+.pc-slot-clear .material-symbols-outlined { font-size: 15px; }
+
+/* Overview table card */
+.pc-overview-card {
+    background: #fff; border-radius: 12px;
+    border: 1px solid var(--border-color,#e5e7eb);
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    overflow: hidden; margin-bottom: 20px;
+}
+.pc-overview-head {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border-color,#e5e7eb);
+    display: flex; align-items: center; justify-content: space-between;
+}
+.pc-overview-head h3 { font-size: 0.85rem; font-weight: 700; color: var(--text-color,#1f2937); margin: 0; }
+.pc-overview-head span { font-size: 0.72rem; color: var(--text-secondary,#6b7280); }
+
+.pc-overview-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 10px 18px;
+    border-bottom: 1px solid #f3f4f6;
+    cursor: pointer; text-decoration: none;
+    transition: background .1s;
+}
+.pc-overview-row:last-child { border-bottom: none; }
+.pc-overview-row:hover { background: #faf8fc; }
+.pc-overview-row.active-row { background: rgba(90,31,110,.04); }
+
+.pc-ov-num {
+    width: 24px; height: 24px; border-radius: 7px;
+    background: rgba(90,31,110,.1); color: var(--primary,#5A1F6E);
+    font-size: 0.65rem; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.pc-ov-name {
+    font-size: 0.82rem; font-weight: 600;
+    color: var(--text-color,#1f2937);
+    width: 180px; flex-shrink: 0;
+}
+.pc-ov-tags { display: flex; flex-wrap: wrap; gap: 5px; flex: 1; }
+.pc-ov-tag {
+    font-size: 0.65rem; font-weight: 600;
+    padding: 2px 8px; border-radius: 20px;
+}
+.pc-ov-tag.primary   { background: rgba(90,31,110,.1); color: var(--primary,#5A1F6E); }
+.pc-ov-tag.secondary { background: #f3f4f6; color: #6b7280; }
+.pc-ov-empty { font-size: 0.72rem; color: #d1d5db; font-style: italic; }
+
+/* Nav links */
+.pc-nav-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap;
+}
+.pc-nav-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px;
+    background: #fff; border: 1px solid var(--border-color,#e5e7eb);
+    border-radius: 8px; font-size: 0.8rem; font-weight: 600;
+    color: var(--primary,#5A1F6E); text-decoration: none;
+    transition: background .15s;
+}
+.pc-nav-link:hover { background: var(--primary-lighter,#f5f0f7); }
+.pc-nav-link .material-symbols-outlined { font-size: 16px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pc-wrapper">
+
+    <!-- ══ LEFT SIDEBAR ══ -->
+    <aside class="pc-sidebar" id="pcSidebar">
+        <div class="pc-sidebar-head">
+            <div>
+                <p class="label">Skill Profiles</p>
+                <p class="sub">15 profiles · Select to configure</p>
+            </div>
+            <button class="pc-toggle-btn" onclick="togglePcSidebar()" title="Collapse panel">
+                <span class="material-symbols-outlined pc-tog-icon">chevron_left</span>
+            </button>
+        </div>
+
+        <nav class="pc-sidebar-nav">
+            {% for profile in profiles %}
+            <a href="?profile={{ profile.number }}"
+               class="pc-profile-item {% if profile.number == active_id %}active{% endif %}">
+                <span class="pc-profile-num">{{ profile.number }}</span>
+                <span class="pc-profile-name">{{ profile.name }}</span>
+                {% if profile.primary_competencies.exists %}
+                <span class="pc-profile-dot"></span>
+                {% endif %}
+            </a>
+            {% endfor %}
+        </nav>
+    </aside>
+
+    <!-- ══ MAIN CONTENT ══ -->
+    <main class="pc-main">
+
+        <!-- Header -->
+        <div class="pc-header-row">
+            <div class="pc-header-left">
+                <button class="pc-show-btn" id="pcShowBtn" onclick="togglePcSidebar()">
+                    <span class="material-symbols-outlined">view_sidebar</span>
+                    Profiles
+                </button>
+                <div>
+                    <div class="pc-breadcrumb">
+                        <span>Academics</span>
+                        <span class="material-symbols-outlined sep">chevron_right</span>
+                        <span>Profiles &amp; Competencies</span>
+                        <span class="material-symbols-outlined sep">chevron_right</span>
+                        <span class="cur">Profile {{ active_profile.number }}</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:2px;">
+                        <div class="pc-profile-badge">{{ active_profile.number }}</div>
+                        <div>
+                            <h1 class="pc-title">{{ active_profile.name }}</h1>
+                            <p class="pc-subtitle">Configure primary &amp; secondary competencies</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <form method="post" style="display:inline;">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="save_profile">
+                <!-- Hidden selects populated by JS before submit -->
+                <div id="hiddenPrimary"></div>
+                <div id="hiddenSecondary"></div>
+                <button type="submit" class="pc-btn-save" id="saveBtn">
+                    <span class="material-symbols-outlined">save</span>
+                    Save Profile
+                </button>
+            </form>
+        </div>
+
+        <!-- Rename form -->
+        <form method="post" style="margin-bottom:20px;display:flex;align-items:center;gap:8px;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="rename_profile">
+            <input type="text" name="name" class="pc-rename-input"
+                   value="{{ active_profile.name }}"
+                   placeholder="Profile name"
+                   title="Click to rename this profile" />
+            <button type="submit" style="padding:6px 14px;background:none;border:1px solid var(--border-color,#e5e7eb);border-radius:7px;font-size:0.75rem;font-weight:600;color:var(--text-secondary,#6b7280);cursor:pointer;font-family:'Poppins',sans-serif;transition:background .15s;">
+                Rename
+            </button>
+        </form>
+
+        <!-- Primary + Secondary competency cards -->
+        <div class="pc-comp-grid">
+
+            <!-- Primary -->
+            <div class="pc-comp-card">
+                <div class="pc-comp-card-head">
+                    <div class="pc-comp-card-icon primary">
+                        <span class="material-symbols-outlined">verified</span>
+                    </div>
+                    <div>
+                        <p class="pc-comp-card-title">Primary Competencies</p>
+                        <p class="pc-comp-card-sub">2–3 core competencies for this profile</p>
+                    </div>
+                    <span class="pc-comp-count primary" id="primaryCount">
+                        {{ active_profile.primary_competencies.count }}/3
+                    </span>
+                </div>
+
+                {% with prim=active_profile.primary_competencies.all %}
+                {% for i in "123" %}
+                {% with idx=forloop.counter0 %}
+                <div class="pc-slot" id="primarySlot{{ forloop.counter }}">
+                    <span class="pc-slot-num">{{ forloop.counter }}</span>
+                    <select name="primary_slot_{{ forloop.counter }}"
+                            id="primarySelect{{ forloop.counter }}"
+                            onchange="updateCount()">
+                        <option value="">— Select competency —</option>
+                        {% for pillar in pillars %}
+                        {% for sp in pillar.sub_pillars.all %}
+                        {% if sp.competencies.exists %}
+                        <optgroup label="SP{{ sp.sp_number }}: {{ sp.name }}">
+                            {% for comp in sp.competencies.all %}
+                            {% if comp.status == 'Active' %}
+                            <option value="{{ comp.id }}"
+                                {% if comp in prim and forloop.parentloop.parentloop.counter == forloop.parentloop.parentloop.counter %}{% endif %}
+                                data-in-primary="{% if comp in prim %}true{% else %}false{% endif %}">
+                                {{ comp.code }} — {{ comp.name }}
+                            </option>
+                            {% endif %}
+                            {% endfor %}
+                        </optgroup>
+                        {% endif %}
+                        {% endfor %}
+                        {% endfor %}
+                    </select>
+                    <button type="button" class="pc-slot-clear" onclick="clearSlot('primarySelect{{ forloop.counter }}')">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                {% endwith %}
+                {% endfor %}
+                {% endwith %}
+            </div>
+
+            <!-- Secondary -->
+            <div class="pc-comp-card">
+                <div class="pc-comp-card-head">
+                    <div class="pc-comp-card-icon secondary">
+                        <span class="material-symbols-outlined">category</span>
+                    </div>
+                    <div>
+                        <p class="pc-comp-card-title">Secondary Competencies</p>
+                        <p class="pc-comp-card-sub">2–3 supporting competencies</p>
+                    </div>
+                    <span class="pc-comp-count secondary" id="secondaryCount">
+                        {{ active_profile.secondary_competencies.count }}/3
+                    </span>
+                </div>
+
+                {% with sec=active_profile.secondary_competencies.all %}
+                {% for i in "123" %}
+                <div class="pc-slot" id="secondarySlot{{ forloop.counter }}">
+                    <span class="pc-slot-num">{{ forloop.counter }}</span>
+                    <select name="secondary_slot_{{ forloop.counter }}"
+                            id="secondarySelect{{ forloop.counter }}"
+                            onchange="updateCount()">
+                        <option value="">— Select competency —</option>
+                        {% for pillar in pillars %}
+                        {% for sp in pillar.sub_pillars.all %}
+                        {% if sp.competencies.exists %}
+                        <optgroup label="SP{{ sp.sp_number }}: {{ sp.name }}">
+                            {% for comp in sp.competencies.all %}
+                            {% if comp.status == 'Active' %}
+                            <option value="{{ comp.id }}"
+                                data-in-secondary="{% if comp in sec %}true{% else %}false{% endif %}">
+                                {{ comp.code }} — {{ comp.name }}
+                            </option>
+                            {% endif %}
+                            {% endfor %}
+                        </optgroup>
+                        {% endif %}
+                        {% endfor %}
+                        {% endfor %}
+                    </select>
+                    <button type="button" class="pc-slot-clear" onclick="clearSlot('secondarySelect{{ forloop.counter }}')">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                {% endfor %}
+                {% endwith %}
+            </div>
+        </div>
+
+        <!-- All profiles overview -->
+        <div class="pc-overview-card">
+            <div class="pc-overview-head">
+                <h3>All Profiles Overview</h3>
+                <span>
+                    {% with configured=profiles|length %}
+                    {{ configured }} profiles total
+                    {% endwith %}
+                </span>
+            </div>
+            {% for profile in profiles %}
+            <a href="?profile={{ profile.number }}"
+               class="pc-overview-row {% if profile.number == active_id %}active-row{% endif %}">
+                <span class="pc-ov-num">{{ profile.number }}</span>
+                <span class="pc-ov-name">{{ profile.name }}</span>
+                <div class="pc-ov-tags">
+                    {% for comp in profile.primary_competencies.all %}
+                    <span class="pc-ov-tag primary">
+                        <strong>{{ comp.code }}</strong>
+                        <span style="opacity:.65;font-weight:500;"> · {{ comp.name }}</span>
+                    </span>
+                    {% endfor %}
+                    {% for comp in profile.secondary_competencies.all %}
+                    <span class="pc-ov-tag secondary">
+                        <strong>{{ comp.code }}</strong>
+                        <span style="opacity:.7;font-weight:400;"> · {{ comp.name }}</span>
+                    </span>
+                    {% endfor %}
+                    {% if not profile.primary_competencies.exists and not profile.secondary_competencies.exists %}
+                    <span class="pc-ov-empty">Not configured</span>
+                    {% endif %}
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+
+        <!-- Navigation -->
+        <div class="pc-nav-row">
+            <a href="{% url 'learning_pillars' %}" class="pc-nav-link">
+                <span class="material-symbols-outlined">arrow_back</span>
+                Learning Pillars
+            </a>
+        </div>
+
+    </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/* ── Pre-select saved competencies on load ── */
+(function preselect() {
+    const primaryIds   = [{% for c in active_profile.primary_competencies.all %}"{{ c.id }}"{% if not forloop.last %},{% endif %}{% endfor %}];
+    const secondaryIds = [{% for c in active_profile.secondary_competencies.all %}"{{ c.id }}"{% if not forloop.last %},{% endif %}{% endfor %}];
+
+    primaryIds.forEach((id, i) => {
+        const sel = document.getElementById('primarySelect' + (i + 1));
+        if (sel) sel.value = id;
+    });
+    secondaryIds.forEach((id, i) => {
+        const sel = document.getElementById('secondarySelect' + (i + 1));
+        if (sel) sel.value = id;
+    });
+    updateCount();
+})();
+
+/* ── Update count badges ── */
+function updateCount() {
+    let p = 0, s = 0;
+    for (let i = 1; i <= 3; i++) {
+        const ps = document.getElementById('primarySelect' + i);
+        const ss = document.getElementById('secondarySelect' + i);
+        if (ps && ps.value) p++;
+        if (ss && ss.value) s++;
+    }
+    document.getElementById('primaryCount').textContent   = p + '/3';
+    document.getElementById('secondaryCount').textContent = s + '/3';
+}
+
+/* ── Clear a slot ── */
+function clearSlot(selectId) {
+    const sel = document.getElementById(selectId);
+    if (sel) { sel.value = ''; updateCount(); }
+}
+
+/* ── Before save: inject hidden inputs ── */
+document.getElementById('saveBtn').closest('form').addEventListener('submit', function() {
+    const hp = document.getElementById('hiddenPrimary');
+    const hs = document.getElementById('hiddenSecondary');
+    hp.innerHTML = '';
+    hs.innerHTML = '';
+    for (let i = 1; i <= 3; i++) {
+        const pv = document.getElementById('primarySelect' + i)?.value;
+        const sv = document.getElementById('secondarySelect' + i)?.value;
+        if (pv) {
+            const inp = document.createElement('input');
+            inp.type = 'hidden'; inp.name = 'primary_competencies'; inp.value = pv;
+            hp.appendChild(inp);
+        }
+        if (sv) {
+            const inp = document.createElement('input');
+            inp.type = 'hidden'; inp.name = 'secondary_competencies'; inp.value = sv;
+            hs.appendChild(inp);
+        }
+    }
+});
+
+/* ── Sidebar toggle ── */
+function togglePcSidebar() {
+    const sb  = document.getElementById('pcSidebar');
+    const btn = document.getElementById('pcShowBtn');
+    sb.classList.toggle('collapsed');
+    const collapsed = sb.classList.contains('collapsed');
+    btn.style.display = collapsed ? 'inline-flex' : 'none';
+    sessionStorage.setItem('pcSb', collapsed ? '1' : '0');
+}
+(function restoreSb() {
+    if (sessionStorage.getItem('pcSb') === '1') {
+        document.getElementById('pcSidebar').classList.add('collapsed');
+        document.getElementById('pcShowBtn').style.display = 'inline-flex';
+    }
+})();
+</script>
+{% endblock %}

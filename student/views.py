@@ -39,6 +39,88 @@ def student_profile(request):
 
 
 @login_required
+def student_reports(request):
+    """Student skill passport reports page"""
+    if not is_student(request.user):
+        messages.error(request, 'You do not have permission to access this page.')
+        return redirect('login')
+
+    from competencies.models import ProjectReport
+
+    student = None
+    if hasattr(request.user, 'student_profile'):
+        student = request.user.student_profile
+    elif hasattr(request.user, 'student'):
+        student = request.user.student
+
+    reports = []
+    if student:
+        reports = ProjectReport.objects.filter(student=student).select_related('project').order_by('-project__sequence_number', '-generated_at')
+
+    return render(request, 'student/reports.html', {'reports': reports})
+
+
+@login_required
+def student_reports(request):
+    if not is_student(request.user):
+        messages.error(request, 'You do not have permission to access this page.')
+        return redirect('login')
+
+    from competencies.models import ProjectReport
+    student = getattr(request.user, 'student_profile', None) or getattr(request.user, 'student', None)
+    reports = []
+    if student:
+        reports = ProjectReport.objects.filter(student=student).select_related('project').order_by('-project__sequence_number', '-generated_at')
+
+    return render(request, 'student/reports.html', {'reports': reports})
+
+
+@login_required
+def student_report_detail(request, project_id):
+    if not is_student(request.user):
+        messages.error(request, 'You do not have permission to access this page.')
+        return redirect('login')
+
+    from competencies.models import ProjectReport
+    from django.shortcuts import get_object_or_404
+
+    student = getattr(request.user, 'student_profile', None) or getattr(request.user, 'student', None)
+    if not student:
+        messages.error(request, 'Student profile not found.')
+        return redirect('student:student_reports')
+
+    report = get_object_or_404(ProjectReport, student=student, project_id=project_id)
+
+    # Categorize competencies by score label
+    all_scores = report.all_competency_scores or []
+
+    def get_label(score):
+        if score >= 8:   return 'very_strong'
+        if score >= 6:   return 'strong'
+        if score >= 4:   return 'emerging'
+        return 'skill_to_work_on'
+
+    very_strong = [c for c in all_scores if get_label(c['score']) == 'very_strong']
+    strong      = [c for c in all_scores if get_label(c['score']) == 'strong']
+    emerging    = [c for c in all_scores if get_label(c['score']) == 'emerging']
+
+    # Get teacher feedback
+    from competencies.models import StudentAssessmentFeedback
+    feedbacks = StudentAssessmentFeedback.objects.filter(
+        student=student,
+        assessment__project_id=project_id
+    ).select_related('entered_by').order_by('-updated_at')
+
+    return render(request, 'student/report-detail.html', {
+        'report':      report,
+        'very_strong': very_strong,
+        'strong':      strong,
+        'emerging':    emerging,
+        'feedbacks':   feedbacks,
+    })
+
+
+@login_required
 @require_POST
 def update_profile(request):
     """Update student profile data via AJAX"""

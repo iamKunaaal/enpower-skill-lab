@@ -1,0 +1,899 @@
+{% extends 'superadmin/base.html' %}
+{% load static %}
+
+{% block title %}Learning Pillars — Super Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Poppins on all lp elements EXCEPT icons ── */
+.lp-wrapper *:not(.material-symbols-outlined) {
+    font-family: 'Poppins', sans-serif;
+    box-sizing: border-box;
+}
+
+/* ── Fix icon vertical alignment everywhere on this page ── */
+.lp-wrapper .material-symbols-outlined {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    vertical-align: middle;
+    flex-shrink: 0;
+}
+
+/* ── Outer wrapper: fills height below 80px header ── */
+.lp-wrapper {
+    display: flex;
+    height: calc(100vh - 80px);
+    overflow: hidden;
+    background: var(--background-color, #f7f6f8);
+}
+
+/* ═══════════════════════════════
+   LEFT PANEL
+═══════════════════════════════ */
+.lp-sidebar {
+    width: 260px;
+    min-width: 260px;
+    background: #ffffff;
+    border-right: 1px solid var(--border-color, #e5e7eb);
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    transition: width .25s ease, min-width .25s ease;
+    flex-shrink: 0;
+}
+.lp-sidebar.collapsed {
+    width: 0;
+    min-width: 0;
+    border-right: none;
+}
+
+/* Toggle button — lives in the header row, not edge-positioned */
+.lp-sidebar-toggle {
+    flex-shrink: 0;
+    width: 26px; height: 26px;
+    background: none;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: var(--text-secondary, #6b7280);
+    transition: color .15s, background .15s;
+}
+.lp-sidebar-toggle:hover {
+    background: var(--primary-lighter, #f5f0f7);
+    color: var(--primary, #5A1F6E);
+}
+.lp-sidebar-toggle .material-symbols-outlined { font-size: 16px; }
+.lp-sidebar.collapsed .lp-sidebar-toggle .tog-icon { transform: rotate(180deg); }
+.tog-icon { display: inline-flex; transition: transform .25s ease; }
+
+/* Sidebar header */
+.lp-sidebar-head {
+    padding: 14px 14px 12px;
+    border-bottom: 1px solid var(--border-color, #e5e7eb);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.lp-sidebar-head .label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--text-secondary, #6b7280);
+    margin: 0 0 2px;
+    white-space: nowrap;
+}
+.lp-sidebar-head .sub {
+    font-size: 0.72rem;
+    color: var(--text-secondary, #6b7280);
+    margin: 0;
+    white-space: nowrap;
+}
+
+/* Sidebar nav scroll area */
+.lp-sidebar-nav {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+}
+.lp-sidebar-nav::-webkit-scrollbar { width: 4px; }
+.lp-sidebar-nav::-webkit-scrollbar-track { background: transparent; }
+.lp-sidebar-nav::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 4px; }
+
+/* Pillar row */
+.lp-pillar-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 8px 10px;
+    border: none;
+    background: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: left;
+    overflow: hidden;
+    transition: background .15s;
+}
+.lp-pillar-btn:hover { background: var(--primary-lighter, #f5f0f7); }
+.lp-pillar-btn.open  { background: var(--pillar-bg); }
+
+.lp-pillar-badge {
+    width: 26px; height: 26px;
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700;
+    color: #fff; flex-shrink: 0;
+}
+.lp-pillar-name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-color, #1f2937);
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.lp-pillar-btn.open .lp-pillar-name { color: var(--pillar-text); }
+.lp-chev {
+    font-size: 16px;
+    color: var(--text-secondary, #9ca3af);
+    transition: transform .2s;
+    flex-shrink: 0;
+}
+.lp-pillar-btn.open .lp-chev { transform: rotate(180deg); }
+
+/* Sub-pillar list */
+.lp-sp-list {
+    display: none;
+    flex-direction: column;
+    gap: 1px;
+    margin: 2px 0 4px 10px;
+    padding-left: 10px;
+    border-left: 2px solid var(--pillar-border, #e5e7eb);
+}
+.lp-sp-list.open { display: flex; }
+
+.lp-sp-link {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem; font-weight: 500;
+    color: var(--text-secondary, #6b7280);
+    text-decoration: none;
+    transition: background .12s, color .12s;
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.4;
+}
+.lp-sp-link:hover { background: #f3f4f6; color: var(--text-color, #1f2937); }
+.lp-sp-link.active {
+    background: var(--pillar-bg);
+    color: var(--pillar-text);
+    font-weight: 600;
+}
+.lp-sp-code {
+    font-size: 0.65rem; font-weight: 700;
+    width: 30px; flex-shrink: 0;
+    color: var(--text-secondary, #9ca3af);
+    padding-top: 1px;
+}
+.lp-sp-link.active .lp-sp-code { color: var(--pillar-text); }
+
+/* ═══════════════════════════════
+   RIGHT MAIN PANEL
+═══════════════════════════════ */
+.lp-main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 28px;
+    min-width: 0;
+}
+.lp-main::-webkit-scrollbar { width: 5px; }
+.lp-main::-webkit-scrollbar-track { background: transparent; }
+.lp-main::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+
+/* Page header row */
+.lp-header-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+.lp-header-left { display: flex; align-items: flex-start; gap: 10px; }
+
+/* Show-panel button */
+.lp-show-btn {
+    display: none;
+    align-items: center; gap: 5px;
+    background: #ffffff;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-size: 0.75rem; font-weight: 600;
+    color: var(--primary, #5A1F6E);
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-top: 2px;
+    transition: background .15s;
+}
+.lp-show-btn:hover { background: var(--primary-lighter, #f5f0f7); }
+.lp-show-btn .material-symbols-outlined { font-size: 16px; }
+
+/* Breadcrumb */
+.lp-breadcrumb {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 0.75rem;
+    color: var(--text-secondary, #6b7280);
+    margin-bottom: 4px;
+    flex-wrap: wrap;
+}
+.lp-breadcrumb .sep { font-size: 14px; }
+.lp-breadcrumb .cur {
+    color: var(--primary, #5A1F6E);
+    font-weight: 600;
+}
+
+/* Title & subtitle */
+.lp-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-color, #1f2937);
+    margin: 0 0 3px;
+    line-height: 1.2;
+}
+.lp-subtitle {
+    font-size: 0.8rem;
+    color: var(--text-secondary, #6b7280);
+    margin: 0;
+}
+
+/* Primary button (matches dashboard .btn-primary) */
+.lp-btn-add {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 0.65rem 1.25rem;
+    background: var(--primary, #5A1F6E);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.85rem; font-weight: 500;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    transition: all .25s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.lp-btn-add:hover {
+    background: rgba(90,31,110,.9);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(90,31,110,.25);
+}
+.lp-btn-add .material-symbols-outlined { font-size: 18px; }
+
+/* ═══════════════════════════════
+   ADD FORM CARD
+═══════════════════════════════ */
+.lp-add-card {
+    background: #ffffff;
+    border: 1px solid rgba(90,31,110,.25);
+    border-radius: 12px;
+    padding: 20px 22px;
+    margin-bottom: 18px;
+    display: none;
+    box-shadow: 0 2px 8px rgba(90,31,110,.06);
+}
+.lp-add-card.show { display: block; }
+.lp-add-card-title {
+    font-size: 0.9rem; font-weight: 600;
+    color: var(--text-color, #1f2937);
+    margin: 0 0 14px;
+}
+.lp-form-row {
+    display: grid;
+    grid-template-columns: 1.2fr 2fr 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.lp-form-row input,
+.lp-form-row select {
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    font-family: 'Poppins', sans-serif;
+    background: #f9fafb;
+    color: var(--text-color, #1f2937);
+    width: 100%;
+    transition: border-color .15s;
+}
+.lp-form-row input:focus,
+.lp-form-row select:focus {
+    outline: none;
+    border-color: var(--primary, #5A1F6E);
+    background: #ffffff;
+}
+.lp-form-hint {
+    font-size: 0.72rem;
+    color: var(--text-secondary, #6b7280);
+    margin: 0 0 12px;
+}
+.lp-form-actions { display: flex; gap: 8px; }
+.lp-btn-save {
+    padding: 7px 20px;
+    background: var(--primary, #5A1F6E);
+    color: #fff;
+    border: none; border-radius: 7px;
+    font-size: 0.8rem; font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    transition: background .15s;
+}
+.lp-btn-save:hover { background: rgba(90,31,110,.9); }
+.lp-btn-cancel {
+    padding: 7px 16px;
+    background: none;
+    color: var(--text-secondary, #6b7280);
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 7px;
+    font-size: 0.8rem; font-weight: 500;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    transition: background .15s;
+}
+.lp-btn-cancel:hover { background: #f3f4f6; }
+
+/* ═══════════════════════════════
+   TABLE CARD
+═══════════════════════════════ */
+.lp-card {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid var(--border-color, #e5e7eb);
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 290px);
+}
+
+/* Tabs */
+.lp-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-color, #e5e7eb);
+    padding: 0 18px;
+}
+.lp-tab-btn {
+    padding: 12px 14px;
+    font-size: 0.8rem; font-weight: 600;
+    color: var(--text-secondary, #9ca3af);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    transition: color .15s;
+}
+.lp-tab-btn.active {
+    color: var(--primary, #5A1F6E);
+    border-bottom-color: var(--primary, #5A1F6E);
+}
+
+/* Table */
+.lp-table { width: 100%; border-collapse: collapse; }
+.lp-table thead tr {
+    background: #f9fafb;
+    border-bottom: 1px solid var(--border-color, #e5e7eb);
+}
+.lp-table th {
+    padding: 11px 16px;
+    font-size: 0.7rem; font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--text-secondary, #6b7280);
+    text-align: left;
+}
+.lp-table tbody tr {
+    border-bottom: 1px solid #f3f4f6;
+    transition: background .12s;
+}
+.lp-table tbody tr:last-child { border-bottom: none; }
+.lp-table tbody tr:hover { background: #faf8fc; }
+.lp-table td {
+    padding: 13px 16px;
+    font-size: 0.82rem;
+    color: var(--text-color, #374151);
+    vertical-align: middle;
+}
+
+/* Code badge */
+.lp-code {
+    background: #f3f4f6;
+    color: #374151;
+    font-size: 0.7rem; font-weight: 700;
+    padding: 3px 8px; border-radius: 5px;
+    font-family: 'Courier New', monospace;
+    letter-spacing: .02em;
+}
+
+/* Stage badge */
+.lp-stage {
+    display: inline-flex; align-items: center;
+    padding: 2px 9px; border-radius: 20px;
+    font-size: 0.7rem; font-weight: 600;
+}
+.s-foundational { background: #dcfce7; color: #15803d; }
+.s-preparatory  { background: #ccfbf1; color: #0f766e; }
+.s-middle       { background: #dbeafe; color: #1d4ed8; }
+.s-secondary    { background: #ffedd5; color: #c2410c; }
+
+/* Status badge */
+.lp-status {
+    display: inline-flex; align-items: center;
+    padding: 2px 9px; border-radius: 20px;
+    font-size: 0.7rem; font-weight: 600;
+}
+.st-active { background: var(--primary-light, #ede9fe); color: var(--primary, #5A1F6E); }
+.st-draft  { background: #f3f4f6; color: var(--text-secondary, #6b7280); }
+
+/* Action buttons */
+.lp-act {
+    background: none; border: none; cursor: pointer;
+    padding: 4px; border-radius: 6px;
+    color: #9ca3af;
+    transition: color .15s, background .15s;
+    line-height: 1;
+}
+.lp-act:hover { background: #f3f4f6; }
+.lp-act.edit:hover  { color: var(--primary, #5A1F6E); }
+.lp-act.del:hover   { color: var(--danger-color, #ef4444); }
+.lp-act .material-symbols-outlined { font-size: 17px; display: block; }
+
+/* Empty state */
+.lp-empty {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    text-align: center;
+    width: 100%;
+}
+.lp-empty-icon {
+    width: 56px; height: 56px;
+    background: var(--primary-light, rgba(90,31,110,.08));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 14px;
+}
+.lp-empty-icon .material-symbols-outlined {
+    font-size: 26px;
+    color: var(--primary, #5A1F6E);
+    font-variation-settings: 'FILL' 0;
+}
+.lp-empty h4 {
+    font-size: 0.9rem; font-weight: 600;
+    color: var(--text-color, #1f2937);
+    margin: 0 0 4px;
+}
+.lp-empty p {
+    font-size: 0.78rem;
+    color: var(--text-secondary, #6b7280);
+    margin: 0;
+}
+
+/* Table footer */
+.lp-table-foot {
+    padding: 11px 16px;
+    background: #f9fafb;
+    border-top: 1px solid var(--border-color, #e5e7eb);
+    font-size: 0.72rem;
+    color: var(--text-secondary, #9ca3af);
+}
+
+/* ═══════════════════════════════
+   EDIT MODAL
+═══════════════════════════════ */
+.lp-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.4);
+    z-index: 1050;
+    display: none; align-items: center; justify-content: center;
+}
+.lp-overlay.show { display: flex; }
+.lp-modal {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 26px 26px 22px;
+    width: 500px; max-width: 95vw;
+    box-shadow: 0 20px 50px rgba(0,0,0,.15);
+}
+.lp-modal-title {
+    font-size: 1rem; font-weight: 700;
+    color: var(--text-color, #1f2937);
+    margin: 0 0 18px;
+}
+.lp-modal-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; margin-bottom: 16px;
+}
+.lp-modal-grid .full { grid-column: 1 / -1; }
+.lp-modal-grid input,
+.lp-modal-grid select,
+.lp-modal-grid textarea {
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.82rem;
+    font-family: 'Poppins', sans-serif;
+    background: #f9fafb;
+    color: var(--text-color, #1f2937);
+    width: 100%;
+    transition: border-color .15s;
+    resize: vertical;
+}
+.lp-modal-grid input:focus,
+.lp-modal-grid select:focus,
+.lp-modal-grid textarea:focus {
+    outline: none;
+    border-color: var(--primary, #5A1F6E);
+    background: #fff;
+}
+.lp-modal-actions {
+    display: flex; gap: 8px; justify-content: flex-end;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Pillar CSS vars for active pillar -->
+{% with p=sub_pillar.pillar %}
+<style>
+:root {
+    {% if p.color == 'teal'   %}--pillar-bg:#f0fdfa;--pillar-text:#0f766e;--pillar-border:#0d948830;--pillar-solid:#0d9488;{% endif %}
+    {% if p.color == 'purple' %}--pillar-bg:#f5f3ff;--pillar-text:#6d28d9;--pillar-border:#7c3aed30;--pillar-solid:#7c3aed;{% endif %}
+    {% if p.color == 'blue'   %}--pillar-bg:#eff6ff;--pillar-text:#1d4ed8;--pillar-border:#2563eb30;--pillar-solid:#2563eb;{% endif %}
+    {% if p.color == 'orange' %}--pillar-bg:#fff7ed;--pillar-text:#c2410c;--pillar-border:#ea580c30;--pillar-solid:#ea580c;{% endif %}
+    {% if p.color == 'green'  %}--pillar-bg:#f0fdf4;--pillar-text:#15803d;--pillar-border:#16a34a30;--pillar-solid:#16a34a;{% endif %}
+}
+</style>
+{% endwith %}
+
+<div class="lp-wrapper">
+
+    <!-- ══════════════ LEFT SIDEBAR ══════════════ -->
+    <aside class="lp-sidebar" id="lpSidebar">
+
+        <div class="lp-sidebar-head">
+            <div>
+                <p class="label">neoRiSE Framework</p>
+                <p class="sub">5 thematics · 17 sub-pillars</p>
+            </div>
+            <button class="lp-sidebar-toggle" onclick="toggleLpSidebar()" title="Collapse panel">
+                <span class="material-symbols-outlined tog-icon">chevron_left</span>
+            </button>
+        </div>
+
+        <nav class="lp-sidebar-nav">
+            {% for pillar in pillars %}
+            <div style="margin-bottom:2px;">
+                <button type="button"
+                    id="p-btn-{{ pillar.id }}"
+                    onclick="togglePillar({{ pillar.id }})"
+                    class="lp-pillar-btn {% if sub_pillar.pillar.id == pillar.id %}open{% endif %}"
+                    style="
+                        {% if pillar.color == 'teal'   %}--pillar-bg:#f0fdfa;--pillar-text:#0f766e;{% endif %}
+                        {% if pillar.color == 'purple' %}--pillar-bg:#f5f3ff;--pillar-text:#6d28d9;{% endif %}
+                        {% if pillar.color == 'blue'   %}--pillar-bg:#eff6ff;--pillar-text:#1d4ed8;{% endif %}
+                        {% if pillar.color == 'orange' %}--pillar-bg:#fff7ed;--pillar-text:#c2410c;{% endif %}
+                        {% if pillar.color == 'green'  %}--pillar-bg:#f0fdf4;--pillar-text:#15803d;{% endif %}
+                    ">
+                    <span class="lp-pillar-badge" style="background:
+                        {% if pillar.color == 'teal'   %}#0d9488{% endif %}
+                        {% if pillar.color == 'purple' %}#7c3aed{% endif %}
+                        {% if pillar.color == 'blue'   %}#2563eb{% endif %}
+                        {% if pillar.color == 'orange' %}#ea580c{% endif %}
+                        {% if pillar.color == 'green'  %}#16a34a{% endif %}
+                    ;">{{ pillar.number }}</span>
+                    <span class="lp-pillar-name">{{ pillar.name }}</span>
+                    <span class="material-symbols-outlined lp-chev">expand_more</span>
+                </button>
+
+                <div id="sp-list-{{ pillar.id }}"
+                     class="lp-sp-list {% if sub_pillar.pillar.id == pillar.id %}open{% endif %}"
+                     style="
+                        {% if pillar.color == 'teal'   %}--pillar-bg:#f0fdfa;--pillar-text:#0f766e;border-color:#0d948830;{% endif %}
+                        {% if pillar.color == 'purple' %}--pillar-bg:#f5f3ff;--pillar-text:#6d28d9;border-color:#7c3aed30;{% endif %}
+                        {% if pillar.color == 'blue'   %}--pillar-bg:#eff6ff;--pillar-text:#1d4ed8;border-color:#2563eb30;{% endif %}
+                        {% if pillar.color == 'orange' %}--pillar-bg:#fff7ed;--pillar-text:#c2410c;border-color:#ea580c30;{% endif %}
+                        {% if pillar.color == 'green'  %}--pillar-bg:#f0fdf4;--pillar-text:#15803d;border-color:#16a34a30;{% endif %}
+                     ">
+                    {% for sp in pillar.sub_pillars.all %}
+                    <a href="?sp={{ sp.sp_number }}"
+                       class="lp-sp-link {% if sp.sp_number == active_sp %}active{% endif %}"
+                       style="
+                            {% if pillar.color == 'teal'   %}--pillar-bg:#f0fdfa;--pillar-text:#0f766e;{% endif %}
+                            {% if pillar.color == 'purple' %}--pillar-bg:#f5f3ff;--pillar-text:#6d28d9;{% endif %}
+                            {% if pillar.color == 'blue'   %}--pillar-bg:#eff6ff;--pillar-text:#1d4ed8;{% endif %}
+                            {% if pillar.color == 'orange' %}--pillar-bg:#fff7ed;--pillar-text:#c2410c;{% endif %}
+                            {% if pillar.color == 'green'  %}--pillar-bg:#f0fdf4;--pillar-text:#15803d;{% endif %}
+                       ">
+                        <span class="lp-sp-code">SP{{ sp.sp_number }}</span>
+                        {{ sp.name }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </nav>
+    </aside>
+
+    <!-- ══════════════ MAIN CONTENT ══════════════ -->
+    <main class="lp-main">
+
+        <!-- Page header -->
+        <div class="lp-header-row">
+            <div class="lp-header-left">
+
+                <!-- Show-pillars button (visible when sidebar collapsed) -->
+                <button class="lp-show-btn" id="lpShowBtn" onclick="toggleLpSidebar()">
+                    <span class="material-symbols-outlined">view_sidebar</span>
+                    Pillars
+                </button>
+
+                <div>
+                    <div class="lp-breadcrumb">
+                        <span>Academics</span>
+                        <span class="material-symbols-outlined sep">chevron_right</span>
+                        <span>Learning Pillars</span>
+                        <span class="material-symbols-outlined sep">chevron_right</span>
+                        <span class="cur">SP{{ sub_pillar.sp_number }}</span>
+                    </div>
+                    <h1 class="lp-title">SP{{ sub_pillar.sp_number }}: {{ sub_pillar.name }}</h1>
+                    <p class="lp-subtitle">
+                        {{ sub_pillar.pillar.name }} &nbsp;·&nbsp;
+                        {{ competencies.count }} competenc{{ competencies.count|pluralize:"y,ies" }}
+                    </p>
+                </div>
+            </div>
+
+            <button class="lp-btn-add" onclick="toggleAddForm()">
+                <span class="material-symbols-outlined">add_circle</span>
+                Add Competency
+            </button>
+        </div>
+
+        <!-- Add Competency inline form -->
+        <div class="lp-add-card" id="addCompForm">
+            <p class="lp-add-card-title">Add New Competency — SP{{ sub_pillar.sp_number }}: {{ sub_pillar.name }}</p>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="add_competency">
+                <div class="lp-form-row">
+                    <input type="text"   name="name"        placeholder="Competency Name *" required />
+                    <input type="text"   name="description" placeholder="Description (optional)" />
+                    <select name="stage" required>
+                        <option value="">Stage *</option>
+                        <option value="Foundational">Foundational — Class 1–2</option>
+                        <option value="Preparatory">Preparatory — Class 3–5</option>
+                        <option value="Middle">Middle — Class 6–8</option>
+                        <option value="Secondary">Secondary — Class 9–12</option>
+                    </select>
+                    <select name="status">
+                        <option value="Active">Active</option>
+                        <option value="Draft">Draft</option>
+                    </select>
+                </div>
+                <p class="lp-form-hint">
+                    Code auto-generated as &nbsp;<strong>SP{{ sub_pillar.sp_number }}.C{{ competencies.count|add:1 }}</strong>
+                </p>
+                <div class="lp-form-actions">
+                    <button type="submit" class="lp-btn-save">Save</button>
+                    <button type="button" class="lp-btn-cancel" onclick="toggleAddForm()">Cancel</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Table card -->
+        <div class="lp-card">
+            <!-- Tabs -->
+            <div class="lp-tabs">
+                <button class="lp-tab-btn active" onclick="filterTable('all',this)">
+                    All ({{ competencies.count }})
+                </button>
+                <button class="lp-tab-btn" onclick="filterTable('Active',this)">
+                    Active ({{ competencies.filter.active_count }})
+                </button>
+                <button class="lp-tab-btn" onclick="filterTable('Draft',this)">
+                    Drafts
+                </button>
+            </div>
+
+            {% if competencies %}
+            <table class="lp-table" id="compTable">
+                <thead>
+                    <tr>
+                        <th style="width:90px;">Code</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th style="width:130px;">Stage</th>
+                        <th style="width:85px;">Status</th>
+                        <th style="width:90px;text-align:right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for comp in competencies %}
+                    <tr data-status="{{ comp.status }}">
+                        <td><span class="lp-code">{{ comp.code }}</span></td>
+                        <td><span style="font-weight:600;color:var(--text-color);">{{ comp.name }}</span></td>
+                        <td>
+                            <span style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:var(--text-secondary);font-size:0.77rem;">
+                                {{ comp.description|default:"—" }}
+                            </span>
+                        </td>
+                        <td>
+                            <div style="display:flex;flex-direction:column;gap:2px;">
+                                <span class="lp-stage
+                                    {% if comp.stage == 'Foundational' %}s-foundational
+                                    {% elif comp.stage == 'Preparatory' %}s-preparatory
+                                    {% elif comp.stage == 'Middle' %}s-middle
+                                    {% else %}s-secondary{% endif %}">
+                                    {{ comp.stage }}
+                                </span>
+                                <span style="font-size:0.68rem;color:var(--text-secondary,#9ca3af);padding-left:2px;">
+                                    {% if comp.stage == 'Foundational' %}Class 1–2
+                                    {% elif comp.stage == 'Preparatory' %}Class 3–5
+                                    {% elif comp.stage == 'Middle' %}Class 6–8
+                                    {% else %}Class 9–12{% endif %}
+                                </span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="lp-status {% if comp.status == 'Active' %}st-active{% else %}st-draft{% endif %}">
+                                {{ comp.status }}
+                            </span>
+                        </td>
+                        <td>
+                            <div style="display:flex;align-items:center;justify-content:flex-end;gap:4px;">
+                            <button class="lp-act edit" title="Edit"
+                                onclick="openEditModal({{ comp.id }},'{{ comp.name|escapejs }}','{{ comp.description|escapejs }}','{{ comp.stage }}','{{ comp.status }}')">
+                                <span class="material-symbols-outlined">edit</span>
+                            </button>
+                            <form method="post" style="display:contents;" onsubmit="return confirm('Delete {{ comp.code }}?');">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="delete_competency">
+                                <input type="hidden" name="competency_id" value="{{ comp.id }}">
+                                <button type="submit" class="lp-act del" title="Delete">
+                                    <span class="material-symbols-outlined">delete</span>
+                                </button>
+                            </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="lp-table-foot">
+                Showing {{ competencies.count }} competenc{{ competencies.count|pluralize:"y,ies" }} for SP{{ sub_pillar.sp_number }}
+            </div>
+
+            {% else %}
+            <div class="lp-empty">
+                <div class="lp-empty-icon">
+                    <span class="material-symbols-outlined">category</span>
+                </div>
+                <h4>No competencies yet</h4>
+                <p>Click <strong>Add Competency</strong> to add the first one for SP{{ sub_pillar.sp_number }}.</p>
+            </div>
+            {% endif %}
+        </div>
+
+    </main>
+</div>
+
+<!-- ══ Edit Modal ══ -->
+<div class="lp-overlay" id="editModal">
+    <div class="lp-modal">
+        <p class="lp-modal-title">Edit Competency</p>
+        <form method="post" id="editForm">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="edit_competency">
+            <input type="hidden" name="competency_id" id="editId">
+            <div class="lp-modal-grid">
+                <div class="full">
+                    <input type="text" name="name" id="editName" placeholder="Competency Name *" required />
+                </div>
+                <div class="full">
+                    <textarea name="description" id="editDesc" placeholder="Description" rows="2"></textarea>
+                </div>
+                <select name="stage" id="editStage" required>
+                    <option value="">Stage *</option>
+                    <option value="Foundational">Foundational — Class 1–2</option>
+                    <option value="Preparatory">Preparatory — Class 3–5</option>
+                    <option value="Middle">Middle — Class 6–8</option>
+                    <option value="Secondary">Secondary — Class 9–12</option>
+                </select>
+                <select name="status" id="editStatus">
+                    <option value="Active">Active</option>
+                    <option value="Draft">Draft</option>
+                </select>
+            </div>
+            <div class="lp-modal-actions">
+                <button type="button" class="lp-btn-cancel" onclick="closeEditModal()">Cancel</button>
+                <button type="submit" class="lp-btn-save">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/* ── Sidebar toggle ── */
+function toggleLpSidebar() {
+    const sb  = document.getElementById('lpSidebar');
+    const btn = document.getElementById('lpShowBtn');
+    sb.classList.toggle('collapsed');
+    const collapsed = sb.classList.contains('collapsed');
+    btn.style.display = collapsed ? 'inline-flex' : 'none';
+    sessionStorage.setItem('lpSb', collapsed ? '1' : '0');
+}
+(function restoreSb() {
+    if (sessionStorage.getItem('lpSb') === '1') {
+        document.getElementById('lpSidebar').classList.add('collapsed');
+        document.getElementById('lpShowBtn').style.display = 'inline-flex';
+    }
+})();
+
+/* ── Pillar accordion ── */
+function togglePillar(id) {
+    const list = document.getElementById('sp-list-' + id);
+    const btn  = document.getElementById('p-btn-' + id);
+    const isOpen = list.classList.contains('open');
+    document.querySelectorAll('.lp-sp-list').forEach(el => el.classList.remove('open'));
+    document.querySelectorAll('.lp-pillar-btn').forEach(el => el.classList.remove('open'));
+    if (!isOpen) { list.classList.add('open'); btn.classList.add('open'); }
+}
+
+/* ── Add form toggle ── */
+function toggleAddForm() {
+    document.getElementById('addCompForm').classList.toggle('show');
+}
+
+/* ── Tab filter ── */
+function filterTable(status, el) {
+    document.querySelectorAll('.lp-tab-btn').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    document.querySelectorAll('#compTable tbody tr').forEach(row => {
+        row.style.display = (status === 'all' || row.dataset.status === status) ? '' : 'none';
+    });
+}
+
+/* ── Edit modal ── */
+function openEditModal(id, name, desc, stage, status) {
+    document.getElementById('editId').value     = id;
+    document.getElementById('editName').value   = name;
+    document.getElementById('editDesc').value   = desc;
+    document.getElementById('editStage').value  = stage;
+    document.getElementById('editStatus').value = status;
+    document.getElementById('editModal').classList.add('show');
+}
+function closeEditModal() {
+    document.getElementById('editModal').classList.remove('show');
+}
+document.getElementById('editModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('editModal')) closeEditModal();
+});
+</script>
+{% endblock %}

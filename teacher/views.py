@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from django.contrib import messages
+from django.http import JsonResponse
 from .models import Teacher
 from student.models import Student
 from lms.models import Lesson
@@ -19,20 +20,396 @@ def teacher_dashboard(request):
     if not is_teacher(request.user):
         messages.error(request, 'You do not have permission to access the teacher dashboard.')
         return redirect('login')
-    
+
+    from competencies.models import STAGE_CHOICES
+
     teacher_profile = None
     if hasattr(request.user, 'teacher_profile'):
         teacher_profile = request.user.teacher_profile
-    
+
     context = {
         'teacher_profile': teacher_profile,
-        'total_students': 156,
-        'total_classes': 8,
-        'assessments_completed': 42,
-        'pending_reviews': 15,
+        'stage_choices': STAGE_CHOICES,
     }
-    
     return render(request, 'teacher/dashboard.html', context)
+
+
+@login_required
+def api_projects_by_grade(request):
+    """AJAX: return active projects for a given grade/stage"""
+    if not is_teacher(request.user):
+        return JsonResponse({'error': 'Forbidden'}, status=403)
+    from competencies.models import Project
+    grade = request.GET.get('grade', '')
+    if not grade:
+        return JsonResponse({'projects': []})
+    projects = list(
+        Project.objects.filter(grade=grade, status='Active')
+        .exclude(project_type='Plug In')
+        .order_by('title')
+        .values('id', 'title', 'project_type')
+    )
+    return JsonResponse({'projects': projects})
+
+
+@login_required
+def api_project_details(request):
+    """AJAX: return profiles and assessments for a project"""
+    if not is_teacher(request.user):
+        return JsonResponse({'error': 'Forbidden'}, status=403)
+    from competencies.models import Project, Profile
+    project_id = request.GET.get('project_id', '')
+    try:
+        project = Project.objects.get(id=project_id)
+    except (Project.DoesNotExist, ValueError):
+        return JsonResponse({'error': 'Not found'}, status=404)
+
+    assessments = list(
+        project.assessments.order_by('order', 'id')
+        .values('id', 'name', 'assessment_type', 'output_descriptor', 'placement_after_challenge')
+    )
+
+    # Profiles whose competencies are mapped to this project's assessments
+    comp_ids = list(
+        project.assessments
+        .values_list('competency_mappings__competency_id', flat=True)
+        .distinct()
+    )
+    comp_ids = [c for c in comp_ids if c is not None]
+
+    if comp_ids:
+        primary_ids = set(Profile.objects.filter(primary_competencies__id__in=comp_ids).values_list('id', flat=True))
+        secondary_ids = set(Profile.objects.filter(secondary_competencies__id__in=comp_ids).values_list('id', flat=True))
+        all_ids = primary_ids | secondary_ids
+        profiles = list(Profile.objects.filter(id__in=all_ids).order_by('number').values('id', 'name', 'number'))
+    else:
+        profiles = []
+
+    return JsonResponse({
+        'project_type': project.project_type,
+        'profiles': profiles,
+        'assessments': assessments,
+    })
+
+
+@login_required
+def assessment_detail(request, assessment_id):
+    """Assessment detail page for teacher"""
+    if not is_teacher(request.user):
+        messages.error(request, 'You do not have permission to access this page.')
+        return redirect('login')
+
+    from competencies.models import Assessment, Profile
+
+    assessment = get_object_or_404(
+        Assessment.objects.select_related('project'),
+        id=assessment_id
+    )
+
+    # Get competency mappings with full competency + sub_pillar info
+    competency_mappings = assessment.competency_mappings.select_related(
+        'competency', 'competency__sub_pillar'
+    ).order_by('order', 'id')
+
+    # Determine Primary/Secondary weight for each competency
+    comp_ids = [cm.competency_id for cm in competency_mappings]
+    primary_comp_ids = set()
+    if comp_ids:
+        primary_comp_ids = set(
+            Profile.objects.filter(primary_competencies__id__in=comp_ids)
+            .values_list('primary_competencies__id', flat=True)
+        )
+
+    # Determine work form from comp types
+    comp_types = set(cm.comp_type for cm in competency_mappings)
+    if 'individual' in comp_types and 'group' in comp_types:
+        work_form = 'Group & Individual'
+    elif 'group' in comp_types:
+        work_form = 'Group'
+    elif 'individual' in comp_types:
+        work_form = 'Individual'
+    else:
+        work_form = '—'
+
+    enriched = []
+    for cm in competency_mappings:
+        enriched.append({
+            'code': cm.competency.code,
+            'name': cm.competency.name,
+            'description': cm.competency.description,
+            'comp_type': cm.get_comp_type_display(),
+            'weight': 'Primary' if cm.competency_id in primary_comp_ids else 'Secondary',
+        })
+
+    context = {
+        'assessment': assessment,
+        'project': assessment.project,
+        'competencies': enriched,
+        'work_form': work_form,
+    }
+    return render(request, 'teacher/assessment-detail.html', context)
+
+
+@login_required
+def score_entry(request):
+    """Score Entry page"""
+    if not is_teacher(request.user):
+        messages.error(request, 'You do not have permission to access this page.')
+        return redirect('login')
+    from competencies.models import STAGE_CHOICES
+    context = {'stage_choices': STAGE_CHOICES}
+    return render(request, 'teacher/score-entry.html', context)
+
+
+@login_required
+def api_assessments_by_project(request):
+    """AJAX: return assessments for a project"""
+    if not is_teacher(request.user):
+        return JsonResponse({'error': 'Forbidden'}, status=403)
+    from competencies.models import Assessment
+    project_id = request.GET.get('project_id', '')
+    if not project_id:
+        return JsonResponse({'assessments': []})
+    assessments = list(
+        Assessment.objects.filter(project_id=project_id)
+        .order_by('order', 'id')
+        .values('id', 'name', 'assessment_type')
+    )
+    return JsonResponse({'assessments': assessments})
+
+
+@login_required
+def api_score_entry_data(request):
+    """AJAX: return students + competencies + existing scores for an assessment"""
+    if not is_teacher(request.user):
+        return JsonResponse({'error': 'Forbidden'}, status=403)
+    from competencies.models import Assessment, ScoreEntry
+    from student.models import Student
+
+    assessment_id = request.GET.get('assessment_id', '')
+    if not assessment_id:
+        return JsonResponse({'error': 'assessment_id required'}, status=400)
+
+    try:
+        assessment = Assessment.objects.select_related('project').get(id=assessment_id)
+    except (Assessment.DoesNotExist, ValueError):
+        return JsonResponse({'error': 'Not found'}, status=404)
+
+    STAGE_TO_CLASSES = {
+        'Foundational': ['1', '2'],
+        'Preparatory':  ['3', '4', '5'],
+        'Middle':       ['6', '7', '8'],
+        'Secondary':    ['9', '10', '11', '12'],
+    }
+    grade = assessment.project.grade
+    class_range = STAGE_TO_CLASSES.get(grade, [])
+
+    teacher_obj = getattr(request.user, 'teacher_profile', None)
+    students_qs = Student.objects.filter(
+        student_class__in=class_range,
+        attendance_status='active'
+    )
+    if teacher_obj and teacher_obj.school:
+        students_qs = students_qs.filter(school=teacher_obj.school)
+
+    students = list(
+        students_qs.order_by('first_name', 'last_name')
+        .values('id', 'first_name', 'last_name', 'student_class', 'division', 'gr_number')
+    )
+
+    comp_mappings = list(
+        assessment.competency_mappings.select_related('competency')
+        .order_by('order', 'id')
+        .values('id', 'competency__code', 'competency__name', 'comp_type')
+    )
+
+    student_ids = [s['id'] for s in students]
+    ac_ids      = [c['id'] for c in comp_mappings]
+    scores_qs   = ScoreEntry.objects.filter(
+        student_id__in=student_ids,
+        assessment_competency_id__in=ac_ids
+    ).values('student_id', 'assessment_competency_id', 'score')
+
+    scores = {}
+    scored_student_ids = set()
+    for s in scores_qs:
+        key = f"{s['student_id']}__{s['assessment_competency_id']}"
+        scores[key] = s['score']
+        if s['score'] is not None:
+            scored_student_ids.add(s['student_id'])
+
+    all_score_vals = [s['score'] for s in scores_qs if s['score'] is not None]
+    class_avg = round(sum(all_score_vals) / len(all_score_vals), 1) if all_score_vals else None
+
+    return JsonResponse({
+        'assessment': {'id': assessment.id, 'name': assessment.name, 'type': assessment.assessment_type},
+        'project':    {'id': assessment.project.id, 'title': assessment.project.title, 'grade': assessment.project.grade},
+        'students':    students,
+        'competencies': comp_mappings,
+        'scores':      scores,
+        'stats': {
+            'total_students': len(students),
+            'scored_count':   len(scored_student_ids),
+            'class_avg':      class_avg,
+        },
+    })
+
+
+@login_required
+def api_save_score(request):
+    """AJAX POST: save a score entry"""
+    if not is_teacher(request.user):
+        return JsonResponse({'error': 'Forbidden'}, status=403)
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+
+    import json
+    from competencies.models import ScoreEntry
+
+    try:
+        data     = json.loads(request.body)
+        student_id = int(data['student_id'])
+        ac_id      = int(data['assessment_competency_id'])
+        score_val  = data.get('score')
+        if score_val is not None and score_val != '':
+            score_val = int(score_val)
+            if not (1 <= score_val <= 10):
+                return JsonResponse({'error': 'Score must be 1-10'}, status=400)
+        else:
+            score_val = None
+    except (KeyError, ValueError, TypeError):
+        return JsonResponse({'error': 'Invalid data'}, status=400)
+
+    entry, _ = ScoreEntry.objects.update_or_create(
+        student_id=student_id,
+        assessment_competency_id=ac_id,
+        defaults={'score': score_val, 'entered_by': request.user}
+    )
+    return JsonResponse({'ok': True, 'score': entry.score})
+
+
+@login_required
+def student_score_detail(request, assessment_id, student_id):
+    """Individual student score entry for a specific assessment"""
+    if not is_teacher(request.user):
+        messages.error(request, 'Permission denied.')
+        return redirect('login')
+
+    from competencies.models import Assessment, ScoreEntry, StudentAssessmentFeedback
+
+    teacher_obj = getattr(request.user, 'teacher_profile', None)
+    teacher_school = teacher_obj.school if teacher_obj else None
+
+    assessment = get_object_or_404(
+        Assessment.objects.select_related('project'),
+        id=assessment_id
+    )
+
+    if teacher_school:
+        student = get_object_or_404(Student, id=student_id, school=teacher_school)
+    else:
+        student = get_object_or_404(Student, id=student_id)
+
+    comp_mappings = list(
+        assessment.competency_mappings.select_related('competency', 'competency__sub_pillar')
+        .order_by('order', 'id')
+    )
+
+    ac_ids = [cm.id for cm in comp_mappings]
+    scores = {
+        se.assessment_competency_id: se.score
+        for se in ScoreEntry.objects.filter(student=student, assessment_competency_id__in=ac_ids)
+    }
+
+    try:
+        feedback_obj = StudentAssessmentFeedback.objects.get(student=student, assessment=assessment)
+        feedback_text = feedback_obj.feedback
+    except StudentAssessmentFeedback.DoesNotExist:
+        feedback_text = ''
+
+    from competencies.models import StudentProjectFeedback
+    try:
+        proj_fb_obj = StudentProjectFeedback.objects.get(student=student, project=assessment.project)
+        project_feedback_text = proj_fb_obj.feedback
+    except StudentProjectFeedback.DoesNotExist:
+        project_feedback_text = ''
+
+    # Pre-pair each competency mapping with its score so template needs no custom filter
+    comp_rows = [
+        {'cm': cm, 'score': scores.get(cm.id)}
+        for cm in comp_mappings
+    ]
+
+    context = {
+        'student': student,
+        'assessment': assessment,
+        'project': assessment.project,
+        'comp_rows': comp_rows,
+        'scores_json': scores,
+        'feedback_text': feedback_text,
+        'project_feedback_text': project_feedback_text,
+    }
+    return render(request, 'teacher/student-score-detail.html', context)
+
+
+@login_required
+def api_save_feedback(request):
+    """AJAX POST: save teacher feedback for a student's assessment"""
+    if not is_teacher(request.user):
+        return JsonResponse({'error': 'Forbidden'}, status=403)
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+
+    import json
+    from competencies.models import Assessment, StudentAssessmentFeedback
+
+    try:
+        data = json.loads(request.body)
+        student_id    = int(data['student_id'])
+        assessment_id = int(data['assessment_id'])
+        feedback      = data.get('feedback', '').strip()
+    except (KeyError, ValueError, TypeError):
+        return JsonResponse({'error': 'Invalid data'}, status=400)
+
+    student    = get_object_or_404(Student, id=student_id)
+    assessment = get_object_or_404(Assessment, id=assessment_id)
+
+    StudentAssessmentFeedback.objects.update_or_create(
+        student=student,
+        assessment=assessment,
+        defaults={'feedback': feedback, 'entered_by': request.user}
+    )
+    return JsonResponse({'ok': True})
+
+
+@login_required
+def api_save_project_feedback(request):
+    """AJAX POST: save teacher overall project feedback for a student"""
+    if not is_teacher(request.user):
+        return JsonResponse({'error': 'Forbidden'}, status=403)
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+
+    import json
+    from competencies.models import Project, StudentProjectFeedback
+
+    try:
+        data       = json.loads(request.body)
+        student_id = int(data['student_id'])
+        project_id = int(data['project_id'])
+        feedback   = data.get('feedback', '').strip()
+    except (KeyError, ValueError, TypeError):
+        return JsonResponse({'error': 'Invalid data'}, status=400)
+
+    student = get_object_or_404(Student, id=student_id)
+    project = get_object_or_404(Project, id=project_id)
+
+    StudentProjectFeedback.objects.update_or_create(
+        student=student,
+        project=project,
+        defaults={'feedback': feedback, 'entered_by': request.user}
+    )
+    return JsonResponse({'ok': True})
 
 
 def teacher_logout(request):
@@ -623,3 +1000,45 @@ def delete_lessons(request):
         return JsonResponse({'success': False, 'error': 'Invalid JSON data'}, status=400)
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+@login_required
+def api_generate_report(request):
+    """AJAX POST: generate (or regenerate) a ProjectReport for a student + project."""
+    if not is_teacher(request.user):
+        return JsonResponse({'ok': False, 'error': 'Forbidden'}, status=403)
+
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'error': 'POST required'}, status=405)
+
+    import json
+    from competencies.models import Project
+    from competencies.engine import generate_project_report
+
+    try:
+        data       = json.loads(request.body)
+        student_id = int(data.get('student_id', 0))
+        project_id = int(data.get('project_id', 0))
+    except (ValueError, TypeError):
+        return JsonResponse({'ok': False, 'error': 'Invalid data'}, status=400)
+
+    student = Student.objects.filter(id=student_id).first()
+    project = Project.objects.filter(id=project_id).first()
+
+    if not student or not project:
+        return JsonResponse({'ok': False, 'error': 'Student or project not found'}, status=404)
+
+    # Ensure teacher can only generate for students in their school
+    teacher_profile = getattr(request.user, 'teacher_profile', None)
+    if teacher_profile and student.school != teacher_profile.school:
+        return JsonResponse({'ok': False, 'error': 'Student not in your school'}, status=403)
+
+    report, error = generate_project_report(student, project)
+    if error:
+        return JsonResponse({'ok': False, 'error': error})
+
+    return JsonResponse({
+        'ok': True,
+        'message': f'Report generated for {student.first_name} {student.last_name}',
+        'report_id': report.id,
+    })

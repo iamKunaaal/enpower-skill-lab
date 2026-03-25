@@ -1,0 +1,692 @@
+{% extends 'superadmin/base.html' %}
+{% load static %}
+
+{% block title %}Project & Assessment — Super Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+.pa-wrapper *:not(.material-symbols-outlined){font-family:'Poppins',sans-serif;box-sizing:border-box;}
+.pa-wrapper .material-symbols-outlined{display:inline-flex;align-items:center;justify-content:center;line-height:1;vertical-align:middle;flex-shrink:0;}
+.pa-wrapper{display:flex;height:calc(100vh - 80px);overflow:hidden;background:var(--background-color,#f7f6f8);}
+
+/* Sidebar */
+.pa-sidebar{width:260px;min-width:260px;background:#fff;border-right:1px solid var(--border-color,#e5e7eb);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;transition:width .25s ease,min-width .25s ease;}
+.pa-sidebar.collapsed{width:0;min-width:0;border-right:none;}
+.pa-sidebar-head{padding:14px 14px 12px;border-bottom:1px solid var(--border-color,#e5e7eb);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-shrink:0;overflow:hidden;}
+.pa-sidebar-head .label{font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-secondary,#6b7280);margin:0 0 2px;white-space:nowrap;}
+.pa-sidebar-head .sub{font-size:.72rem;color:var(--text-secondary,#6b7280);margin:0;white-space:nowrap;}
+.pa-tog-btn{flex-shrink:0;width:26px;height:26px;background:none;border:1px solid var(--border-color,#e5e7eb);border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary,#6b7280);transition:color .15s,background .15s;}
+.pa-tog-btn:hover{background:var(--primary-lighter,#f5f0f7);color:var(--primary,#5A1F6E);}
+.pa-tog-btn .material-symbols-outlined{font-size:16px;}
+.pa-tog-icon{display:inline-flex;transition:transform .25s ease;}
+.pa-sidebar.collapsed .pa-tog-icon{transform:rotate(180deg);}
+.pa-sidebar-nav{flex:1;overflow-y:auto;padding:8px;}
+.pa-sidebar-nav::-webkit-scrollbar{width:4px;}
+.pa-sidebar-nav::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:4px;}
+.pa-new-btn{display:flex;align-items:center;gap:6px;width:100%;padding:8px 10px;border:1.5px dashed var(--border-color,#e5e7eb);border-radius:8px;background:none;font-size:.78rem;font-weight:600;color:var(--primary,#5A1F6E);cursor:pointer;margin-bottom:8px;transition:background .15s,border-color .15s;font-family:'Poppins',sans-serif;}
+.pa-new-btn:hover{background:var(--primary-lighter,#f5f0f7);border-color:var(--primary,#5A1F6E);}
+.pa-new-btn .material-symbols-outlined{font-size:16px;}
+.pa-proj-item{display:block;padding:10px 10px;border-radius:8px;text-decoration:none;margin-bottom:2px;transition:background .12s;}
+.pa-proj-item:hover{background:#f9fafb;}
+.pa-proj-item.active{background:var(--primary-lighter,#f5f0f7);}
+.pa-proj-title{font-size:.8rem;font-weight:600;color:var(--text-color,#1f2937);margin:0 0 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pa-proj-item.active .pa-proj-title{color:var(--primary,#5A1F6E);}
+.pa-proj-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.pa-grade-tag,.pa-type-tag,.pa-status-tag{font-size:.6rem;font-weight:700;padding:1px 7px;border-radius:20px;}
+.pa-grade-tag{background:#f3f4f6;color:#6b7280;}
+.pa-type-tag{background:rgba(90,31,110,.08);color:var(--primary,#5A1F6E);}
+.pa-status-tag.draft{background:#f3f4f6;color:#9ca3af;}
+.pa-status-tag.active-s{background:#dcfce7;color:#15803d;}
+
+/* Main */
+.pa-main{flex:1;overflow-y:auto;padding:24px 28px;min-width:0;}
+.pa-main::-webkit-scrollbar{width:5px;}
+.pa-main::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:4px;}
+
+/* Header */
+.pa-header-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap;}
+.pa-header-left{display:flex;align-items:flex-start;gap:10px;}
+.pa-show-btn{display:none;align-items:center;gap:5px;background:#fff;border:1px solid var(--border-color,#e5e7eb);border-radius:8px;padding:7px 12px;font-size:.75rem;font-weight:600;color:var(--primary,#5A1F6E);cursor:pointer;flex-shrink:0;transition:background .15s;}
+.pa-show-btn:hover{background:var(--primary-lighter,#f5f0f7);}
+.pa-show-btn .material-symbols-outlined{font-size:16px;}
+.pa-breadcrumb{display:flex;align-items:center;gap:4px;font-size:.75rem;color:var(--text-secondary,#6b7280);margin-bottom:4px;flex-wrap:wrap;}
+.pa-breadcrumb .sep{font-size:14px;}
+.pa-breadcrumb .cur{color:var(--primary,#5A1F6E);font-weight:600;}
+.pa-title{font-size:1.4rem;font-weight:700;color:var(--text-color,#1f2937);margin:0 0 3px;line-height:1.2;}
+.pa-subtitle{font-size:.8rem;color:var(--text-secondary,#6b7280);margin:0;}
+
+/* Buttons */
+.pa-btn-primary{display:inline-flex;align-items:center;gap:6px;padding:.65rem 1.25rem;background:var(--primary,#5A1F6E);color:#fff;border:none;border-radius:8px;font-size:.85rem;font-weight:500;cursor:pointer;font-family:'Poppins',sans-serif;transition:all .25s ease;white-space:nowrap;}
+.pa-btn-primary:hover{background:rgba(90,31,110,.9);transform:translateY(-1px);box-shadow:0 4px 12px rgba(90,31,110,.25);}
+.pa-btn-primary .material-symbols-outlined{font-size:18px;}
+.pa-btn-secondary{display:inline-flex;align-items:center;gap:6px;padding:.55rem 1rem;background:#fff;color:var(--text-secondary,#6b7280);border:1px solid var(--border-color,#e5e7eb);border-radius:8px;font-size:.8rem;font-weight:500;cursor:pointer;font-family:'Poppins',sans-serif;transition:background .15s;white-space:nowrap;}
+.pa-btn-secondary:hover{background:#f9fafb;}
+.pa-btn-secondary .material-symbols-outlined{font-size:16px;}
+.pa-btn-danger{display:inline-flex;align-items:center;gap:6px;padding:.55rem 1rem;background:none;color:var(--danger-color,#ef4444);border:1px solid #fecaca;border-radius:8px;font-size:.8rem;font-weight:500;cursor:pointer;font-family:'Poppins',sans-serif;transition:background .15s;white-space:nowrap;}
+.pa-btn-danger:hover{background:#fef2f2;}
+.pa-btn-danger .material-symbols-outlined{font-size:16px;}
+
+/* Config card */
+.pa-card{background:#fff;border-radius:12px;border:1px solid var(--border-color,#e5e7eb);box-shadow:0 1px 3px rgba(0,0,0,.06);padding:20px 22px;margin-bottom:18px;}
+.pa-card-title{font-size:.85rem;font-weight:700;color:var(--text-color,#1f2937);margin:0 0 14px;display:flex;align-items:center;gap:8px;}
+.pa-card-title .material-symbols-outlined{font-size:18px;color:var(--primary,#5A1F6E);}
+.pa-form-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:10px;}
+.pa-field label{display:block;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-secondary,#9ca3af);margin-bottom:5px;}
+.pa-field input,.pa-field select,.pa-field textarea{width:100%;border:1px solid var(--border-color,#e5e7eb);border-radius:8px;padding:8px 12px;font-size:.82rem;font-family:'Poppins',sans-serif;background:#f9fafb;color:var(--text-color,#1f2937);transition:border-color .15s;}
+.pa-field input:focus,.pa-field select:focus,.pa-field textarea:focus{outline:none;border-color:var(--primary,#5A1F6E);background:#fff;}
+.pa-field textarea{resize:vertical;}
+.pa-form-actions{display:flex;gap:8px;margin-top:14px;align-items:center;}
+
+/* Assessments section */
+.pa-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap;}
+.pa-section-title{font-size:.9rem;font-weight:700;color:var(--text-color,#1f2937);margin:0;}
+
+/* Add assessment inline form */
+.pa-add-assess-card{background:#fff;border:1.5px dashed var(--border-color,#e5e7eb);border-radius:10px;padding:16px 18px;margin-bottom:14px;display:none;}
+.pa-add-assess-card.show{display:block;}
+.pa-add-assess-grid{display:grid;grid-template-columns:2fr 1fr;gap:10px;margin-bottom:10px;}
+
+/* Accordion */
+.pa-accordion{background:#fff;border-radius:10px;border:1px solid var(--border-color,#e5e7eb);margin-bottom:10px;overflow:hidden;}
+.pa-accordion-head{display:flex;align-items:center;gap:10px;padding:13px 16px;cursor:pointer;user-select:none;transition:background .12s;}
+.pa-accordion-head:hover{background:#faf8fc;}
+.pa-accordion-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:800;flex-shrink:0;}
+.pa-accordion-num.open-num{background:var(--primary,#5A1F6E);color:#fff;}
+.pa-accordion-num.closed-num{background:#f3f4f6;color:#9ca3af;}
+.pa-accordion-name{font-size:.85rem;font-weight:600;color:var(--text-color,#1f2937);flex:1;}
+.pa-assess-type-badge{font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:20px;background:#f3f4f6;color:#6b7280;flex-shrink:0;}
+.pa-accordion-chev{font-size:18px;color:#9ca3af;transition:transform .2s;flex-shrink:0;}
+.pa-accordion-head.open .pa-accordion-chev{transform:rotate(180deg);}
+.pa-accordion-body{display:none;padding:0 16px 16px;border-top:1px solid #f3f4f6;}
+.pa-accordion-body.open{display:block;}
+.pa-assess-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0 10px;}
+
+/* Competency table */
+.pa-comp-table-wrap{background:#f9fafb;border:1px solid var(--border-color,#e5e7eb);border-radius:9px;overflow:hidden;margin-top:4px;}
+.pa-comp-table{width:100%;border-collapse:collapse;}
+.pa-comp-table thead tr{background:#f3f4f6;border-bottom:1px solid var(--border-color,#e5e7eb);}
+.pa-comp-table th{padding:8px 12px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b7280;text-align:left;}
+.pa-comp-table tbody tr{border-bottom:1px solid #f3f4f6;}
+.pa-comp-table tbody tr:last-child{border-bottom:none;}
+.pa-comp-table td{padding:7px 10px;vertical-align:middle;}
+.pa-comp-select{width:100%;border:1px solid var(--border-color,#e5e7eb);border-radius:6px;padding:5px 8px;font-size:.75rem;font-family:'Poppins',sans-serif;background:#fff;color:var(--text-color,#1f2937);}
+.pa-comp-select:focus{outline:none;border-color:var(--primary,#5A1F6E);}
+.pa-type-select{border:1px solid var(--border-color,#e5e7eb);border-radius:6px;padding:5px 8px;font-size:.75rem;font-family:'Poppins',sans-serif;background:#fff;color:var(--text-color,#1f2937);}
+.pa-type-select:focus{outline:none;border-color:var(--primary,#5A1F6E);}
+.pa-row-num{font-size:.65rem;font-weight:800;color:#9ca3af;text-align:center;}
+.pa-del-row{background:none;border:none;cursor:pointer;color:#d1d5db;padding:2px 4px;border-radius:4px;display:flex;align-items:center;}
+.pa-del-row:hover{color:var(--danger-color,#ef4444);}
+.pa-del-row .material-symbols-outlined{font-size:16px;}
+.pa-add-row-btn{display:inline-flex;align-items:center;gap:5px;margin-top:8px;padding:5px 12px;background:none;border:1px dashed var(--border-color,#e5e7eb);border-radius:6px;font-size:.75rem;font-weight:600;color:var(--primary,#5A1F6E);cursor:pointer;font-family:'Poppins',sans-serif;transition:background .15s;}
+.pa-add-row-btn:hover{background:var(--primary-lighter,#f5f0f7);}
+.pa-add-row-btn .material-symbols-outlined{font-size:15px;}
+.pa-upload-label{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:#f9fafb;border:1px solid var(--border-color,#e5e7eb);border-radius:8px;font-size:.78rem;font-weight:600;color:var(--text-color,#374151);cursor:pointer;transition:background .15s;}
+.pa-upload-label:hover{background:var(--primary-lighter,#f5f0f7);border-color:var(--primary,#5A1F6E);color:var(--primary,#5A1F6E);}
+.pa-upload-label .material-symbols-outlined{font-size:16px;}
+
+/* Empty states */
+.pa-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 300px);text-align:center;padding:20px;}
+.pa-empty-icon{width:64px;height:64px;background:rgba(90,31,110,.08);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
+.pa-empty-icon .material-symbols-outlined{font-size:28px;color:var(--primary,#5A1F6E);}
+.pa-empty h4{font-size:1rem;font-weight:700;color:var(--text-color,#1f2937);margin:0 0 6px;}
+.pa-empty p{font-size:.82rem;color:var(--text-secondary,#6b7280);margin:0 0 16px;}
+
+/* Nav row */
+.pa-nav-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:20px;}
+.pa-nav-link{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:#fff;border:1px solid var(--border-color,#e5e7eb);border-radius:8px;font-size:.8rem;font-weight:600;color:var(--primary,#5A1F6E);text-decoration:none;transition:background .15s;}
+.pa-nav-link:hover{background:var(--primary-lighter,#f5f0f7);}
+.pa-nav-link .material-symbols-outlined{font-size:16px;}
+
+/* Create project modal */
+.pa-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1060;display:none;align-items:center;justify-content:center;}
+.pa-modal-overlay.show{display:flex;}
+.pa-modal{background:#fff;border-radius:14px;padding:26px;width:480px;max-width:95vw;box-shadow:0 20px 50px rgba(0,0,0,.15);}
+.pa-modal-title{font-size:1rem;font-weight:700;color:var(--text-color,#1f2937);margin:0 0 18px;}
+.pa-modal-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:16px;}
+.pa-modal-grid .two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.pa-modal-grid input,.pa-modal-grid select{width:100%;border:1px solid var(--border-color,#e5e7eb);border-radius:8px;padding:8px 12px;font-size:.82rem;font-family:'Poppins',sans-serif;background:#f9fafb;color:var(--text-color,#1f2937);}
+.pa-modal-grid input:focus,.pa-modal-grid select:focus{outline:none;border-color:var(--primary,#5A1F6E);background:#fff;}
+.pa-modal-actions{display:flex;gap:8px;justify-content:flex-end;}
+.pa-modal-cancel{padding:8px 16px;background:none;border:1px solid var(--border-color,#e5e7eb);border-radius:7px;font-size:.8rem;font-weight:500;color:var(--text-secondary,#6b7280);cursor:pointer;font-family:'Poppins',sans-serif;}
+.pa-modal-save{padding:8px 20px;background:var(--primary,#5A1F6E);color:#fff;border:none;border-radius:7px;font-size:.8rem;font-weight:600;font-family:'Poppins',sans-serif;cursor:pointer;}
+.pa-modal-save:hover{background:rgba(90,31,110,.9);}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pa-wrapper">
+
+    <!-- SIDEBAR -->
+    <aside class="pa-sidebar" id="paSidebar">
+        <div class="pa-sidebar-head">
+            <div>
+                <p class="label">Projects</p>
+                <p class="sub">{{ projects.count }} project{{ projects.count|pluralize }}</p>
+            </div>
+            <button class="pa-tog-btn" onclick="togglePaSidebar()" title="Collapse panel">
+                <span class="material-symbols-outlined pa-tog-icon">chevron_left</span>
+            </button>
+        </div>
+        <nav class="pa-sidebar-nav">
+            <button class="pa-new-btn" onclick="openCreateModal()">
+                <span class="material-symbols-outlined">add</span>
+                New Project
+            </button>
+            {% for project in projects %}
+            <a href="?project={{ project.id }}"
+               class="pa-proj-item {% if project.id == active_id %}active{% endif %}">
+                <p class="pa-proj-title">{{ project.title }}</p>
+                <div class="pa-proj-meta">
+                    <span class="pa-grade-tag">{{ project.grade }}</span>
+                    <span class="pa-type-tag">{{ project.project_type }}</span>
+                    <span class="pa-status-tag {% if project.status == 'Active' %}active-s{% else %}draft{% endif %}">{{ project.status }}</span>
+                </div>
+            </a>
+            {% empty %}
+            <p style="font-size:.75rem;color:#9ca3af;text-align:center;padding:20px 10px;">No projects yet.<br>Click "New Project" to start.</p>
+            {% endfor %}
+        </nav>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="pa-main">
+
+        {% if not active_project %}
+        <!-- Empty state -->
+        <div class="pa-empty">
+            <div class="pa-empty-icon">
+                <span class="material-symbols-outlined">assignment</span>
+            </div>
+            <h4>No projects yet</h4>
+            <p>Create your first project to start mapping assessments and competencies.</p>
+            <button class="pa-btn-primary" onclick="openCreateModal()">
+                <span class="material-symbols-outlined">add</span>
+                New Project
+            </button>
+        </div>
+
+        {% else %}
+        <!-- Page header -->
+        <div class="pa-header-row">
+            <div class="pa-header-left">
+                <button class="pa-show-btn" id="paShowBtn" onclick="togglePaSidebar()">
+                    <span class="material-symbols-outlined">view_sidebar</span>
+                    Projects
+                </button>
+                <div>
+                    <div class="pa-breadcrumb">
+                        <span>Academics</span>
+                        <span class="material-symbols-outlined sep">chevron_right</span>
+                        <span>Project &amp; Assessment</span>
+                        <span class="material-symbols-outlined sep">chevron_right</span>
+                        <span class="cur">{{ active_project.title|truncatechars:30 }}</span>
+                    </div>
+                    <h1 class="pa-title">{{ active_project.title }}</h1>
+                    <p class="pa-subtitle">{{ active_project.grade }} · {{ active_project.project_type }} · {{ active_project.assessments.count }} assessment{{ active_project.assessments.count|pluralize }}</p>
+                </div>
+            </div>
+            <form method="post" id="saveProjectForm" style="display:inline;">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="save_project">
+                <button type="submit" class="pa-btn-primary">
+                    <span class="material-symbols-outlined">save</span>
+                    Save Project
+                </button>
+            </form>
+        </div>
+
+        <!-- Project config card -->
+        <div class="pa-card">
+            <p class="pa-card-title">
+                <span class="material-symbols-outlined">settings</span>
+                Project Configuration
+            </p>
+            <div class="pa-form-grid" id="configFields">
+                <div class="pa-field">
+                    <label>Project Title</label>
+                    <input type="text" name="title" form="saveProjectForm" value="{{ active_project.title }}" placeholder="Project title" required />
+                </div>
+                <div class="pa-field">
+                    <label>Grade / Stage</label>
+                    <select name="grade" form="saveProjectForm">
+                        <option value="Foundational" {% if active_project.grade == 'Foundational' %}selected{% endif %}>Foundational — Class 1–2</option>
+                        <option value="Preparatory"  {% if active_project.grade == 'Preparatory'  %}selected{% endif %}>Preparatory — Class 3–5</option>
+                        <option value="Middle"       {% if active_project.grade == 'Middle'       %}selected{% endif %}>Middle — Class 6–8</option>
+                        <option value="Secondary"    {% if active_project.grade == 'Secondary'    %}selected{% endif %}>Secondary — Class 9–12</option>
+                    </select>
+                </div>
+                <div class="pa-field">
+                    <label>Project Type</label>
+                    <select name="project_type" form="saveProjectForm" id="editProjectType" onchange="toggleEditPluginFields()">
+                        <option value="Life Form"           {% if active_project.project_type == 'Life Form'           %}selected{% endif %}>Life Form</option>
+                        <option value="Machines & Materials"{% if active_project.project_type == 'Machines & Materials' %}selected{% endif %}>Machines &amp; Materials</option>
+                        <option value="Human Services"      {% if active_project.project_type == 'Human Services'      %}selected{% endif %}>Human Services</option>
+                        <option value="Plug In"             {% if active_project.project_type == 'Plug In'             %}selected{% endif %}>Plug In</option>
+                        <option value="Final Project"       {% if active_project.project_type == 'Final Project'       %}selected{% endif %}>Final Project</option>
+                    </select>
+                </div>
+                <div class="pa-field">
+                    <label>Status</label>
+                    <select name="status" form="saveProjectForm">
+                        <option value="Draft"  {% if active_project.status == 'Draft'  %}selected{% endif %}>Draft</option>
+                        <option value="Active" {% if active_project.status == 'Active' %}selected{% endif %}>Active</option>
+                    </select>
+                </div>
+            </div>
+            <!-- Second row: Sequence + Linked project -->
+            <div style="display:grid;grid-template-columns:1fr 2fr;gap:10px;margin-top:10px;">
+                <div class="pa-field" id="editSeqField">
+                    <label>Sequence Number <span style="font-weight:400;color:#9ca3af;">(1–4, skip for Plug In)</span></label>
+                    <input type="number" name="sequence_number" form="saveProjectForm" min="1" max="10"
+                           value="{{ active_project.sequence_number|default:'' }}" placeholder="e.g. 1" />
+                </div>
+                <div class="pa-field" id="editLinkedField" {% if active_project.project_type != 'Plug In' %}style="display:none;"{% endif %}>
+                    <label>Linked Parent Project <span style="color:#ef4444;">*</span></label>
+                    <select name="linked_project" form="saveProjectForm">
+                        <option value="">— Select parent project —</option>
+                        {% for mp in main_projects %}
+                        <option value="{{ mp.id }}" {% if active_project.linked_project_id == mp.id %}selected{% endif %}>{{ mp.title }} ({{ mp.project_type }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assessments section -->
+        <div class="pa-section-head">
+            <h2 class="pa-section-title">Assessments &amp; Competency Mapping</h2>
+            <button class="pa-btn-secondary" onclick="toggleAddAssessment()">
+                <span class="material-symbols-outlined">add</span>
+                Add Assessment
+            </button>
+        </div>
+
+        <!-- Add assessment inline form -->
+        <div class="pa-add-assess-card" id="addAssessCard">
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="add_assessment">
+                <div class="pa-add-assess-grid">
+                    <div class="pa-field">
+                        <label>Assessment Name</label>
+                        <input type="text" name="assessment_name" placeholder="e.g. Written Report" required />
+                    </div>
+                    <div class="pa-field">
+                        <label>Assessment Type</label>
+                        <select name="assessment_type">
+                            <option>Written Assignment</option>
+                            <option>Presentation</option>
+                            <option>Peer Review</option>
+                            <option>Lab Report</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display:flex;gap:8px;">
+                    <button type="submit" class="pa-btn-primary" style="font-size:.8rem;padding:.5rem 1rem;">
+                        <span class="material-symbols-outlined">add</span> Add
+                    </button>
+                    <button type="button" class="pa-btn-secondary" onclick="toggleAddAssessment()">Cancel</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Assessment accordions -->
+        {% if active_project.assessments.exists %}
+        {% for a in active_project.assessments.all %}
+        <div class="pa-accordion" id="accordion-{{ a.id }}">
+            <div class="pa-accordion-head {% if forloop.first %}open{% endif %}" onclick="toggleAccordion({{ a.id }})">
+                <span class="pa-accordion-num {% if forloop.first %}open-num{% else %}closed-num{% endif %}" id="anum-{{ a.id }}">{{ forloop.counter }}</span>
+                <span class="pa-accordion-name" id="aname-{{ a.id }}">{{ a.name }}</span>
+                <span class="pa-assess-type-badge">{{ a.assessment_type }}</span>
+                <span class="material-symbols-outlined pa-accordion-chev {% if forloop.first %}open{% endif %}" id="achev-{{ a.id }}">expand_more</span>
+            </div>
+            <div class="pa-accordion-body {% if forloop.first %}open{% endif %}" id="abody-{{ a.id }}">
+                <form method="post" enctype="multipart/form-data" id="assessForm-{{ a.id }}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="save_assessment">
+                    <input type="hidden" name="assessment_id" value="{{ a.id }}">
+                    <div class="pa-assess-form-grid">
+                        <div class="pa-field">
+                            <label>Assessment Name</label>
+                            <input type="text" name="name" value="{{ a.name }}" required
+                                   oninput="document.getElementById('aname-{{ a.id }}').textContent=this.value||'Untitled'" />
+                        </div>
+                        <div class="pa-field">
+                            <label>Assessment Type</label>
+                            <select name="assessment_type">
+                                <option {% if a.assessment_type == 'Written Assignment' %}selected{% endif %}>Written Assignment</option>
+                                <option {% if a.assessment_type == 'Presentation' %}selected{% endif %}>Presentation</option>
+                                <option {% if a.assessment_type == 'Peer Review' %}selected{% endif %}>Peer Review</option>
+                                <option {% if a.assessment_type == 'Lab Report' %}selected{% endif %}>Lab Report</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="pa-field" style="margin-bottom:14px;max-width:200px;">
+                        <label>Placement — After Challenge #</label>
+                        <input type="number" name="placement_after_challenge" min="1"
+                               value="{{ a.placement_after_challenge|default:'' }}"
+                               placeholder="e.g. 3" />
+                    </div>
+                    <div class="pa-field" style="margin-bottom:14px;">
+                        <label>Output Descriptor</label>
+                        <textarea name="output_descriptor" rows="2" placeholder="Describe the expected student output...">{{ a.output_descriptor }}</textarea>
+                    </div>
+                    <div class="pa-field" style="margin-bottom:14px;">
+                        <label>Additional Instructions for Teacher</label>
+                        <textarea name="additional_instructions" rows="3" placeholder="Add any specific instructions or notes for the teacher conducting this assessment...">{{ a.additional_instructions }}</textarea>
+                    </div>
+
+                    <!-- Rubric upload -->
+                    <div style="margin-bottom:14px;">
+                        <p style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-secondary,#9ca3af);margin:0 0 6px;">Assessment Framework</p>
+                        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                            <label class="pa-upload-label" for="rubric-{{ a.id }}">
+                                <span class="material-symbols-outlined">attach_file</span>
+                                {% if a.rubric_file %}Replace Rubric{% else %}Upload Scoring Rubric (PDF/CSV){% endif %}
+                                <input type="file" id="rubric-{{ a.id }}" name="rubric_file"
+                                       accept=".pdf,.csv,.xlsx"
+                                       style="display:none;"
+                                       onchange="showFileName(this,'rubricName-{{ a.id }}')">
+                            </label>
+                            <span id="rubricName-{{ a.id }}" style="font-size:.75rem;color:var(--text-secondary,#6b7280);">
+                                {% if a.rubric_file %}
+                                    <a href="{{ a.rubric_file.url }}" target="_blank" style="color:var(--primary,#5A1F6E);font-weight:600;text-decoration:none;">
+                                        <span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;">description</span>
+                                        {{ a.rubric_file.name|slice:"8:" }}
+                                    </a>
+                                {% else %}
+                                    No file uploaded
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Competency mapping -->
+                    <div>
+                        <p style="font-size:.75rem;font-weight:700;color:var(--text-secondary,#6b7280);text-transform:uppercase;letter-spacing:.06em;margin:0 0 8px;display:flex;align-items:center;gap:6px;">
+                            <span class="material-symbols-outlined" style="font-size:16px;color:var(--primary,#5A1F6E);">account_tree</span>
+                            Assign Competencies
+                        </p>
+                        <div class="pa-comp-table-wrap">
+                            <table class="pa-comp-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:36px;">#</th>
+                                        <th>Competency</th>
+                                        <th style="width:130px;">Type</th>
+                                        <th style="width:40px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="compBody-{{ a.id }}">
+                                    {% for mapping in a.competency_mappings.all %}
+                                    <tr>
+                                        <td class="pa-row-num">{{ forloop.counter }}</td>
+                                        <td>
+                                            <select name="comp_id" class="pa-comp-select">
+                                                <option value="">— Select —</option>
+                                                {% for pillar in pillars %}{% for sp in pillar.sub_pillars.all %}{% if sp.competencies.exists %}<optgroup label="SP{{ sp.sp_number }}: {{ sp.name }}">{% for comp in sp.competencies.all %}{% if comp.status == 'Active' %}<option value="{{ comp.id }}" {% if comp.id == mapping.competency.id %}selected{% endif %}>{{ comp.code }} — {{ comp.name }}</option>{% endif %}{% endfor %}</optgroup>{% endif %}{% endfor %}{% endfor %}
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <select name="comp_type" class="pa-type-select">
+                                                <option value="individual" {% if mapping.comp_type == 'individual' %}selected{% endif %}>Individual</option>
+                                                <option value="group" {% if mapping.comp_type == 'group' %}selected{% endif %}>Group</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <button type="button" class="pa-del-row" onclick="this.closest('tr').remove();renumberRows('compBody-{{ a.id }}');">
+                                                <span class="material-symbols-outlined">close</span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <button type="button" class="pa-add-row-btn" onclick="addCompRow('compBody-{{ a.id }}', {{ a.id }})">
+                            <span class="material-symbols-outlined">add</span>
+                            Add Competency
+                        </button>
+                    </div>
+
+                </form>
+                <!-- Actions row: save left, delete right -->
+                <div style="display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid #f3f4f6;margin-top:14px;">
+                    <button type="submit" form="assessForm-{{ a.id }}" class="pa-btn-primary" style="font-size:.8rem;padding:.5rem 1rem;">
+                        <span class="material-symbols-outlined">save</span> Save Assessment
+                    </button>
+                    <form method="post" onsubmit="return confirm('Delete this assessment?');">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="delete_assessment">
+                        <input type="hidden" name="assessment_id" value="{{ a.id }}">
+                        <button type="submit" class="pa-btn-danger" style="font-size:.8rem;padding:.5rem 1rem;">
+                            <span class="material-symbols-outlined">delete</span> Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        {% else %}
+        <div style="background:#fff;border-radius:10px;border:1px solid var(--border-color,#e5e7eb);padding:40px 20px;text-align:center;">
+            <div style="width:48px;height:48px;background:rgba(90,31,110,.08);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+                <span class="material-symbols-outlined" style="font-size:22px;color:var(--primary,#5A1F6E);">checklist</span>
+            </div>
+            <p style="font-size:.85rem;font-weight:600;color:var(--text-color,#1f2937);margin:0 0 4px;">No assessments yet</p>
+            <p style="font-size:.75rem;color:var(--text-secondary,#6b7280);margin:0;">Click <strong>Add Assessment</strong> to create the first one.</p>
+        </div>
+        {% endif %}
+
+        <!-- Delete project -->
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border-color,#e5e7eb);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+            <a href="{% url 'profiles_competencies' %}" class="pa-nav-link">
+                <span class="material-symbols-outlined">arrow_back</span>
+                Profiles &amp; Competencies
+            </a>
+            <form method="post" onsubmit="return confirm('Delete project &quot;{{ active_project.title }}&quot; and all its assessments? This cannot be undone.');">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="delete_project">
+                <button type="submit" class="pa-btn-danger">
+                    <span class="material-symbols-outlined">delete</span>
+                    Delete Project
+                </button>
+            </form>
+        </div>
+        {% endif %}
+
+    </main>
+</div>
+
+<!-- Create Project Modal -->
+<div class="pa-modal-overlay" id="createModal">
+    <div class="pa-modal">
+        <p class="pa-modal-title">Create New Project</p>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="create_project">
+            <div class="pa-modal-grid">
+                <div class="pa-field">
+                    <label>Project Title</label>
+                    <input type="text" name="title" placeholder="e.g. Sustainable Urban Development" required />
+                </div>
+                <div class="two-col">
+                    <div class="pa-field">
+                        <label>Grade / Stage</label>
+                        <select name="grade" required>
+                            <option value="">Select grade</option>
+                            <option value="Foundational">Foundational — Class 1–2</option>
+                            <option value="Preparatory">Preparatory — Class 3–5</option>
+                            <option value="Middle">Middle — Class 6–8</option>
+                            <option value="Secondary">Secondary — Class 9–12</option>
+                        </select>
+                    </div>
+                    <div class="pa-field">
+                        <label>Project Type</label>
+                        <select name="project_type" id="modalProjectType" onchange="toggleModalPluginFields()">
+                            <option value="Life Form">Life Form</option>
+                            <option value="Machines & Materials">Machines &amp; Materials</option>
+                            <option value="Human Services">Human Services</option>
+                            <option value="Plug In">Plug In</option>
+                            <option value="Final Project">Final Project</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- Sequence number — hidden for Plug In -->
+                <div class="pa-field" id="modalSeqField">
+                    <label>Sequence Number <span style="font-weight:400;color:#9ca3af;">(1 = first project, 4 = final)</span></label>
+                    <input type="number" name="sequence_number" min="1" max="10" placeholder="e.g. 1" />
+                </div>
+                <!-- Linked project — only for Plug In -->
+                <div class="pa-field" id="modalLinkedField" style="display:none;">
+                    <label>Link to Parent Project <span style="color:#ef4444;">*</span></label>
+                    <select name="linked_project">
+                        <option value="">— Select parent project —</option>
+                        {% for mp in main_projects %}
+                        <option value="{{ mp.id }}">{{ mp.title }} ({{ mp.project_type }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="pa-modal-actions">
+                <button type="button" class="pa-modal-cancel" onclick="closeCreateModal()">Cancel</button>
+                <button type="submit" class="pa-modal-save">Create Project</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/* Rubric file name display */
+function showFileName(input, spanId) {
+    const span = document.getElementById(spanId);
+    if (span && input.files && input.files[0]) {
+        span.textContent = input.files[0].name;
+        span.style.color = 'var(--primary,#5A1F6E)';
+        span.style.fontWeight = '600';
+    }
+}
+
+/* Competency data for dynamic rows */
+const COMP_OPTIONS = [
+    {% for pillar in pillars %}{% for sp in pillar.sub_pillars.all %}{% if sp.competencies.exists %}{% for comp in sp.competencies.all %}{% if comp.status == 'Active' %}
+    { id: {{ comp.id }}, code: "{{ comp.code|escapejs }}", name: "{{ comp.name|escapejs }}", group: "SP{{ sp.sp_number }}: {{ sp.name|escapejs }}" },
+    {% endif %}{% endfor %}{% endif %}{% endfor %}{% endfor %}
+];
+
+function buildCompSelect(selectedId) {
+    let grouped = {};
+    COMP_OPTIONS.forEach(c => {
+        if (!grouped[c.group]) grouped[c.group] = [];
+        grouped[c.group].push(c);
+    });
+    let html = '<select name="comp_id" class="pa-comp-select"><option value="">— Select —</option>';
+    Object.keys(grouped).forEach(grp => {
+        html += `<optgroup label="${grp}">`;
+        grouped[grp].forEach(c => {
+            html += `<option value="${c.id}"${selectedId == c.id ? ' selected' : ''}>${c.code} — ${c.name}</option>`;
+        });
+        html += '</optgroup>';
+    });
+    html += '</select>';
+    return html;
+}
+
+function addCompRow(tbodyId, assessId) {
+    const tbody = document.getElementById(tbodyId);
+    const rowCount = tbody.querySelectorAll('tr').length + 1;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+        <td class="pa-row-num">${rowCount}</td>
+        <td>${buildCompSelect('')}</td>
+        <td>
+            <select name="comp_type" class="pa-type-select">
+                <option value="individual">Individual</option>
+                <option value="group">Group</option>
+            </select>
+        </td>
+        <td>
+            <button type="button" class="pa-del-row" onclick="this.closest('tr').remove();renumberRows('${tbodyId}');">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </td>`;
+    tbody.appendChild(tr);
+}
+
+function renumberRows(tbodyId) {
+    const rows = document.querySelectorAll('#' + tbodyId + ' tr');
+    rows.forEach((r, i) => {
+        const numCell = r.querySelector('.pa-row-num');
+        if (numCell) numCell.textContent = i + 1;
+    });
+}
+
+/* Accordion */
+function toggleAccordion(id) {
+    const body  = document.getElementById('abody-' + id);
+    const head  = body.previousElementSibling;
+    const chev  = document.getElementById('achev-' + id);
+    const num   = document.getElementById('anum-' + id);
+    const isOpen = body.classList.contains('open');
+    body.classList.toggle('open', !isOpen);
+    head.classList.toggle('open', !isOpen);
+    chev.classList.toggle('open', !isOpen);
+    if (!isOpen) {
+        num.classList.replace('closed-num', 'open-num');
+    } else {
+        num.classList.replace('open-num', 'closed-num');
+    }
+}
+
+/* Add assessment form toggle */
+function toggleAddAssessment() {
+    document.getElementById('addAssessCard').classList.toggle('show');
+}
+
+/* Sidebar toggle */
+function togglePaSidebar() {
+    const sb  = document.getElementById('paSidebar');
+    const btn = document.getElementById('paShowBtn');
+    sb.classList.toggle('collapsed');
+    const collapsed = sb.classList.contains('collapsed');
+    if (btn) btn.style.display = collapsed ? 'inline-flex' : 'none';
+    sessionStorage.setItem('paSb', collapsed ? '1' : '0');
+}
+(function restoreSb() {
+    if (sessionStorage.getItem('paSb') === '1') {
+        document.getElementById('paSidebar').classList.add('collapsed');
+        const btn = document.getElementById('paShowBtn');
+        if (btn) btn.style.display = 'inline-flex';
+    }
+})();
+
+/* Modal */
+function openCreateModal() {
+    document.getElementById('createModal').classList.add('show');
+}
+function closeCreateModal() {
+    document.getElementById('createModal').classList.remove('show');
+}
+document.getElementById('createModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('createModal')) closeCreateModal();
+});
+
+/* Plug In field toggle — Create modal */
+function toggleModalPluginFields() {
+    const type       = document.getElementById('modalProjectType').value;
+    const isPlugin   = type === 'Plug In';
+    document.getElementById('modalLinkedField').style.display = isPlugin ? '' : 'none';
+    document.getElementById('modalSeqField').style.display    = isPlugin ? 'none' : '';
+}
+
+/* Plug In field toggle — Edit config card */
+function toggleEditPluginFields() {
+    const type     = document.getElementById('editProjectType').value;
+    const isPlugin = type === 'Plug In';
+    document.getElementById('editLinkedField').style.display = isPlugin ? '' : 'none';
+    document.getElementById('editSeqField').style.display    = isPlugin ? 'none' : '';
+}
+</script>
+{% endblock %}

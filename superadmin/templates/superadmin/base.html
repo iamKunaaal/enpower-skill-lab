@@ -183,17 +183,17 @@
                         <span class="material-symbols-outlined dropdown-icon">expand_more</span>
                     </a>
                     <div class="sidebar-dropdown-menu">
-                        <a href="learning-pillars.html" id="nav-learning-pillars">
+                        <a href="{% url 'learning_pillars' %}" id="nav-learning-pillars">
                             <span class="material-symbols-outlined">account_tree</span>
                             Learning Pillars
                         </a>
-                        <a href="competencies.html" id="nav-competencies">
-                            <span class="material-symbols-outlined">workspace_premium</span>
-                            Competencies
-                        </a>
-                        <a href="profiles.html" id="nav-profiles">
+                        <a href="{% url 'profiles_competencies' %}" id="nav-profiles-competencies">
                             <span class="material-symbols-outlined">badge</span>
-                            Profiles
+                            Profiles &amp; Competencies
+                        </a>
+                        <a href="{% url 'project_assessment' %}" id="nav-project-assessment">
+                            <span class="material-symbols-outlined">assignment</span>
+                            Project &amp; Assessment
                         </a>
                         <a href="weightage-mapping.html" id="nav-weightage-mapping">
                             <span class="material-symbols-outlined">functions</span>

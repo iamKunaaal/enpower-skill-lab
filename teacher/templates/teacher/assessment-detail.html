@@ -1,0 +1,315 @@
+{% extends 'teacher/base.html' %}
+{% load static %}
+
+{% block title %}{{ assessment.name }} — Assessment Detail{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: { "primary": "#5A1F6E" },
+                fontFamily: { "display": ["Poppins", "sans-serif"] },
+            },
+        },
+    }
+</script>
+<style>
+    .ad * { font-family: 'Poppins', sans-serif !important; }
+    .ad .material-symbols-outlined { font-family: 'Material Symbols Outlined' !important; }
+    .comp-row:hover { background: #faf8fc; }
+    .checklist-item:checked + span { color: #94a3b8; text-decoration: line-through; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ad max-w-[1100px] mx-auto py-6 space-y-5">
+
+    <!-- ── Hero Header ── -->
+    <div class="rounded-2xl overflow-hidden" style="background: linear-gradient(135deg, #3b0f50 0%, #5A1F6E 60%, #7c3aad 100%);">
+        <div class="p-8">
+            <!-- Breadcrumb -->
+            <div class="flex items-center gap-2 mb-4">
+                <a href="{% url 'teacher:teacher_dashboard' %}" style="font-size:12px; color:rgba(255,255,255,0.55); text-decoration:none; font-weight:500;">Dashboard</a>
+                <span class="material-symbols-outlined" style="font-size:14px; color:rgba(255,255,255,0.35);">chevron_right</span>
+                <span style="font-size:12px; color:rgba(255,255,255,0.55); font-weight:500;">{{ project.title }}</span>
+                <span class="material-symbols-outlined" style="font-size:14px; color:rgba(255,255,255,0.35);">chevron_right</span>
+                <span style="font-size:12px; color:rgba(255,255,255,0.85); font-weight:600;">Assessment Details</span>
+            </div>
+
+            <!-- Title row -->
+            <div class="flex flex-wrap justify-between items-start gap-6">
+                <div>
+                    <h1 style="font-size:24px; font-weight:700; color:#fff; line-height:1.25; margin-bottom:6px;">{{ assessment.name }}</h1>
+                    <div class="flex items-center gap-3 flex-wrap mt-3">
+                        <span style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; background:rgba(255,255,255,0.15); color:#fff; padding:4px 12px; border-radius:999px;">{{ assessment.assessment_type }}</span>
+                        {% if assessment.placement_after_challenge %}
+                        <span style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; background:rgba(255,255,255,0.15); color:#fff; padding:4px 12px; border-radius:999px;">After Challenge #{{ assessment.placement_after_challenge }}</span>
+                        {% endif %}
+                        <span style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; background:rgba(255,255,255,0.15); color:#fff; padding:4px 12px; border-radius:999px;">{{ work_form }}</span>
+                    </div>
+                </div>
+                <div class="flex gap-3 flex-shrink-0">
+                    <a href="{% url 'teacher:teacher_dashboard' %}"
+                       style="text-decoration:none; display:flex; align-items:center; gap:6px; padding:10px 20px; border-radius:8px; background:rgba(255,255,255,0.12); color:#fff; font-size:13px; font-weight:600; border:1px solid rgba(255,255,255,0.2); transition:background 0.2s;"
+                       onmouseenter="this.style.background='rgba(255,255,255,0.2)'"
+                       onmouseleave="this.style.background='rgba(255,255,255,0.12)'">
+                        <span class="material-symbols-outlined" style="font-size:17px;">arrow_back</span>
+                        Back
+                    </a>
+                    <button style="display:flex; align-items:center; gap:6px; padding:10px 20px; border-radius:8px; background:#fff; color:#5A1F6E; font-size:13px; font-weight:700; border:none; cursor:pointer; transition:opacity 0.2s;"
+                            onmouseenter="this.style.opacity='0.9'"
+                            onmouseleave="this.style.opacity='1'">
+                        <span class="material-symbols-outlined" style="font-size:17px;">edit_square</span>
+                        Start Scoring
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stat strip -->
+        <div class="grid grid-cols-2 md:grid-cols-4" style="border-top:1px solid rgba(255,255,255,0.12); background:rgba(0,0,0,0.15);">
+            <div class="px-6 py-4 border-r" style="border-color:rgba(255,255,255,0.1);">
+                <p style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:rgba(255,255,255,0.45); margin-bottom:4px;">Grade</p>
+                <p style="font-size:14px; font-weight:600; color:#fff;">{{ project.grade }}</p>
+            </div>
+            <div class="px-6 py-4 border-r" style="border-color:rgba(255,255,255,0.1);">
+                <p style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:rgba(255,255,255,0.45); margin-bottom:4px;">Project</p>
+                <p style="font-size:14px; font-weight:600; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:180px;">{{ project.title }}</p>
+            </div>
+            <div class="px-6 py-4 border-r" style="border-color:rgba(255,255,255,0.1);">
+                <p style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:rgba(255,255,255,0.45); margin-bottom:4px;">Project Type</p>
+                <p style="font-size:14px; font-weight:600; color:#fff;">{{ project.project_type }}</p>
+            </div>
+            <div class="px-6 py-4">
+                <p style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:rgba(255,255,255,0.45); margin-bottom:4px;">Competencies</p>
+                <p style="font-size:14px; font-weight:600; color:#fff;">{{ competencies|length }} mapped</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Student Output ── -->
+    <div class="bg-white rounded-xl border border-slate-100 shadow-sm p-6">
+        <div class="flex items-start justify-between gap-4 flex-wrap">
+            <h3 class="flex items-center gap-2" style="font-size:15px; font-weight:700; color:#1e1b4b;">
+                <span class="material-symbols-outlined" style="font-size:20px; color:#5A1F6E;">description</span>
+                Student Output Requirements
+            </h3>
+            {% if assessment.rubric_file %}
+            <a href="{{ assessment.rubric_file.url }}" target="_blank"
+               style="text-decoration:none; display:flex; align-items:center; gap:6px; padding:8px 16px; border-radius:8px; border:1.5px solid #5A1F6E; color:#5A1F6E; font-size:13px; font-weight:600;">
+                <span class="material-symbols-outlined" style="font-size:16px;">visibility</span>
+                View Rubric
+            </a>
+            {% else %}
+            <span style="display:flex; align-items:center; gap:6px; padding:8px 16px; border-radius:8px; border:1.5px solid #e2e8f0; color:#cbd5e1; font-size:13px; font-weight:600; cursor:not-allowed;">
+                <span class="material-symbols-outlined" style="font-size:16px;">visibility_off</span>
+                No Rubric
+            </span>
+            {% endif %}
+        </div>
+        <div class="mt-4 p-5 rounded-xl" style="background:#faf8fc; border:1px solid rgba(90,31,110,0.07);">
+            {% if assessment.output_descriptor %}
+            <p style="font-size:14px; color:#4b5563; line-height:1.8;">{{ assessment.output_descriptor }}</p>
+            {% else %}
+            <p style="font-size:14px; color:#94a3b8; font-style:italic;">No output description provided for this assessment.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ── Competencies ── -->
+    <div class="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
+        <div class="flex items-center justify-between px-6 py-5 border-b border-slate-100">
+            <h3 class="flex items-center gap-2" style="font-size:15px; font-weight:700; color:#1e1b4b;">
+                <span class="material-symbols-outlined" style="font-size:20px; color:#5A1F6E;">hub</span>
+                Competencies Assessed
+            </h3>
+            <span style="font-size:12px; font-weight:600; background:rgba(90,31,110,0.08); color:#5A1F6E; padding:4px 12px; border-radius:999px;">{{ competencies|length }} total</span>
+        </div>
+
+        {% if competencies %}
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead>
+                    <tr style="background:#f8f7fc; border-bottom:1px solid #f1f5f9;">
+                        <th class="px-6 py-3" style="font-size:11px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.07em; white-space:nowrap;">Competency</th>
+                        <th class="px-6 py-3" style="font-size:11px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.07em;">Description</th>
+                        <th class="px-6 py-3 text-center" style="font-size:11px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.07em; white-space:nowrap;">Weight</th>
+                        <th class="px-6 py-3 text-center" style="font-size:11px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.07em; white-space:nowrap;">Target</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in competencies %}
+                    <tr class="comp-row" style="border-bottom:1px solid #f8f7fc; transition:background 0.15s;">
+                        <td class="px-6 py-4">
+                            <div style="display:flex; flex-direction:column; gap:3px;">
+                                <span style="font-size:10px; font-weight:700; color:#5A1F6E; opacity:0.7; text-transform:uppercase; letter-spacing:0.06em;">{{ c.code }}</span>
+                                <span style="font-size:14px; font-weight:600; color:#1e1b4b; white-space:nowrap;">{{ c.name }}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4" style="font-size:13px; color:#64748b; line-height:1.6; max-width:340px;">
+                            {% if c.description %}{{ c.description }}{% else %}<span style="color:#cbd5e1;">—</span>{% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            {% if c.weight == 'Primary' %}
+                            <span style="display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; background:rgba(90,31,110,0.1); color:#5A1F6E; padding:4px 12px; border-radius:999px;">
+                                <span class="material-symbols-outlined" style="font-size:12px;">stars</span>Primary
+                            </span>
+                            {% else %}
+                            <span style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; background:#f1f5f9; color:#94a3b8; padding:4px 12px; border-radius:999px;">Secondary</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            {% if c.comp_type == 'Group' %}
+                            <span style="display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; background:#f0fdf4; color:#16a34a; padding:4px 12px; border-radius:999px;">
+                                <span class="material-symbols-outlined" style="font-size:12px;">group</span>Group
+                            </span>
+                            {% else %}
+                            <span style="display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; background:#eff6ff; color:#2563eb; padding:4px 12px; border-radius:999px;">
+                                <span class="material-symbols-outlined" style="font-size:12px;">person</span>Individual
+                            </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="py-14 text-center">
+            <span class="material-symbols-outlined" style="font-size:40px; color:#e2e8f0; display:block; margin-bottom:8px;">hub</span>
+            <p style="font-size:14px; color:#94a3b8;">No competencies mapped to this assessment yet.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- ── Additional Instructions + Checklist ── -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+        <!-- Additional Instructions -->
+        <div class="bg-white rounded-xl border border-slate-100 shadow-sm p-6">
+            <h3 class="flex items-center gap-2 mb-4" style="font-size:15px; font-weight:700; color:#1e1b4b;">
+                <span class="material-symbols-outlined" style="font-size:20px; color:#5A1F6E;">assignment_ind</span>
+                Additional Instructions
+            </h3>
+            {% if assessment.additional_instructions %}
+            <p style="font-size:14px; color:#4b5563; line-height:1.8; white-space:pre-line;">{{ assessment.additional_instructions }}</p>
+            {% else %}
+            <div class="py-6 text-center">
+                <span class="material-symbols-outlined" style="font-size:32px; color:#e2e8f0; display:block; margin-bottom:6px;">notes</span>
+                <p style="font-size:13px; color:#94a3b8;">No additional instructions provided.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Student Output Checklist -->
+        <div class="bg-white rounded-xl border border-slate-100 shadow-sm p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="flex items-center gap-2" style="font-size:15px; font-weight:700; color:#1e1b4b;">
+                    <span class="material-symbols-outlined" style="font-size:20px; color:#5A1F6E;">checklist</span>
+                    Student Output Checklist
+                </h3>
+                <button id="resetChecklist" style="font-size:11px; font-weight:600; color:#94a3b8; background:none; border:none; cursor:pointer; padding:4px 8px; border-radius:6px; transition:color 0.2s;"
+                        onmouseenter="this.style.color='#64748b'" onmouseleave="this.style.color='#94a3b8'">
+                    Reset
+                </button>
+            </div>
+            <div class="space-y-3" id="outputChecklist">
+                {% with items="Student output is complete and ready for assessment,Output meets all described requirements,All required materials or artifacts are present,Evidence of individual contribution is clearly visible,Student is ready to present or submit" %}
+                {% for item in items.split %}{% endfor %}
+                {% endwith %}
+                <label class="flex items-start gap-3 cursor-pointer">
+                    <input type="checkbox" class="checklist-item mt-1 h-4 w-4 cursor-pointer" style="accent-color:#5A1F6E;" data-key="ck_{{ assessment.id }}_1">
+                    <span class="checklist-label text-sm" style="color:#374151; line-height:1.6;">Student output is complete and ready for assessment</span>
+                </label>
+                <label class="flex items-start gap-3 cursor-pointer">
+                    <input type="checkbox" class="checklist-item mt-1 h-4 w-4 cursor-pointer" style="accent-color:#5A1F6E;" data-key="ck_{{ assessment.id }}_2">
+                    <span class="checklist-label text-sm" style="color:#374151; line-height:1.6;">Output meets all described requirements</span>
+                </label>
+                <label class="flex items-start gap-3 cursor-pointer">
+                    <input type="checkbox" class="checklist-item mt-1 h-4 w-4 cursor-pointer" style="accent-color:#5A1F6E;" data-key="ck_{{ assessment.id }}_3">
+                    <span class="checklist-label text-sm" style="color:#374151; line-height:1.6;">All required materials or artifacts are present</span>
+                </label>
+                <label class="flex items-start gap-3 cursor-pointer">
+                    <input type="checkbox" class="checklist-item mt-1 h-4 w-4 cursor-pointer" style="accent-color:#5A1F6E;" data-key="ck_{{ assessment.id }}_4">
+                    <span class="checklist-label text-sm" style="color:#374151; line-height:1.6;">Evidence of individual contribution is clearly visible</span>
+                </label>
+                <label class="flex items-start gap-3 cursor-pointer">
+                    <input type="checkbox" class="checklist-item mt-1 h-4 w-4 cursor-pointer" style="accent-color:#5A1F6E;" data-key="ck_{{ assessment.id }}_5">
+                    <span class="checklist-label text-sm" style="color:#374151; line-height:1.6;">Student is ready to present or submit</span>
+                </label>
+            </div>
+            <!-- Progress bar -->
+            <div class="mt-5">
+                <div class="flex justify-between items-center mb-1">
+                    <span style="font-size:11px; font-weight:600; color:#94a3b8;">Progress</span>
+                    <span id="checklistCount" style="font-size:11px; font-weight:700; color:#5A1F6E;">0 / 5</span>
+                </div>
+                <div class="w-full rounded-full" style="height:5px; background:#f1f5f9;">
+                    <div id="checklistBar" style="height:5px; border-radius:999px; background:linear-gradient(90deg,#5A1F6E,#9333ea); width:0%; transition:width 0.3s ease;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Sidebar active state
+    const currentPath = window.location.pathname;
+    document.querySelectorAll('.sidebar-nav a[href], .sidebar-dropdown-menu a[href]').forEach(link => {
+        const href = link.getAttribute('href');
+        if (href && href !== '#' && currentPath.startsWith(href)) {
+            link.classList.add('active');
+            const parentDropdown = link.closest('.sidebar-dropdown');
+            if (parentDropdown) parentDropdown.classList.add('active');
+        }
+    });
+
+    // Checklist with localStorage + progress bar
+    const checkboxes = document.querySelectorAll('.checklist-item');
+    const countEl = document.getElementById('checklistCount');
+    const barEl   = document.getElementById('checklistBar');
+
+    function updateProgress() {
+        const checked = Array.from(checkboxes).filter(c => c.checked).length;
+        const total   = checkboxes.length;
+        countEl.textContent = checked + ' / ' + total;
+        barEl.style.width   = (checked / total * 100) + '%';
+        checkboxes.forEach(cb => {
+            const label = cb.nextElementSibling;
+            if (cb.checked) {
+                label.style.color          = '#94a3b8';
+                label.style.textDecoration = 'line-through';
+            } else {
+                label.style.color          = '#374151';
+                label.style.textDecoration = 'none';
+            }
+        });
+    }
+
+    checkboxes.forEach(cb => {
+        const key = cb.dataset.key;
+        cb.checked = localStorage.getItem(key) === '1';
+        cb.addEventListener('change', function () {
+            localStorage.setItem(key, this.checked ? '1' : '0');
+            updateProgress();
+        });
+    });
+    updateProgress();
+
+    // Reset button
+    document.getElementById('resetChecklist').addEventListener('click', function () {
+        checkboxes.forEach(cb => {
+            cb.checked = false;
+            localStorage.removeItem(cb.dataset.key);
+        });
+        updateProgress();
+    });
+});
+</script>
+{% endblock %}

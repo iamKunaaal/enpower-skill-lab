@@ -11,6 +11,7 @@ from django.utils import timezone
 from schools.models import School
 from school_admin.models import SchoolAdmin
 from .models import SuperAdmin
+from competencies.models import Pillar, SubPillar, Competency, Profile, Project, Assessment, AssessmentCompetency
 import json
 import secrets
 import string
@@ -2427,3 +2428,233 @@ def delete_lesson(request, lesson_id):
         messages.error(request, f'Error deleting lesson: {str(e)}')
     
     return redirect('lesson_list')
+
+
+
+# ─── Skill Passport: Learning Pillars ────────────────────────────────────────
+
+@login_required
+@user_passes_test(is_superadmin)
+def learning_pillars(request):
+    # Active sub-pillar (default SP1)
+    try:
+        active_sp = int(request.GET.get('sp', 1))
+    except (ValueError, TypeError):
+        active_sp = 1
+
+    pillars      = Pillar.objects.prefetch_related('sub_pillars').all()
+    sub_pillar   = get_object_or_404(SubPillar, sp_number=active_sp)
+    competencies = sub_pillar.competencies.all()
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        if action == 'add_competency':
+            name   = request.POST.get('name', '').strip()
+            desc   = request.POST.get('description', '').strip()
+            stage  = request.POST.get('stage', '')
+            status = request.POST.get('status', 'Active')
+            if not name or not stage:
+                messages.error(request, 'Name and Stage are required.')
+            else:
+                existing_count = sub_pillar.competencies.count()
+                code = f"SP{active_sp}.C{existing_count + 1}"
+                while Competency.objects.filter(code=code).exists():
+                    existing_count += 1
+                    code = f"SP{active_sp}.C{existing_count + 1}"
+                Competency.objects.create(
+                    sub_pillar=sub_pillar, code=code,
+                    name=name, description=desc, stage=stage, status=status,
+                )
+                messages.success(request, f'Competency "{code}" added successfully!')
+
+        elif action == 'delete_competency':
+            comp = get_object_or_404(Competency, id=request.POST.get('competency_id'), sub_pillar=sub_pillar)
+            comp.delete()
+            messages.success(request, 'Competency deleted.')
+
+        elif action == 'edit_competency':
+            comp   = get_object_or_404(Competency, id=request.POST.get('competency_id'), sub_pillar=sub_pillar)
+            name   = request.POST.get('name', '').strip()
+            desc   = request.POST.get('description', '').strip()
+            stage  = request.POST.get('stage', '')
+            status = request.POST.get('status', 'Active')
+            if not name or not stage:
+                messages.error(request, 'Name and Stage are required.')
+            else:
+                comp.name = name; comp.description = desc
+                comp.stage = stage; comp.status = status
+                comp.save()
+                messages.success(request, f'Competency "{comp.code}" updated.')
+
+        return redirect(f"{request.path}?sp={active_sp}")
+
+    context = {
+        'pillars':      pillars,
+        'sub_pillar':   sub_pillar,
+        'competencies': competencies,
+        'active_sp':    active_sp,
+    }
+    return render(request, 'superadmin/learning-pillars.html', context)
+
+
+@login_required
+@user_passes_test(is_superadmin)
+def profiles_competencies(request):
+    try:
+        active_id = int(request.GET.get('profile', 1))
+    except (ValueError, TypeError):
+        active_id = 1
+
+    profiles       = Profile.objects.prefetch_related('primary_competencies', 'secondary_competencies').all()
+    active_profile = get_object_or_404(Profile, number=active_id)
+    pillars        = Pillar.objects.prefetch_related('sub_pillars__competencies').all()
+    all_comps      = Competency.objects.select_related('sub_pillar__pillar').filter(status='Active').order_by('sub_pillar__sp_number', 'code')
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        if action == 'save_profile':
+            primary_ids   = request.POST.getlist('primary_competencies')
+            secondary_ids = request.POST.getlist('secondary_competencies')
+            active_profile.primary_competencies.set(
+                Competency.objects.filter(id__in=primary_ids)
+            )
+            active_profile.secondary_competencies.set(
+                Competency.objects.filter(id__in=secondary_ids)
+            )
+            messages.success(request, f'Profile "{active_profile.name}" saved successfully!')
+
+        elif action == 'rename_profile':
+            new_name = request.POST.get('name', '').strip()
+            if new_name:
+                active_profile.name = new_name
+                active_profile.save()
+                messages.success(request, 'Profile renamed.')
+
+        return redirect(f"{request.path}?profile={active_id}")
+
+    context = {
+        'profiles':       profiles,
+        'active_profile': active_profile,
+        'active_id':      active_id,
+        'pillars':        pillars,
+        'all_comps':      all_comps,
+    }
+    return render(request, 'superadmin/profiles-competencies.html', context)
+
+
+@login_required
+@user_passes_test(is_superadmin)
+def project_assessment(request):
+    try:
+        active_id = int(request.GET.get('project', 0))
+    except (ValueError, TypeError):
+        active_id = 0
+
+    projects = Project.objects.prefetch_related('assessments__competency_mappings__competency').all()
+
+    active_project = None
+    if active_id:
+        active_project = get_object_or_404(Project, id=active_id)
+    elif projects.exists():
+        active_project = projects.first()
+        active_id = active_project.id
+
+    pillars   = Pillar.objects.prefetch_related('sub_pillars__competencies').all()
+    all_comps = Competency.objects.select_related('sub_pillar').filter(status='Active').order_by('sub_pillar__sp_number', 'code')
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        if action == 'create_project':
+            title        = request.POST.get('title', '').strip()
+            project_type = request.POST.get('project_type', 'Life Form')
+            grade        = request.POST.get('grade', '')
+            seq_raw      = request.POST.get('sequence_number', '').strip()
+            linked_id    = request.POST.get('linked_project', '').strip()
+            if title and grade:
+                linked = Project.objects.filter(id=linked_id).first() if linked_id else None
+                seq    = int(seq_raw) if seq_raw.isdigit() else None
+                p = Project.objects.create(
+                    title=title, project_type=project_type, grade=grade,
+                    sequence_number=seq, linked_project=linked
+                )
+                messages.success(request, f'Project "{p.title}" created!')
+                return redirect(f"{request.path}?project={p.id}")
+            else:
+                messages.error(request, 'Title and Grade are required.')
+                return redirect(request.path)
+
+        elif action == 'save_project' and active_project:
+            active_project.title        = request.POST.get('title', active_project.title).strip() or active_project.title
+            active_project.project_type = request.POST.get('project_type', active_project.project_type)
+            active_project.grade        = request.POST.get('grade', active_project.grade)
+            active_project.status       = request.POST.get('status', active_project.status)
+            seq_raw = request.POST.get('sequence_number', '').strip()
+            active_project.sequence_number = int(seq_raw) if seq_raw.isdigit() else None
+            linked_id = request.POST.get('linked_project', '').strip()
+            active_project.linked_project  = Project.objects.filter(id=linked_id).first() if linked_id else None
+            active_project.save()
+            messages.success(request, 'Project saved!')
+
+        elif action == 'add_assessment' and active_project:
+            name            = request.POST.get('assessment_name', '').strip()
+            assessment_type = request.POST.get('assessment_type', 'Written Assignment')
+            if name:
+                order = active_project.assessments.count()
+                Assessment.objects.create(project=active_project, name=name, assessment_type=assessment_type, order=order)
+                messages.success(request, f'Assessment "{name}" added!')
+            else:
+                messages.error(request, 'Assessment name is required.')
+
+        elif action == 'save_assessment' and active_project:
+            a = get_object_or_404(Assessment, id=request.POST.get('assessment_id'), project=active_project)
+            a.name                    = request.POST.get('name', a.name).strip() or a.name
+            a.assessment_type         = request.POST.get('assessment_type', a.assessment_type)
+            a.output_descriptor       = request.POST.get('output_descriptor', '')
+            a.additional_instructions = request.POST.get('additional_instructions', '')
+            placement_raw = request.POST.get('placement_after_challenge', '').strip()
+            a.placement_after_challenge = int(placement_raw) if placement_raw.isdigit() else None
+            if request.FILES.get('rubric_file'):
+                a.rubric_file = request.FILES['rubric_file']
+            a.save()
+            # Save competency mappings
+            a.competency_mappings.all().delete()
+            comp_ids   = request.POST.getlist('comp_id')
+            comp_types = request.POST.getlist('comp_type')
+            for i, (cid, ctype) in enumerate(zip(comp_ids, comp_types)):
+                if cid:
+                    try:
+                        AssessmentCompetency.objects.create(
+                            assessment=a,
+                            competency=Competency.objects.get(id=cid),
+                            comp_type=ctype or 'individual',
+                            order=i
+                        )
+                    except Competency.DoesNotExist:
+                        pass
+            messages.success(request, f'Assessment "{a.name}" saved!')
+
+        elif action == 'delete_assessment' and active_project:
+            Assessment.objects.filter(id=request.POST.get('assessment_id'), project=active_project).delete()
+            messages.success(request, 'Assessment deleted.')
+
+        elif action == 'delete_project' and active_project:
+            active_project.delete()
+            messages.success(request, 'Project deleted.')
+            return redirect(request.path)
+
+        return redirect(f"{request.path}?project={active_id}")
+
+    main_projects = Project.objects.exclude(project_type='Plug In').order_by('sequence_number', 'title')
+
+    context = {
+        'projects':       projects,
+        'active_project': active_project,
+        'active_id':      active_id,
+        'pillars':        pillars,
+        'all_comps':      all_comps,
+        'main_projects':  main_projects,
+    }
+    return render(request, 'superadmin/project-assessment.html', context)

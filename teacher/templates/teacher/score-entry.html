@@ -1,0 +1,693 @@
+{% extends 'teacher/base.html' %}
+{% load static %}
+
+{% block title %}Score Entry — Assessment Scoring{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: { "primary": "#5A1F6E" },
+                fontFamily: { "display": ["Poppins", "sans-serif"] },
+            },
+        },
+    }
+</script>
+<style>
+    .se * { font-family: 'Poppins', sans-serif !important; }
+    .se .material-symbols-outlined { font-family: 'Material Symbols Outlined' !important; }
+    .se select { -webkit-appearance: none !important; -moz-appearance: none !important; appearance: none !important; background-image: none !important; }
+    .score-cell { min-width: 90px; }
+    .score-input { width: 60px; border: 2px solid #5A1F6E; border-radius: 6px; padding: 4px 8px; font-size: 13px; font-weight: 600; color: #5A1F6E; text-align: center; outline: none; font-family: 'Poppins', sans-serif; }
+    .score-input:focus { box-shadow: 0 0 0 3px rgba(90,31,110,0.15); }
+    .score-btn-filled { background: rgba(90,31,110,0.07); border: 1.5px solid rgba(90,31,110,0.35); color: #5A1F6E; border-radius: 9999px; padding: 6px 16px; font-size: 13px; font-weight: 700; cursor: pointer; width: 100%; text-align: center; transition: background 0.15s; white-space: nowrap; }
+    .score-btn-filled:hover { background: rgba(90,31,110,0.15); }
+    .score-btn-empty { background: #f8fafc; border: 1.5px solid #e2e8f0; color: #94a3b8; border-radius: 9999px; padding: 6px 16px; font-size: 13px; font-weight: 400; cursor: pointer; width: 100%; text-align: center; font-style: italic; transition: all 0.15s; white-space: nowrap; }
+    .score-btn-empty:hover { border-color: rgba(90,31,110,0.3); color: #5A1F6E; background: rgba(90,31,110,0.04); }
+    .eye-btn { background: transparent; border: none; cursor: pointer; padding: 6px; border-radius: 8px; color: #94a3b8; transition: color 0.15s, background 0.15s; display: inline-flex; align-items: center; justify-content: center; }
+    .eye-btn:hover { color: #5A1F6E; background: rgba(90,31,110,0.07); }
+    .saving-indicator { display: none; }
+    .saving-indicator.show { display: inline-flex; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="se max-w-[1200px] mx-auto py-6 space-y-5">
+
+    <!-- Page Header -->
+    <div class="flex flex-wrap justify-between items-center gap-4">
+        <div>
+            <h1 style="font-size:22px; font-weight:700; color:#1e1b4b;">Assessment Score Entry</h1>
+            <p id="breadcrumbText" style="font-size:13px; color:#94a3b8; margin-top:2px;">Select a grade, project and assessment to begin</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <div id="savingIndicator" class="saving-indicator items-center gap-2" style="font-size:12px; color:#94a3b8;">
+                <span class="material-symbols-outlined" style="font-size:16px; animation: spin 1s linear infinite;">autorenew</span>
+                Saving...
+            </div>
+            <div id="savedIndicator" style="display:none; font-size:12px; color:#16a34a; display:none; align-items:center; gap:4px;">
+                <span class="material-symbols-outlined" style="font-size:16px;">check_circle</span>
+                Saved
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="bg-white rounded-xl shadow-sm" style="border:1px solid #ede9f4; border-top:3px solid #5A1F6E;">
+        <div class="px-6 pt-5 pb-1 flex items-center gap-2">
+            <span class="material-symbols-outlined" style="font-size:17px; color:#5A1F6E;">tune</span>
+            <span style="font-size:13px; font-weight:700; color:#1e1b4b;">Select Assessment</span>
+            <span style="font-size:12px; color:#b0a8bc; margin-left:4px;">— follow the steps below</span>
+        </div>
+        <div class="px-6 pb-5 pt-4 space-y-4">
+            <!-- Row 1: Grade, Project, Assessment # -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <!-- Grade -->
+                <div>
+                    <label style="display:flex; align-items:center; gap:7px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:#94a3b8; margin-bottom:8px;">
+                        <span style="width:18px; height:18px; border-radius:50%; background:#5A1F6E; color:#fff; font-size:10px; font-weight:700; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">1</span>
+                        Grade Level
+                    </label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style="font-size:17px; color:#9c7bb5;">school</span>
+                        <select id="gradeSelect" class="w-full rounded-lg cursor-pointer" style="outline:none; font-size:14px; color:#374151; padding:11px 40px 11px 36px; border:1.5px solid #e2e8f0; background:#fff; transition:border-color 0.15s;">
+                            <option value="">Select grade level</option>
+                            {% for value, label in stage_choices %}
+                            <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style="font-size:18px; color:#cbd5e1;">expand_more</span>
+                    </div>
+                </div>
+                <!-- Project -->
+                <div>
+                    <label style="display:flex; align-items:center; gap:7px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:#94a3b8; margin-bottom:8px;">
+                        <span id="step2Badge" style="width:18px; height:18px; border-radius:50%; background:#e2e8f0; color:#94a3b8; font-size:10px; font-weight:700; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.2s;">2</span>
+                        Project
+                    </label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style="font-size:17px; color:#9c7bb5;">folder_open</span>
+                        <select id="projectSelect" class="w-full rounded-lg cursor-pointer" style="outline:none; font-size:14px; color:#374151; padding:11px 40px 11px 36px; border:1.5px solid #e2e8f0; background:#f8fafc; transition:border-color 0.15s; opacity:0.6;" disabled>
+                            <option value="">Select grade first</option>
+                        </select>
+                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style="font-size:18px; color:#cbd5e1;">expand_more</span>
+                    </div>
+                </div>
+                <!-- Assessment # -->
+                <div>
+                    <label style="display:flex; align-items:center; gap:7px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:#94a3b8; margin-bottom:8px;">
+                        <span id="step3Badge" style="width:18px; height:18px; border-radius:50%; background:#e2e8f0; color:#94a3b8; font-size:10px; font-weight:700; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.2s;">3</span>
+                        Assessment No.
+                    </label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style="font-size:17px; color:#9c7bb5;">format_list_numbered</span>
+                        <select id="assessmentNumSelect" class="w-full rounded-lg cursor-pointer" style="outline:none; font-size:14px; color:#374151; padding:11px 40px 11px 36px; border:1.5px solid #e2e8f0; background:#f8fafc; transition:border-color 0.15s; opacity:0.6;" disabled>
+                            <option value="">Select project first</option>
+                        </select>
+                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style="font-size:18px; color:#cbd5e1;">expand_more</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 2: Auto-filled info chips — shown after assessment # selected -->
+            <div id="row2Filters" style="display:none;" class="pt-3 border-t border-slate-100">
+                <div class="flex flex-wrap gap-3 items-center">
+                    <span style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:#94a3b8;">Auto-filled:</span>
+                    <div style="display:flex; align-items:center; gap:6px; background:#f3f0f9; border:1px solid #ddd6f0; border-radius:8px; padding:7px 14px;">
+                        <span class="material-symbols-outlined" style="font-size:15px; color:#7c3aed;">category</span>
+                        <div>
+                            <div style="font-size:10px; color:#9c7bb5; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;">Type</div>
+                            <div id="chipAssessmentType" style="font-size:13px; font-weight:600; color:#3b1f6b;">—</div>
+                        </div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:6px; background:#f3f0f9; border:1px solid #ddd6f0; border-radius:8px; padding:7px 14px;">
+                        <span class="material-symbols-outlined" style="font-size:15px; color:#7c3aed;">assignment</span>
+                        <div>
+                            <div style="font-size:10px; color:#9c7bb5; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;">Assessment</div>
+                            <div id="chipAssessmentName" style="font-size:13px; font-weight:600; color:#3b1f6b;">—</div>
+                        </div>
+                    </div>
+                    <!-- hidden selects kept for JS compatibility -->
+                    <select id="assessmentTypeSelect" style="display:none;" disabled></select>
+                    <select id="assessmentSelect" style="display:none;" disabled></select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Score Table (2nd section) -->
+    <div id="scoreTableSection" style="display:none;" class="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+            <h3 style="font-size:15px; font-weight:700; color:#1e1b4b;" class="flex items-center gap-2">
+                <span class="material-symbols-outlined" style="font-size:20px; color:#5A1F6E;">table_chart</span>
+                Student Scores
+            </h3>
+            <span style="font-size:12px; color:#94a3b8;">Click any cell to enter or edit a score (1–10)</span>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left" id="scoreTable" style="border-collapse:collapse;">
+                <thead id="scoreTableHead"></thead>
+                <tbody id="scoreTableBody"></tbody>
+            </table>
+        </div>
+        <div id="noStudents" class="hidden py-14 text-center">
+            <span class="material-symbols-outlined" style="font-size:40px; color:#e2e8f0; display:block; margin-bottom:8px;">groups</span>
+            <p style="font-size:14px; color:#94a3b8;">No active students found for this grade.</p>
+        </div>
+        <div id="tableFooter" style="display:none; padding:12px 24px; border-top:1px solid #f1f5f9;">
+            <span id="showingCount" style="font-size:12px; color:#94a3b8;"></span>
+        </div>
+    </div>
+
+    <!-- Stats Cards (3rd section — hidden until assessment selected) -->
+    <div id="statsSection" style="display:none;" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-white rounded-xl border border-slate-100 shadow-sm p-5">
+            <div class="flex items-center gap-3 mb-3">
+                <span class="material-symbols-outlined p-2 rounded-lg" style="font-size:20px; background:rgba(90,31,110,0.08); color:#5A1F6E;">task_alt</span>
+                <span style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#94a3b8;">Completion</span>
+            </div>
+            <p id="statCompletion" style="font-size:26px; font-weight:700; color:#1e1b4b;">—</p>
+            <p id="statCompletionSub" style="font-size:12px; color:#94a3b8; margin-top:2px;">students scored</p>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-100 shadow-sm p-5">
+            <div class="flex items-center gap-3 mb-3">
+                <span class="material-symbols-outlined p-2 rounded-lg" style="font-size:20px; background:rgba(37,99,235,0.08); color:#2563eb;">trending_up</span>
+                <span style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#94a3b8;">Class Avg</span>
+            </div>
+            <p id="statAvg" style="font-size:26px; font-weight:700; color:#1e1b4b;">—</p>
+            <p style="font-size:12px; color:#94a3b8; margin-top:2px;">out of 4</p>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-100 shadow-sm p-5">
+            <div class="flex items-center gap-3 mb-3">
+                <span class="material-symbols-outlined p-2 rounded-lg" style="font-size:20px; background:rgba(22,163,74,0.08); color:#16a34a;">groups</span>
+                <span style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#94a3b8;">Total Students</span>
+            </div>
+            <p id="statTotal" style="font-size:26px; font-weight:700; color:#1e1b4b;">—</p>
+            <p style="font-size:12px; color:#94a3b8; margin-top:2px;">in this grade</p>
+        </div>
+    </div>
+
+    <!-- Generate Reports Section -->
+    <div id="generateSection" style="display:none;">
+        <div class="bg-white rounded-xl shadow-sm p-6" style="border:1px solid #ede9f4; border-top:3px solid #5A1F6E;">
+            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;">
+                <div>
+                    <div style="font-size:15px; font-weight:700; color:#1e1b4b; display:flex; align-items:center; gap:8px;">
+                        <span class="material-symbols-outlined" style="font-size:20px; color:#5A1F6E;">workspace_premium</span>
+                        Skill Passport Reports
+                    </div>
+                    <p style="font-size:13px; color:#374151; margin-top:6px; font-weight:600;">
+                        Project: <span id="generateProjectName" style="color:#5A1F6E;">—</span>
+                    </p>
+                    <p style="font-size:12px; color:#94a3b8; margin-top:3px;">
+                        Scores from <strong>all assessments</strong> in this project will be combined to generate the report for <span id="generateStudentCount">0 students</span>.
+                    </p>
+                </div>
+                <button id="bulkGenerateBtn" onclick="bulkGenerateReports()"
+                    style="display:inline-flex; align-items:center; gap:8px; background:linear-gradient(135deg,#3b0f50,#5A1F6E); color:#fff; border:none; border-radius:10px; padding:12px 28px; font-size:14px; font-weight:700; cursor:pointer; white-space:nowrap; font-family:'Poppins',sans-serif;"
+                    onmouseover="this.style.opacity='0.88'" onmouseout="this.style.opacity='1'">
+                    <span class="material-symbols-outlined" style="font-size:18px;">auto_awesome</span>
+                    Generate Reports for All Students
+                </button>
+            </div>
+            <!-- Progress bar -->
+            <div id="bulkProgress" style="display:none; margin-top:16px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                    <span id="bulkProgressText" style="font-size:13px; color:#6b7280; font-weight:500;">Processing...</span>
+                    <span id="bulkProgressCount" style="font-size:13px; font-weight:700; color:#5A1F6E;">0 / 0</span>
+                </div>
+                <div style="width:100%; background:#f1f5f9; border-radius:999px; height:6px;">
+                    <div id="bulkProgressBar" style="height:6px; border-radius:999px; background:linear-gradient(90deg,#3b0f50,#5A1F6E); width:0%; transition:width 0.3s ease;"></div>
+                </div>
+            </div>
+            <div id="bulkResult" style="display:none; margin-top:14px; padding:12px 16px; border-radius:8px; font-size:13px; font-weight:600;"></div>
+        </div>
+    </div>
+
+    <!-- Empty state -->
+    <div id="emptyState" class="py-16 text-center">
+        <span class="material-symbols-outlined" style="font-size:48px; color:#e2e8f0; display:block; margin-bottom:12px;">edit_square</span>
+        <p style="font-size:14px; font-weight:500; color:#94a3b8;">Select a grade, project and assessment to start entering scores</p>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const GRADE_URL           = "{% url 'teacher:api_projects_by_grade' %}";
+const PROJECT_URL         = "{% url 'teacher:api_assessments_by_project' %}";
+const DATA_URL            = "{% url 'teacher:api_score_entry_data' %}";
+const SAVE_URL            = "{% url 'teacher:api_save_score' %}";
+const GENERATE_REPORT_URL = "{% url 'teacher:api_generate_report' %}";
+const CSRF_TOKEN          = "{{ csrf_token }}";
+
+const gradeSelect          = document.getElementById('gradeSelect');
+const projectSelect        = document.getElementById('projectSelect');
+const assessmentNumSelect  = document.getElementById('assessmentNumSelect');
+const assessmentTypeSelect = document.getElementById('assessmentTypeSelect');
+const assessmentSelect     = document.getElementById('assessmentSelect');
+const row2Filters          = document.getElementById('row2Filters');
+const statsSection         = document.getElementById('statsSection');
+const scoreSection         = document.getElementById('scoreTableSection');
+const emptyState           = document.getElementById('emptyState');
+const noStudents           = document.getElementById('noStudents');
+const breadcrumb           = document.getElementById('breadcrumbText');
+
+let currentData         = null;
+let allAssessments      = [];
+let currentAssessmentId = null;
+let currentProjectId    = null;
+let currentStudentIds   = [];
+
+const step2Badge = document.getElementById('step2Badge');
+const step3Badge = document.getElementById('step3Badge');
+
+function setStepActive(badge, active) {
+    if (!badge) return;
+    badge.style.background = active ? '#5A1F6E' : '#e2e8f0';
+    badge.style.color       = active ? '#fff'    : '#94a3b8';
+}
+
+function setSelectEnabled(sel, enabled) {
+    sel.disabled = !enabled;
+    sel.style.opacity    = enabled ? '1'     : '0.5';
+    sel.style.background = enabled ? '#fff'  : '#f8fafc';
+    sel.style.cursor     = enabled ? 'pointer' : 'not-allowed';
+}
+
+// Grade → Projects
+function resetFromProject() {
+    assessmentNumSelect.innerHTML = '<option value="">Select project first</option>';
+    setSelectEnabled(assessmentNumSelect, false);
+    setStepActive(step3Badge, false);
+    row2Filters.style.display = 'none';
+    allAssessments = [];
+    hideTable();
+}
+
+gradeSelect.addEventListener('change', function () {
+    const grade = this.value;
+    projectSelect.innerHTML = '<option value="">Loading...</option>';
+    setSelectEnabled(projectSelect, false);
+    setStepActive(step2Badge, false);
+    resetFromProject();
+    if (!grade) {
+        projectSelect.innerHTML = '<option value="">Select grade first</option>';
+        return;
+    }
+
+    fetch(`${GRADE_URL}?grade=${encodeURIComponent(grade)}&_=${Date.now()}`, {cache:'no-store'})
+        .then(r => r.json())
+        .then(data => {
+            if (data.projects && data.projects.length > 0) {
+                projectSelect.innerHTML = '<option value="">Select a project</option>';
+                data.projects.forEach(p => {
+                    const o = document.createElement('option');
+                    o.value = p.id; o.textContent = p.title;
+                    projectSelect.appendChild(o);
+                });
+                setSelectEnabled(projectSelect, true);
+                setStepActive(step2Badge, true);
+            } else {
+                projectSelect.innerHTML = '<option value="">No active projects for this grade</option>';
+                setSelectEnabled(projectSelect, false);
+            }
+        });
+});
+
+// Project → load assessments, populate Assessment No. dropdown
+projectSelect.addEventListener('change', function () {
+    const pid = this.value;
+    const projectTitle = this.options[this.selectedIndex]?.text || '';
+    resetFromProject();
+    document.getElementById('generateSection').style.display = 'none';
+    if (!pid) return;
+
+    fetch(`${PROJECT_URL}?project_id=${encodeURIComponent(pid)}&_=${Date.now()}`, {cache:'no-store'})
+        .then(r => r.json())
+        .then(data => {
+            allAssessments = data.assessments || [];
+            currentProjectId = parseInt(pid);
+
+            if (allAssessments.length > 0) {
+                assessmentNumSelect.innerHTML = '<option value="">Select assessment no.</option>';
+                allAssessments.forEach((a, idx) => {
+                    const o = document.createElement('option');
+                    o.value = idx;
+                    o.textContent = `Assessment ${idx + 1}`;
+                    assessmentNumSelect.appendChild(o);
+                });
+                setSelectEnabled(assessmentNumSelect, true);
+                setStepActive(step3Badge, true);
+            } else {
+                assessmentNumSelect.innerHTML = '<option value="">No assessments found</option>';
+                setSelectEnabled(assessmentNumSelect, false);
+            }
+
+            // Show generate section at project level — fetch student count
+            fetch(`${DATA_URL}?assessment_id=${encodeURIComponent(allAssessments[0]?.id)}&_=${Date.now()}`, {cache:'no-store'})
+                .then(r => r.json())
+                .then(d => {
+                    currentStudentIds = (d.students || []).map(s => s.id);
+                    updateGenerateSection(projectTitle);
+                });
+        });
+});
+
+// Assessment # → auto-fill chips in row 2, load table
+assessmentNumSelect.addEventListener('change', function () {
+    const idx = this.value;
+    hideTable();
+    row2Filters.style.display = 'none';
+    if (idx === '' || idx === null || idx === undefined) return;
+
+    const a = allAssessments[parseInt(idx)];
+    if (!a) return;
+
+    // Populate hidden selects (kept for JS compat)
+    assessmentTypeSelect.innerHTML = `<option value="${a.assessment_type}">${a.assessment_type}</option>`;
+    assessmentSelect.innerHTML     = `<option value="${a.id}">${a.name}</option>`;
+
+    // Update visible chips
+    document.getElementById('chipAssessmentType').textContent = a.assessment_type || '—';
+    document.getElementById('chipAssessmentName').textContent = a.name || '—';
+
+    row2Filters.style.display = 'block';
+
+    fetch(`${DATA_URL}?assessment_id=${encodeURIComponent(a.id)}&_=${Date.now()}`, {cache:'no-store'})
+        .then(r => r.json())
+        .then(data => {
+            currentData = data;
+            currentAssessmentId = a.id;
+            currentProjectId    = data.project ? data.project.id : null;
+            currentStudentIds   = (data.students || []).map(s => s.id);
+            renderTable(data);
+            updateStats(data.stats);
+        });
+});
+
+function hideTable() {
+    statsSection.style.display = 'none';
+    scoreSection.style.display = 'none';
+    emptyState.style.display   = 'block';
+    const tf = document.getElementById('tableFooter');
+    if (tf) tf.style.display = 'none';
+}
+
+function updateStats(stats) {
+    statsSection.style.display = 'grid';
+    const pct = stats.total_students > 0
+        ? Math.round(stats.scored_count / stats.total_students * 100) + '%'
+        : '0%';
+    document.getElementById('statCompletion').textContent = pct;
+    document.getElementById('statCompletionSub').textContent = `${stats.scored_count} / ${stats.total_students} students scored`;
+    document.getElementById('statAvg').textContent = stats.class_avg !== null ? stats.class_avg + '/10' : '—';
+    document.getElementById('statTotal').textContent = stats.total_students;
+}
+
+const AVATAR_COLORS = [
+    { bg: '#ede9ff', text: '#7c3aed' },
+    { bg: '#dbeafe', text: '#2563eb' },
+    { bg: '#dcfce7', text: '#16a34a' },
+    { bg: '#fff7ed', text: '#d97706' },
+    { bg: '#fce7f3', text: '#db2777' },
+    { bg: '#e0f2fe', text: '#0891b2' },
+    { bg: '#fef9c3', text: '#ca8a04' },
+];
+
+function renderTable(data) {
+    const { students, scores } = data;
+    const competencies = data.competencies;
+    emptyState.style.display = 'none';
+    scoreSection.style.display = 'block';
+
+    breadcrumb.textContent = `${data.project.grade} / ${data.project.title} / ${data.assessment.name}`;
+
+    const thead = document.getElementById('scoreTableHead');
+    const tbody = document.getElementById('scoreTableBody');
+    const tableFooter = document.getElementById('tableFooter');
+    const showingCount = document.getElementById('showingCount');
+    noStudents.classList.add('hidden');
+
+    // Build header — STUDENT NAME | COMPETENCY 1, 2... | ACTIONS
+    let headerHTML = `<tr style="background:#f8f7fc; border-bottom:2px solid #f1f5f9;">
+        <th style="padding:14px 24px; font-size:11px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.08em; min-width:220px; white-space:nowrap; position:sticky; left:0; background:#f8f7fc; z-index:10;">Student Name</th>`;
+    competencies.forEach((c, i) => {
+        headerHTML += `<th style="padding:14px 20px; font-size:11px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.08em; text-align:center; white-space:nowrap; min-width:140px;">
+            Competency ${i + 1}
+            <div style="font-size:9px; color:#b0a8bc; font-weight:600; text-transform:none; letter-spacing:0; margin-top:2px;">${escHtml(c.competency__code)}</div>
+            <div style="font-size:9px; color:#b0a8bc; font-weight:600; text-transform:none; letter-spacing:0; margin-top:1px; white-space:normal; max-width:120px; margin-left:auto; margin-right:auto;">${escHtml(c.competency__name)}</div>
+        </th>`;
+    });
+    headerHTML += `<th style="padding:14px 20px; font-size:11px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.08em; text-align:center; white-space:nowrap; min-width:80px;">Actions</th>`;
+    headerHTML += '</tr>';
+    thead.innerHTML = headerHTML;
+
+    // Build body
+    if (students.length === 0) {
+        tbody.innerHTML = '';
+        noStudents.classList.remove('hidden');
+        tableFooter.style.display = 'none';
+        return;
+    }
+
+    let bodyHTML = '';
+    students.forEach((st, idx) => {
+        const initials = ((st.first_name || '')[0] || '') + ((st.last_name || '')[0] || '');
+        const ac = AVATAR_COLORS[idx % AVATAR_COLORS.length];
+        const fullName = escHtml(st.first_name + ' ' + st.last_name);
+        const classSub = `Class ${escHtml(st.student_class)}${st.division ? ' ' + escHtml(st.division) : ''}`;
+
+        bodyHTML += `<tr style="border-bottom:1px solid #f1f5f9;" onmouseenter="this.style.background='#faf9fd'" onmouseleave="this.style.background=''">
+            <td style="padding:16px 24px; min-width:220px; position:sticky; left:0; background:#fff; z-index:5;" class="student-name-cell">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <div style="width:40px; height:40px; border-radius:50%; background:${ac.bg}; color:${ac.text}; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; flex-shrink:0; letter-spacing:0.03em;">${escHtml(initials.toUpperCase())}</div>
+                    <div>
+                        <div style="font-size:14px; font-weight:700; color:#1e1b4b; line-height:1.3;">${fullName}</div>
+                        <div style="font-size:11px; color:#94a3b8; margin-top:2px;">${classSub}</div>
+                    </div>
+                </div>
+            </td>`;
+        competencies.forEach(c => {
+            const key = `${st.id}__${c.id}`;
+            const score = scores[key];
+            const hasScore = score !== undefined && score !== null;
+            bodyHTML += `<td style="padding:12px 20px; text-align:center; min-width:140px;">
+                <div class="score-wrapper" data-student="${st.id}" data-ac="${c.id}" data-key="${key}" style="display:flex; justify-content:center;">
+                    ${hasScore
+                        ? `<button class="score-btn-filled" onclick="openEdit(this)">${score}/10</button>`
+                        : `<button class="score-btn-empty" onclick="openEdit(this)">Add Score</button>`
+                    }
+                </div>
+            </td>`;
+        });
+        bodyHTML += `<td style="padding:12px 20px; text-align:center; min-width:80px;">
+            <button class="eye-btn" title="View student" onclick="viewStudent(${st.id})">
+                <span class="material-symbols-outlined" style="font-size:20px;">visibility</span>
+            </button>
+        </td>`;
+        bodyHTML += '</tr>';
+    });
+    tbody.innerHTML = bodyHTML;
+
+    // Footer
+    tableFooter.style.display = 'block';
+    showingCount.textContent = `Showing ${students.length} student${students.length !== 1 ? 's' : ''}`;
+}
+
+function viewStudent(studentId) {
+    if (currentAssessmentId) {
+        window.location.href = `/teacher/assessment/${currentAssessmentId}/student/${studentId}/`;
+    } else {
+        window.open(`/teacher/students/${studentId}/`, '_blank');
+    }
+}
+
+function openEdit(btn) {
+    const wrapper = btn.closest('.score-wrapper');
+    const studentId = wrapper.dataset.student;
+    const acId      = wrapper.dataset.ac;
+    const key       = wrapper.dataset.key;
+    const curScore  = currentData.scores[key];
+
+    wrapper.innerHTML = `<input type="number" min="1" max="10" class="score-input"
+        value="${curScore !== undefined && curScore !== null ? curScore : ''}"
+        placeholder="1-10"
+        onblur="saveScore(this, '${studentId}', '${acId}', '${key}')"
+        onkeydown="if(event.key==='Enter') this.blur(); if(event.key==='Escape') cancelEdit(this, '${key}');"
+    >`;
+    wrapper.querySelector('input').focus();
+    wrapper.querySelector('input').select();
+}
+
+function cancelEdit(input, key) {
+    const wrapper = input.closest('.score-wrapper');
+    const score   = currentData.scores[key];
+    renderCell(wrapper, key, score);
+}
+
+function saveScore(input, studentId, acId, key) {
+    const val = input.value.trim();
+    const scoreVal = val === '' ? null : parseInt(val);
+
+    if (scoreVal !== null && (isNaN(scoreVal) || scoreVal < 1 || scoreVal > 10)) {
+        input.style.borderColor = '#dc2626';
+        setTimeout(() => { input.style.borderColor = '#5A1F6E'; }, 1000);
+        return;
+    }
+
+    showSaving();
+    fetch(SAVE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+        body: JSON.stringify({ student_id: parseInt(studentId), assessment_competency_id: parseInt(acId), score: scoreVal })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.ok) {
+            currentData.scores[key] = data.score;
+            const wrapper = input.closest('.score-wrapper');
+            renderCell(wrapper, key, data.score);
+            refreshStats();
+            showSaved();
+        }
+    });
+}
+
+function renderCell(wrapper, key, score) {
+    const hasScore = score !== undefined && score !== null;
+    wrapper.innerHTML = hasScore
+        ? `<button class="score-btn-filled" onclick="openEdit(this)">${score}/10</button>`
+        : `<button class="score-btn-empty" onclick="openEdit(this)">Add Score</button>`;
+}
+
+function refreshStats() {
+    const scores = currentData.scores;
+    const students = currentData.students;
+    const competencies = currentData.competencies;
+    const scoredStudents = new Set();
+    const allVals = [];
+
+    students.forEach(st => {
+        competencies.forEach(c => {
+            const key = `${st.id}__${c.id}`;
+            const s = scores[key];
+            if (s !== undefined && s !== null) {
+                scoredStudents.add(st.id);
+                allVals.push(s);
+            }
+        });
+    });
+
+    const avg = allVals.length > 0 ? (allVals.reduce((a,b)=>a+b,0)/allVals.length).toFixed(1) : null;
+    updateStats({
+        total_students: students.length,
+        scored_count: scoredStudents.size,
+        class_avg: avg,
+    });
+}
+
+let savingTimer = null;
+function showSaving() {
+    document.getElementById('savingIndicator').classList.add('show');
+    document.getElementById('savedIndicator').style.display = 'none';
+}
+function showSaved() {
+    document.getElementById('savingIndicator').classList.remove('show');
+    const saved = document.getElementById('savedIndicator');
+    saved.style.display = 'flex';
+    if (savingTimer) clearTimeout(savingTimer);
+    savingTimer = setTimeout(() => { saved.style.display = 'none'; }, 2000);
+}
+
+function escHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function updateGenerateSection(projectTitle) {
+    const section = document.getElementById('generateSection');
+    if (currentProjectId && currentStudentIds.length > 0) {
+        section.style.display = 'block';
+        const name = projectTitle || 'this project';
+        document.getElementById('generateProjectName').textContent = name;
+        document.getElementById('generateStudentCount').textContent =
+            `${currentStudentIds.length} student${currentStudentIds.length !== 1 ? 's' : ''}`;
+    } else {
+        section.style.display = 'none';
+    }
+}
+
+async function bulkGenerateReports() {
+    if (!currentProjectId || currentStudentIds.length === 0) return;
+
+    const btn      = document.getElementById('bulkGenerateBtn');
+    const progress = document.getElementById('bulkProgress');
+    const result   = document.getElementById('bulkResult');
+    const bar      = document.getElementById('bulkProgressBar');
+    const countEl  = document.getElementById('bulkProgressCount');
+    const textEl   = document.getElementById('bulkProgressText');
+
+    btn.disabled = true;
+    btn.innerHTML = `<span class="material-symbols-outlined" style="font-size:18px; animation:spin 1s linear infinite;">autorenew</span> Generating...`;
+    progress.style.display = 'block';
+    result.style.display   = 'none';
+    bar.style.width        = '0%';
+
+    const total = currentStudentIds.length;
+    let success = 0, failed = 0;
+
+    for (let i = 0; i < total; i++) {
+        const sid = currentStudentIds[i];
+        countEl.textContent = `${i + 1} / ${total}`;
+        textEl.textContent  = `Processing student ${i + 1} of ${total}...`;
+        bar.style.width     = `${Math.round(((i + 1) / total) * 100)}%`;
+
+        try {
+            const res  = await fetch(GENERATE_REPORT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+                body: JSON.stringify({ student_id: sid, project_id: currentProjectId })
+            });
+            const data = await res.json();
+            if (data.ok) success++; else failed++;
+        } catch (e) {
+            failed++;
+        }
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = `<span class="material-symbols-outlined" style="font-size:18px;">auto_awesome</span> Generate Reports for All Students`;
+    textEl.textContent  = 'Done';
+    countEl.textContent = `${total} / ${total}`;
+    bar.style.width     = '100%';
+
+    result.style.display = 'block';
+    if (failed === 0) {
+        result.style.background = '#f0fdf4';
+        result.style.border     = '1px solid #bbf7d0';
+        result.style.color      = '#15803d';
+        result.innerHTML = `<span class="material-symbols-outlined" style="font-size:16px; vertical-align:middle; margin-right:6px;">check_circle</span>Reports generated for all ${success} students successfully.`;
+    } else {
+        result.style.background = '#fffbeb';
+        result.style.border     = '1px solid #fde68a';
+        result.style.color      = '#92400e';
+        result.innerHTML = `<span class="material-symbols-outlined" style="font-size:16px; vertical-align:middle; margin-right:6px;">warning</span>${success} succeeded, ${failed} failed. Failed students may not have any scores yet.`;
+    }
+}
+
+// Sidebar active
+document.addEventListener('DOMContentLoaded', function () {
+    const link = document.getElementById('nav-score-entry');
+    if (link) link.classList.add('active');
+    const parent = link ? link.closest('.sidebar-dropdown') : null;
+    if (parent) parent.classList.add('active');
+});
+</script>
+<style>
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+</style>
+{% endblock %}
