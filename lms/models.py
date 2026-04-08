@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from schools.models import School
+from competencies.models import Competency, SubPillar
 
 
 class Lesson(models.Model):
@@ -50,26 +51,31 @@ class Lesson(models.Model):
     )
     
     # Assignment
-    competency = models.CharField(
-        max_length=100,
+    competency = models.ForeignKey(
+        Competency,
+        on_delete=models.SET_NULL,
         blank=True,
         null=True,
+        related_name='lessons',
         verbose_name="Competency",
         help_text="Competency this lesson belongs to"
     )
-    
+
     level = models.CharField(
         max_length=20,
         choices=LEVEL_CHOICES,
         default='beginner',
         verbose_name="Difficulty Level"
     )
-    
-    module = models.CharField(
-        max_length=100,
+
+    module = models.ForeignKey(
+        SubPillar,
+        on_delete=models.SET_NULL,
         blank=True,
         null=True,
-        verbose_name="Module / Category"
+        related_name='lessons',
+        verbose_name="Module / Category",
+        help_text="Sub-Pillar this lesson falls under"
     )
     
     # Lesson Context

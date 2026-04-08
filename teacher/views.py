@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import logout
 from django.contrib import messages
 from django.http import JsonResponse
@@ -15,12 +15,9 @@ def is_teacher(user):
 
 
 @login_required
+@user_passes_test(is_teacher)
 def teacher_dashboard(request):
     """Teacher dashboard view"""
-    if not is_teacher(request.user):
-        messages.error(request, 'You do not have permission to access the teacher dashboard.')
-        return redirect('login')
-
     from competencies.models import STAGE_CHOICES
 
     teacher_profile = None
@@ -35,10 +32,9 @@ def teacher_dashboard(request):
 
 
 @login_required
+@user_passes_test(is_teacher)
 def api_projects_by_grade(request):
     """AJAX: return active projects for a given grade/stage"""
-    if not is_teacher(request.user):
-        return JsonResponse({'error': 'Forbidden'}, status=403)
     from competencies.models import Project
     grade = request.GET.get('grade', '')
     if not grade:
@@ -53,10 +49,9 @@ def api_projects_by_grade(request):
 
 
 @login_required
+@user_passes_test(is_teacher)
 def api_project_details(request):
     """AJAX: return profiles and assessments for a project"""
-    if not is_teacher(request.user):
-        return JsonResponse({'error': 'Forbidden'}, status=403)
     from competencies.models import Project, Profile
     project_id = request.GET.get('project_id', '')
     try:
@@ -93,12 +88,9 @@ def api_project_details(request):
 
 
 @login_required
+@user_passes_test(is_teacher)
 def assessment_detail(request, assessment_id):
     """Assessment detail page for teacher"""
-    if not is_teacher(request.user):
-        messages.error(request, 'You do not have permission to access this page.')
-        return redirect('login')
-
     from competencies.models import Assessment, Profile
 
     assessment = get_object_or_404(
@@ -151,21 +143,18 @@ def assessment_detail(request, assessment_id):
 
 
 @login_required
+@user_passes_test(is_teacher)
 def score_entry(request):
     """Score Entry page"""
-    if not is_teacher(request.user):
-        messages.error(request, 'You do not have permission to access this page.')
-        return redirect('login')
     from competencies.models import STAGE_CHOICES
     context = {'stage_choices': STAGE_CHOICES}
     return render(request, 'teacher/score-entry.html', context)
 
 
 @login_required
+@user_passes_test(is_teacher)
 def api_assessments_by_project(request):
     """AJAX: return assessments for a project"""
-    if not is_teacher(request.user):
-        return JsonResponse({'error': 'Forbidden'}, status=403)
     from competencies.models import Assessment
     project_id = request.GET.get('project_id', '')
     if not project_id:
@@ -179,10 +168,9 @@ def api_assessments_by_project(request):
 
 
 @login_required
+@user_passes_test(is_teacher)
 def api_score_entry_data(request):
     """AJAX: return students + competencies + existing scores for an assessment"""
-    if not is_teacher(request.user):
-        return JsonResponse({'error': 'Forbidden'}, status=403)
     from competencies.models import Assessment, ScoreEntry
     from student.models import Student
 
@@ -256,10 +244,9 @@ def api_score_entry_data(request):
 
 
 @login_required
+@user_passes_test(is_teacher)
 def api_save_score(request):
     """AJAX POST: save a score entry"""
-    if not is_teacher(request.user):
-        return JsonResponse({'error': 'Forbidden'}, status=403)
     if request.method != 'POST':
         return JsonResponse({'error': 'POST required'}, status=405)
 
@@ -289,12 +276,9 @@ def api_save_score(request):
 
 
 @login_required
+@user_passes_test(is_teacher)
 def student_score_detail(request, assessment_id, student_id):
     """Individual student score entry for a specific assessment"""
-    if not is_teacher(request.user):
-        messages.error(request, 'Permission denied.')
-        return redirect('login')
-
     from competencies.models import Assessment, ScoreEntry, StudentAssessmentFeedback
 
     teacher_obj = getattr(request.user, 'teacher_profile', None)
@@ -353,10 +337,9 @@ def student_score_detail(request, assessment_id, student_id):
 
 
 @login_required
+@user_passes_test(is_teacher)
 def api_save_feedback(request):
     """AJAX POST: save teacher feedback for a student's assessment"""
-    if not is_teacher(request.user):
-        return JsonResponse({'error': 'Forbidden'}, status=403)
     if request.method != 'POST':
         return JsonResponse({'error': 'POST required'}, status=405)
 
@@ -383,10 +366,9 @@ def api_save_feedback(request):
 
 
 @login_required
+@user_passes_test(is_teacher)
 def api_save_project_feedback(request):
     """AJAX POST: save teacher overall project feedback for a student"""
-    if not is_teacher(request.user):
-        return JsonResponse({'error': 'Forbidden'}, status=403)
     if request.method != 'POST':
         return JsonResponse({'error': 'POST required'}, status=405)
 
@@ -420,11 +402,9 @@ def teacher_logout(request):
 
 
 @login_required
+@user_passes_test(is_teacher)
 def teacher_profile(request):
     """Teacher Profile View"""
-    if not is_teacher(request.user):
-        messages.error(request, 'You do not have permission to access this page.')
-        return redirect('login')
     
         
     # Get profile for the user
@@ -441,11 +421,9 @@ def teacher_profile(request):
 
 
 @login_required
+@user_passes_test(is_teacher)
 def teacher_profile_update(request):
     """Teacher Profile Update View"""
-    if not is_teacher(request.user):
-        messages.error(request, 'You do not have permission to access this page.')
-        return redirect('login')
     
     if request.method == 'POST':
                 
@@ -475,11 +453,9 @@ def teacher_profile_update(request):
 
 
 @login_required
+@user_passes_test(is_teacher)
 def teacher_change_password(request):
     """Teacher Change Password View"""
-    if not is_teacher(request.user):
-        messages.error(request, 'You do not have permission to access this page.')
-        return redirect('login')
     
     if request.method == 'POST':
         current_password = request.POST.get('current_password', '')
@@ -545,11 +521,9 @@ def teacher_change_password(request):
 
 
 @login_required
+@user_passes_test(is_teacher)
 def student_list(request):
     """Teacher Student List View - Shows students from assigned school"""
-    if not is_teacher(request.user):
-        messages.error(request, 'You do not have permission to access this page.')
-        return redirect('login')
     
     # Get teacher's assigned school
     teacher_school = None
@@ -580,11 +554,9 @@ def student_list(request):
 
 
 @login_required
+@user_passes_test(is_teacher)
 def view_student(request, student_id):
     """View individual student details"""
-    if not is_teacher(request.user):
-        messages.error(request, 'You do not have permission to access this page.')
-        return redirect('login')
     
     # Get teacher's assigned school
     teacher_school = None
@@ -611,11 +583,9 @@ def view_student(request, student_id):
 
 
 @login_required
+@user_passes_test(is_teacher)
 def lesson_library(request):
     """Teacher Lesson Library View"""
-    if not is_teacher(request.user):
-        messages.error(request, 'You do not have permission to access this page.')
-        return redirect('login')
     
     # Get teacher's assigned school
     teacher_school = None
@@ -636,11 +606,9 @@ def lesson_library(request):
 
 
 @login_required
+@user_passes_test(is_teacher)
 def add_lesson(request):
     """Teacher Add Lesson View"""
-    if not is_teacher(request.user):
-        messages.error(request, 'You do not have permission to access this page.')
-        return redirect('login')
     
     if request.method == 'POST':
         from lms.models import Lesson, LessonResource
@@ -651,9 +619,9 @@ def add_lesson(request):
             # Get form data
             title = request.POST.get('title')
             description = request.POST.get('description')
-            competency = request.POST.get('competency')
+            competency_id = request.POST.get('competency')
             level = request.POST.get('level', 'beginner')
-            module = request.POST.get('module')
+            module_id = request.POST.get('module')
             applicable_grades = request.POST.get('applicable_grades')
             status = request.POST.get('status', 'draft')
             is_published = status == 'published'
@@ -720,13 +688,28 @@ def add_lesson(request):
             print(f"DEBUG - has_videos: {has_videos}, has_article: {has_article}, has_quiz: {has_quiz}, has_resources: {has_resources}")
             print(f"DEBUG - Final primary_content_type: {primary_content_type}")
 
+            # Resolve FKs
+            from competencies.models import Competency as CompModel, SubPillar as SPModel
+            competency_obj = None
+            module_obj = None
+            if competency_id:
+                try:
+                    competency_obj = CompModel.objects.get(pk=competency_id)
+                except CompModel.DoesNotExist:
+                    pass
+            if module_id:
+                try:
+                    module_obj = SPModel.objects.get(pk=module_id)
+                except SPModel.DoesNotExist:
+                    pass
+
             # Create lesson
             lesson = Lesson(
                 title=title,
                 description=description,
-                competency=competency,
+                competency=competency_obj,
                 level=level,
-                module=module,
+                module=module_obj,
                 applicable_grades=applicable_grades,
                 status=status,
                 is_published=is_published,
@@ -783,17 +766,18 @@ def add_lesson(request):
             messages.error(request, f'Error creating lesson: {str(e)}')
 
     # GET request - render form
-    context = {}
+    from competencies.models import Competency as CompModel, SubPillar as SPModel
+    context = {
+        'competencies': CompModel.objects.filter(status='Active').select_related('sub_pillar').order_by('code'),
+        'sub_pillars': SPModel.objects.all().select_related('pillar').order_by('sp_number'),
+    }
     return render(request, 'teacher/add-lesson.html', context)
 
 
 @login_required
+@user_passes_test(is_teacher)
 def view_lesson(request, lesson_id):
     """View individual lesson details"""
-    if not is_teacher(request.user):
-        messages.error(request, 'You do not have permission to access this page.')
-        return redirect('login')
-
     from lms.models import LessonResource
     import json
 
@@ -828,11 +812,9 @@ def view_lesson(request, lesson_id):
 
 
 @login_required
+@user_passes_test(is_teacher)
 def edit_lesson(request, lesson_id):
     """Edit lesson"""
-    if not is_teacher(request.user):
-        messages.error(request, 'You do not have permission to access this page.')
-        return redirect('login')
     
     # Get teacher's assigned school
     teacher_school = None
@@ -900,9 +882,26 @@ def edit_lesson(request, lesson_id):
         
         lesson.title = request.POST.get('title', lesson.title).strip()
         lesson.description = request.POST.get('description', lesson.description).strip()
-        lesson.competency = request.POST.get('competency', lesson.competency).strip()
         lesson.level = request.POST.get('level', lesson.level)
-        lesson.module = request.POST.get('module', lesson.module).strip()
+
+        # Resolve FK for competency and module
+        from competencies.models import Competency as CompModel, SubPillar as SPModel
+        comp_id = request.POST.get('competency')
+        mod_id = request.POST.get('module')
+        if comp_id:
+            try:
+                lesson.competency = CompModel.objects.get(pk=comp_id)
+            except CompModel.DoesNotExist:
+                lesson.competency = None
+        else:
+            lesson.competency = None
+        if mod_id:
+            try:
+                lesson.module = SPModel.objects.get(pk=mod_id)
+            except SPModel.DoesNotExist:
+                lesson.module = None
+        else:
+            lesson.module = None
         lesson.applicable_grades = request.POST.get('applicable_grades', lesson.applicable_grades).strip()
         lesson.primary_content_type = primary_content_type
         lesson.status = request.POST.get('status', lesson.status)
@@ -948,22 +947,24 @@ def edit_lesson(request, lesson_id):
     from lms.models import LessonResource
     resources = LessonResource.objects.filter(lesson=lesson)
 
+    from competencies.models import Competency as CompModel, SubPillar as SPModel
     context = {
         'page_title': f'Edit Lesson - {lesson.title}',
         'lesson': lesson,
         'resources': resources,
+        'competencies': CompModel.objects.filter(status='Active').select_related('sub_pillar').order_by('code'),
+        'sub_pillars': SPModel.objects.all().select_related('pillar').order_by('sp_number'),
     }
     return render(request, 'teacher/edit-lesson.html', context)
 
 
 @login_required
+@user_passes_test(is_teacher)
 def delete_lessons(request):
     """Delete multiple lessons"""
     import json
     from django.http import JsonResponse
     
-    if not is_teacher(request.user):
-        return JsonResponse({'success': False, 'error': 'Permission denied'}, status=403)
     
     if request.method != 'POST':
         return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
@@ -1003,10 +1004,9 @@ def delete_lessons(request):
 
 
 @login_required
+@user_passes_test(is_teacher)
 def api_generate_report(request):
     """AJAX POST: generate (or regenerate) a ProjectReport for a student + project."""
-    if not is_teacher(request.user):
-        return JsonResponse({'ok': False, 'error': 'Forbidden'}, status=403)
 
     if request.method != 'POST':
         return JsonResponse({'ok': False, 'error': 'POST required'}, status=405)

@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.shortcuts import redirect
 from django.http import JsonResponse
@@ -13,12 +13,9 @@ def is_student(user):
 
 
 @login_required
+@user_passes_test(is_student)
 def student_dashboard(request):
     """Student dashboard view"""
-    if not is_student(request.user):
-        messages.error(request, 'You do not have permission to access the student dashboard.')
-        return redirect('login')
-
     context = {
         'user': request.user,
     }
@@ -26,12 +23,9 @@ def student_dashboard(request):
 
 
 @login_required
+@user_passes_test(is_student)
 def student_profile(request):
     """Student profile view"""
-    if not is_student(request.user):
-        messages.error(request, 'You do not have permission to access this page.')
-        return redirect('login')
-
     context = {
         'user': request.user,
     }
@@ -39,12 +33,9 @@ def student_profile(request):
 
 
 @login_required
+@user_passes_test(is_student)
 def student_reports(request):
     """Student skill passport reports page"""
-    if not is_student(request.user):
-        messages.error(request, 'You do not have permission to access this page.')
-        return redirect('login')
-
     from competencies.models import ProjectReport
 
     student = None
@@ -61,11 +52,8 @@ def student_reports(request):
 
 
 @login_required
+@user_passes_test(is_student)
 def student_reports(request):
-    if not is_student(request.user):
-        messages.error(request, 'You do not have permission to access this page.')
-        return redirect('login')
-
     from competencies.models import ProjectReport
     student = getattr(request.user, 'student_profile', None) or getattr(request.user, 'student', None)
     reports = []
@@ -76,11 +64,8 @@ def student_reports(request):
 
 
 @login_required
+@user_passes_test(is_student)
 def student_report_detail(request, project_id):
-    if not is_student(request.user):
-        messages.error(request, 'You do not have permission to access this page.')
-        return redirect('login')
-
     from competencies.models import ProjectReport
     from django.shortcuts import get_object_or_404
 
@@ -121,12 +106,10 @@ def student_report_detail(request, project_id):
 
 
 @login_required
+@user_passes_test(is_student)
 @require_POST
 def update_profile(request):
     """Update student profile data via AJAX"""
-    if not is_student(request.user):
-        return JsonResponse({'success': False, 'message': 'Permission denied'}, status=403)
-
     try:
         data = json.loads(request.body)
         
@@ -191,12 +174,10 @@ def update_profile(request):
 
 
 @login_required
+@user_passes_test(is_student)
 @require_POST
 def update_avatar(request):
     """Update student avatar via AJAX"""
-    if not is_student(request.user):
-        return JsonResponse({'success': False, 'message': 'Permission denied'}, status=403)
-
     try:
         if 'avatar' not in request.FILES:
             return JsonResponse({'success': False, 'message': 'No file provided'}, status=400)

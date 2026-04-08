@@ -1,0 +1,535 @@
+{% extends 'superadmin/base.html' %}
+{% load static %}
+
+{% block title %}Edit Coordinator - {{ coordinator.full_name }} - Enpower Skill Lab{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/superadmin/onboard-pc.css' %}">
+<style>
+    .edit-pc-page {
+        padding: 1rem;
+        width: 100%;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #6b277e;
+        text-decoration: none;
+        font-weight: 500;
+        margin-bottom: 1rem;
+        padding-left: 0.5rem;
+    }
+
+    .back-link:hover {
+        color: #A67DB1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="edit-pc-page">
+    <a href="{% url 'coordinator_list' %}" class="back-link">
+        <span class="material-symbols-outlined">arrow_back</span>
+        Back to Coordinator List
+    </a>
+
+    <div class="dashboard-page opc-dashboard-page">
+        <div class="opc-container">
+            <form id="editCoordinatorForm" method="POST" enctype="multipart/form-data" action="{% url 'edit_coordinator' coordinator.id %}">
+                {% csrf_token %}
+
+                <div class="opc-page-header">
+                    <h1>Edit Program Coordinator</h1>
+                    <p>Update the coordinator information below</p>
+                </div>
+
+                <!-- A. Basic Information -->
+                <div class="opc-form-section">
+                    <h2>A. Basic Information</h2>
+
+                    <div class="opc-form-row full">
+                        <div class="opc-form-group">
+                            <label>Profile Photo</label>
+                            <div class="opc-photo-upload-container">
+                                <div class="opc-photo-preview" id="photoPreview">
+                                    {% if coordinator.profile_photo %}
+                                    <img src="{{ coordinator.profile_photo.url }}" alt="{{ coordinator.full_name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                                    {% else %}
+                                    <span class="material-symbols-outlined">add_a_photo</span>
+                                    <span class="opc-photo-preview-text">Upload Photo</span>
+                                    {% endif %}
+                                </div>
+                                <input type="file" id="profilePhoto" name="profilePhoto" accept="image/*" class="opc-photo-input">
+                                <button type="button" class="opc-upload-photo-btn" onclick="document.getElementById('profilePhoto').click()">
+                                    <span class="material-symbols-outlined">upload</span>
+                                    Choose Photo
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="opc-form-row">
+                        <div class="opc-form-group">
+                            <label>Employee ID</label>
+                            <input type="text" name="employeeId" value="{{ coordinator.employee_id|default:'' }}" readonly>
+                        </div>
+                        <div class="opc-form-group">
+                            <label>Full Name <span class="required">*</span></label>
+                            <input type="text" name="fullName" value="{{ coordinator.full_name }}" required>
+                        </div>
+                    </div>
+
+                    <div class="opc-form-row">
+                        <div class="opc-form-group">
+                            <label>Gender <span class="required">*</span></label>
+                            <select name="gender" required>
+                                <option value="male" {% if coordinator.gender == 'male' %}selected{% endif %}>Male</option>
+                                <option value="female" {% if coordinator.gender == 'female' %}selected{% endif %}>Female</option>
+                                <option value="other" {% if coordinator.gender == 'other' %}selected{% endif %}>Other</option>
+                            </select>
+                        </div>
+                        <div class="opc-form-group">
+                            <label>Date of Birth <span class="required">*</span></label>
+                            <input type="date" name="dateOfBirth" value="{{ coordinator.date_of_birth|date:'Y-m-d' }}" required>
+                        </div>
+                    </div>
+
+                    <div class="opc-form-row">
+                        <div class="opc-form-group">
+                            <label>Blood Group</label>
+                            <select name="bloodGroup">
+                                <option value="">Select blood group</option>
+                                {% for val, label in blood_group_choices %}
+                                <option value="{{ val }}" {% if coordinator.blood_group == val %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="opc-form-group">
+                            <label>Nationality</label>
+                            <input type="text" name="nationality" value="{{ coordinator.nationality }}">
+                        </div>
+                    </div>
+
+                    <div class="opc-form-row">
+                        <div class="opc-form-group">
+                            <label>Aadhar Number <span class="required">*</span></label>
+                            <input type="text" name="aadharNumber" value="{{ coordinator.aadhar_number }}" maxlength="12" required>
+                        </div>
+                        <div class="opc-form-group">
+                            <label>PAN Number <span class="required">*</span></label>
+                            <input type="text" name="panNumber" value="{{ coordinator.pan_number }}" maxlength="10" style="text-transform: uppercase;" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- B. Professional Details -->
+                <div class="opc-form-section">
+                    <h2>B. Professional Details</h2>
+
+                    <div class="opc-form-row">
+                        <div class="opc-form-group">
+                            <label>Designation <span class="required">*</span></label>
+                            <select name="designation" required>
+                                {% for val, label in designation_choices %}
+                                <option value="{{ val }}" {% if coordinator.designation == val %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="opc-form-group">
+                            <label>Qualification <span class="required">*</span></label>
+                            <input type="text" name="qualification" value="{{ coordinator.qualification }}" required>
+                        </div>
+                    </div>
+
+                    <div class="opc-form-row">
+                        <div class="opc-form-group">
+                            <label>Specialization <span class="required">*</span></label>
+                            <select name="specialization" required>
+                                {% for val, label in specialization_choices %}
+                                <option value="{{ val }}" {% if coordinator.specialization == val %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="opc-form-group">
+                            <label>Total Experience <span class="required">*</span></label>
+                            <input type="text" name="totalExperience" value="{{ coordinator.total_experience }}" required>
+                        </div>
+                    </div>
+
+                    <div class="opc-form-row">
+                        <div class="opc-form-group">
+                            <label>Program Management Exp.</label>
+                            <input type="text" name="programManagementExp" value="{{ coordinator.program_management_exp|default:'' }}">
+                        </div>
+                        <div class="opc-form-group">
+                            <label>Education Exp.</label>
+                            <input type="text" name="educationExp" value="{{ coordinator.education_exp|default:'' }}">
+                        </div>
+                    </div>
+
+                    <div class="opc-form-row full">
+                        <div class="opc-form-group">
+                            <label>Previous Organizations</label>
+                            <textarea name="previousOrganizations">{{ coordinator.previous_organizations|default:'' }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="opc-form-row">
+                        <div class="opc-form-group">
+                            <label>Languages Known <span class="required">*</span></label>
+                            <input type="text" name="languagesKnown" value="{{ coordinator.languages_known }}" required>
+                        </div>
+                        <div class="opc-form-group">
+                            <label>Certifications</label>
+                            <input type="text" name="certifications" value="{{ coordinator.certifications|default:'' }}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- C. Contact Information -->
+                <div class="opc-form-section">
+                    <h2>C. Contact Information</h2>
+
+                    <div class="opc-form-row">
+                        <div class="opc-form-group">
+                            <label>Mobile Number <span class="required">*</span></label>
+                            <input type="tel" name="mobileNumber" value="{{ coordinator.mobile_number }}" required>
+                        </div>
+                        <div class="opc-form-group">
+                            <label>Alternate Number</label>
+                            <input type="tel" name="alternateNumber" value="{{ coordinator.alternate_number|default:'' }}">
+                        </div>
+                    </div>
+
+                    <div class="opc-form-row">
+                        <div class="opc-form-group">
+                            <label>Official Email <span class="required">*</span></label>
+                            <input type="email" name="officialEmail" value="{{ coordinator.official_email }}" required>
+                        </div>
+                        <div class="opc-form-group">
+                            <label>Personal Email</label>
+                            <input type="email" name="personalEmail" value="{{ coordinator.personal_email|default:'' }}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- D. Address Details -->
+                <div class="opc-form-section">
+                    <h2>D. Address Details</h2>
+
+                    <div class="opc-form-row full">
+                        <div class="opc-form-group">
+                            <label>Current Address <span class="required">*</span></label>
+                            <textarea name="currentAddress" required>{{ coordinator.current_address }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="opc-form-row full">
+                        <div class="opc-form-group">
+                            <label>Permanent Address</label>
+                            <textarea name="permanentAddress">{{ coordinator.permanent_address|default:'' }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="opc-form-row">
+                        <div class="opc-form-group">
+                            <label>City <span class="required">*</span></label>
+                            <input type="text" name="city" value="{{ coordinator.city }}" required>
+                        </div>
+                        <div class="opc-form-group">
+                            <label>State <span class="required">*</span></label>
+                            <input type="text" name="state" value="{{ coordinator.state }}" required>
+                        </div>
+                    </div>
+
+                    <div class="opc-form-row">
+                        <div class="opc-form-group">
+                            <label>Pin Code <span class="required">*</span></label>
+                            <input type="text" name="pincode" value="{{ coordinator.pincode }}" maxlength="6" required>
+                        </div>
+                        <div class="opc-form-group"></div>
+                    </div>
+                </div>
+
+                <!-- E. Compliance & Documentation -->
+                <div class="opc-form-section">
+                    <h2>E. Compliance & Documentation</h2>
+
+                    <div class="opc-form-row">
+                        <div class="opc-form-group">
+                            <label>ID Proof</label>
+                            <select name="idProof">
+                                <option value="">Select ID proof</option>
+                                <option value="Aadhar" {% if coordinator.id_proof == 'Aadhar' %}selected{% endif %}>Aadhar</option>
+                                <option value="PAN" {% if coordinator.id_proof == 'PAN' %}selected{% endif %}>PAN</option>
+                                <option value="Both" {% if coordinator.id_proof == 'Both' %}selected{% endif %}>Both (Aadhar & PAN)</option>
+                            </select>
+                        </div>
+                        <div class="opc-form-group">
+                            <label>Address Proof</label>
+                            <select name="addressProof">
+                                <option value="">Select address proof</option>
+                                <option value="Aadhar" {% if coordinator.address_proof == 'Aadhar' %}selected{% endif %}>Aadhar</option>
+                                <option value="Utility Bill" {% if coordinator.address_proof == 'Utility Bill' %}selected{% endif %}>Utility Bill</option>
+                                <option value="Passport" {% if coordinator.address_proof == 'Passport' %}selected{% endif %}>Passport</option>
+                                <option value="Rental Agreement" {% if coordinator.address_proof == 'Rental Agreement' %}selected{% endif %}>Rental Agreement</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="opc-form-row">
+                        <div class="opc-form-group">
+                            <label>Police Verification</label>
+                            <select name="policeVerification">
+                                {% for val, label in verification_status_choices %}
+                                <option value="{{ val }}" {% if coordinator.police_verification == val %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="opc-form-group">
+                            <label>Passport Photo Uploaded</label>
+                            <select name="passportPhotoUploaded">
+                                <option value="Yes" {% if coordinator.passport_photo_uploaded == 'Yes' %}selected{% endif %}>Yes</option>
+                                <option value="No" {% if coordinator.passport_photo_uploaded == 'No' %}selected{% endif %}>No</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="opc-form-row">
+                        <div class="opc-form-group">
+                            <label>Contract Uploaded</label>
+                            <select name="contractUploaded">
+                                <option value="Yes" {% if coordinator.contract_uploaded == 'Yes' %}selected{% endif %}>Yes</option>
+                                <option value="No" {% if coordinator.contract_uploaded == 'No' %}selected{% endif %}>No</option>
+                            </select>
+                        </div>
+                        <div class="opc-form-group">
+                            <label>PAN-Aadhar Linked</label>
+                            <select name="panAadharLinked">
+                                <option value="Yes" {% if coordinator.pan_aadhar_linked == 'Yes' %}selected{% endif %}>Yes</option>
+                                <option value="No" {% if coordinator.pan_aadhar_linked == 'No' %}selected{% endif %}>No</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="opc-form-row">
+                        <div class="opc-form-group">
+                            <label>NDA Signed</label>
+                            <select name="ndaSigned">
+                                <option value="Yes" {% if coordinator.nda_signed == 'Yes' %}selected{% endif %}>Yes</option>
+                                <option value="No" {% if coordinator.nda_signed == 'No' %}selected{% endif %}>No</option>
+                            </select>
+                        </div>
+                        <div class="opc-form-group"></div>
+                    </div>
+                </div>
+
+                <!-- F. Program & Work Assignment -->
+                <div class="opc-form-section">
+                    <h2>F. Program & Work Assignment Details</h2>
+
+                    <div class="opc-form-row">
+                        <div class="opc-form-group">
+                            <label>Program Assigned</label>
+                            <select name="programAssigned">
+                                <option value="">Select program</option>
+                                <option value="CSL" {% if coordinator.program_assigned == 'CSL' %}selected{% endif %}>CSL</option>
+                                <option value="CSL+" {% if coordinator.program_assigned == 'CSL+' %}selected{% endif %}>CSL+</option>
+                                <option value="Idea Lab Aff" {% if coordinator.program_assigned == 'Idea Lab Aff' %}selected{% endif %}>Idea Lab Aff</option>
+                                <option value="Idea Lab Certf" {% if coordinator.program_assigned == 'Idea Lab Certf' %}selected{% endif %}>Idea Lab Certf</option>
+                            </select>
+                        </div>
+                        <div class="opc-form-group">
+                            <label>Zone Assigned</label>
+                            <input type="text" name="zoneAssigned" value="{{ coordinator.zone_assigned|default:'' }}">
+                        </div>
+                    </div>
+
+                    <div class="opc-form-row full">
+                        <div class="opc-form-group">
+                            <label>Schools Assigned</label>
+                            <div class="opc-multi-select-container">
+                                <div class="opc-selected-items" id="selectedSchools">
+                                    {% for school in coordinator.schools_assigned.all %}
+                                    <span class="opc-selected-tag">{{ school.school_name }} <button type="button" onclick="this.parentElement.remove(); document.querySelector('input[name=schools][value=\'{{ school.id }}\']').checked = false;">&times;</button></span>
+                                    {% empty %}
+                                    <span class="placeholder">Select schools to assign</span>
+                                    {% endfor %}
+                                </div>
+                                <div class="opc-multi-select-dropdown" id="schoolsDropdown">
+                                    <div class="opc-search-box">
+                                        <input type="text" id="schoolSearch" placeholder="Search schools...">
+                                    </div>
+                                    <div class="opc-options-list">
+                                        {% for school in schools %}
+                                        <label class="opc-checkbox-option">
+                                            <input type="checkbox" name="schools" value="{{ school.id }}" {% if school in coordinator.schools_assigned.all %}checked{% endif %}>
+                                            <span>{{ school.school_name }}{% if school.branch_name %} - {{ school.branch_name }}{% endif %}</span>
+                                        </label>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="opc-form-row">
+                        <div class="opc-form-group">
+                            <label>Branch / Region</label>
+                            <input type="text" name="branchRegion" value="{{ coordinator.branch_region|default:'' }}">
+                        </div>
+                        <div class="opc-form-group">
+                            <label>Reporting Manager</label>
+                            <input type="text" name="reportingManager" value="{{ coordinator.reporting_manager|default:'' }}">
+                        </div>
+                    </div>
+
+                    <div class="opc-form-row">
+                        <div class="opc-form-group">
+                            <label>Login Role</label>
+                            <select name="loginRole">
+                                <option value="">Select role</option>
+                                <option value="Program Coordinator" {% if coordinator.login_role == 'Program Coordinator' %}selected{% endif %}>Program Coordinator</option>
+                                <option value="Project Coordinator" {% if coordinator.login_role == 'Project Coordinator' %}selected{% endif %}>Project Coordinator</option>
+                                <option value="Senior Coordinator" {% if coordinator.login_role == 'Senior Coordinator' %}selected{% endif %}>Senior Coordinator</option>
+                            </select>
+                        </div>
+                        <div class="opc-form-group">
+                            <label>Joining Date <span class="required">*</span></label>
+                            <input type="date" name="joiningDate" value="{{ coordinator.joining_date|date:'Y-m-d' }}" required>
+                        </div>
+                    </div>
+
+                    <div class="opc-form-row">
+                        <div class="opc-form-group">
+                            <label>Employment Type <span class="required">*</span></label>
+                            <select name="employmentType" required>
+                                {% for val, label in employment_type_choices %}
+                                <option value="{{ val }}" {% if coordinator.employment_type == val %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="opc-form-group"></div>
+                    </div>
+
+                    <div class="opc-form-row">
+                        <div class="opc-form-group">
+                            <label>Contract Start Date</label>
+                            <input type="date" name="contractStartDate" value="{{ coordinator.contract_start_date|date:'Y-m-d' }}">
+                        </div>
+                        <div class="opc-form-group">
+                            <label>Contract End Date</label>
+                            <input type="date" name="contractEndDate" value="{{ coordinator.contract_end_date|date:'Y-m-d' }}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- G. Bank & Payroll Details -->
+                <div class="opc-form-section">
+                    <h2>G. Bank & Payroll Details</h2>
+
+                    <div class="opc-form-row">
+                        <div class="opc-form-group">
+                            <label>Bank Name <span class="required">*</span></label>
+                            <input type="text" name="bankName" value="{{ coordinator.bank_name }}" required>
+                        </div>
+                        <div class="opc-form-group">
+                            <label>Branch Name <span class="required">*</span></label>
+                            <input type="text" name="branchName" value="{{ coordinator.branch_name }}" required>
+                        </div>
+                    </div>
+
+                    <div class="opc-form-row">
+                        <div class="opc-form-group">
+                            <label>Account Number <span class="required">*</span></label>
+                            <input type="text" name="accountNumber" value="{{ coordinator.account_number }}" required>
+                        </div>
+                        <div class="opc-form-group">
+                            <label>IFSC Code <span class="required">*</span></label>
+                            <input type="text" name="ifscCode" value="{{ coordinator.ifsc_code }}" maxlength="11" style="text-transform: uppercase;" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- H. Additional Optional Data -->
+                <div class="opc-form-section">
+                    <h2>H. Additional Optional Data</h2>
+
+                    <div class="opc-form-row full">
+                        <div class="opc-form-group">
+                            <label>Strength Areas</label>
+                            <textarea name="strengthAreas">{{ coordinator.strength_areas|default:'' }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="opc-form-row full">
+                        <div class="opc-form-group">
+                            <label>Hobbies / Interests</label>
+                            <textarea name="hobbies">{{ coordinator.hobbies|default:'' }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="opc-form-row">
+                        <div class="opc-form-group">
+                            <label>Work Style</label>
+                            <select name="workStyle">
+                                <option value="">Select work style</option>
+                                {% for val, label in work_style_choices %}
+                                <option value="{{ val }}" {% if coordinator.work_style == val %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="opc-form-group">
+                            <label>Tools Comfortable With</label>
+                            <input type="text" name="toolsComfortable" value="{{ coordinator.tools_comfortable|default:'' }}">
+                        </div>
+                    </div>
+
+                    <div class="opc-form-row full">
+                        <div class="opc-form-group">
+                            <label>Achievements</label>
+                            <textarea name="achievements">{{ coordinator.achievements|default:'' }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="opc-form-row full">
+                        <div class="opc-form-group">
+                            <label>Career Aspirations</label>
+                            <textarea name="careerAspirations">{{ coordinator.career_aspirations|default:'' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- I. Status -->
+                <div class="opc-form-section">
+                    <h2>I. Status</h2>
+
+                    <div class="opc-form-row">
+                        <div class="opc-form-group">
+                            <label>Active Status</label>
+                            <select name="isActive">
+                                <option value="true" {% if coordinator.is_active %}selected{% endif %}>Active</option>
+                                <option value="false" {% if not coordinator.is_active %}selected{% endif %}>Inactive</option>
+                            </select>
+                        </div>
+                        <div class="opc-form-group"></div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="opc-form-actions" style="justify-content: flex-end; gap: 1rem;">
+                    <a href="{% url 'coordinator_list' %}" class="opc-btn opc-btn-back">
+                        Cancel
+                    </a>
+                    <button type="submit" class="opc-btn opc-btn-submit" style="display: flex;">
+                        <span class="material-symbols-outlined" style="font-size: 18px;">check_circle</span>
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -132,15 +132,26 @@
                         </h5>
 
                         <div class="mb-3">
+                            <label for="alModule" class="al-form-label">Module / Sub-Pillar</label>
+                            <select class="al-form-select" id="alModule" name="module">
+                                <option value="">Select Module</option>
+                                {% for sp in sub_pillars %}
+                                <option value="{{ sp.id }}">SP{{ sp.sp_number }}: {{ sp.name }} ({{ sp.pillar.name }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
                             <label for="alCompetency" class="al-form-label">Competency</label>
                             <select class="al-form-select" id="alCompetency" name="competency">
                                 <option value="">Select Competency</option>
-                                {% for competency in competencies %}
-                                <option value="{{ competency.id }}">{{ competency.name }}</option>
-                                {% empty %}
-                                <option value="1">Financial Literacy</option>
-                                <option value="2">Digital Skills</option>
-                                <option value="3">Communication</option>
+                                {% regroup competencies by sub_pillar as sp_groups %}
+                                {% for sp in sp_groups %}
+                                <optgroup label="SP{{ sp.grouper.sp_number }}: {{ sp.grouper.name }}">
+                                    {% for comp in sp.list %}
+                                    <option value="{{ comp.id }}" data-subpillar="{{ comp.sub_pillar_id }}">{{ comp.code }}: {{ comp.name }}</option>
+                                    {% endfor %}
+                                </optgroup>
                                 {% endfor %}
                             </select>
                         </div>
@@ -152,19 +163,6 @@
                                 <option value="beginner">Beginner</option>
                                 <option value="intermediate">Intermediate</option>
                                 <option value="advanced">Advanced</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label for="alModule" class="al-form-label">Module / Category</label>
-                            <select class="al-form-select" id="alModule" name="module">
-                                <option value="">Select Module</option>
-                                {% for module in modules %}
-                                <option value="{{ module.id }}">{{ module.name }}</option>
-                                {% empty %}
-                                <option value="1">Module 1: Basics</option>
-                                <option value="2">Module 2: Application</option>
-                                {% endfor %}
                             </select>
                         </div>
                     </div>
@@ -254,4 +252,19 @@
 
 {% block extra_js %}
 <script src="{% static 'js/common/add-lessons.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const moduleSelect = document.getElementById('alModule');
+        const compSelect = document.getElementById('alCompetency');
+        const allOptions = Array.from(compSelect.querySelectorAll('option[data-subpillar]'));
+
+        moduleSelect.addEventListener('change', function() {
+            const spId = this.value;
+            compSelect.value = '';
+            allOptions.forEach(opt => {
+                opt.style.display = (!spId || opt.dataset.subpillar === spId) ? '' : 'none';
+            });
+        });
+    });
+</script>
 {% endblock %}

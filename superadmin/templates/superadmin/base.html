@@ -42,6 +42,9 @@
         }
     </style>
 
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'css/superadmin/sup-admin-dash.css' %}">
 
@@ -141,7 +144,7 @@
                             <span class="material-symbols-outlined">person_add</span>
                             Onboard Parent
                         </a>
-                        <a href="bulk-upload.html" id="nav-bulk-upload">
+                        <a href="{% url 'bulk_upload_page' %}" id="nav-bulk-upload">
                             <span class="material-symbols-outlined">upload_file</span>
                             Bulk Upload / Manage Users
                         </a>
@@ -195,10 +198,6 @@
                             <span class="material-symbols-outlined">assignment</span>
                             Project &amp; Assessment
                         </a>
-                        <a href="weightage-mapping.html" id="nav-weightage-mapping">
-                            <span class="material-symbols-outlined">functions</span>
-                            Weightage Mapping (Grade-wise)
-                        </a>
                         <a href="academic-year-locking.html" id="nav-academic-year-locking">
                             <span class="material-symbols-outlined">lock</span>
                             Academic Year Locking
@@ -221,10 +220,6 @@
                         <a href="{% url 'add_lesson' %}" id="nav-add-lesson">
                             <span class="material-symbols-outlined">note_add</span>
                             Add Lesson
-                        </a>
-                        <a href="categories-modules.html" id="nav-categories-modules">
-                            <span class="material-symbols-outlined">category</span>
-                            Categories & Modules
                         </a>
                     </div>
                 </div>
@@ -740,6 +735,9 @@
         </main>
     </div>
 
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
     <!-- JavaScript -->
     <script src="{% static 'js/superadmin/sup-admin-dash.js' %}"></script>
     
@@ -752,24 +750,66 @@
             // Find all sidebar links and check if their href matches current path
             const allSidebarLinks = document.querySelectorAll('.sidebar-nav a[href], .sidebar-dropdown-menu a[href]');
             
-            allSidebarLinks.forEach(link => {
-                const linkPath = link.getAttribute('href');
-                
-                // Check if link href matches current path
-                if (linkPath && (linkPath === currentPath || linkPath === currentPath.replace(/\/$/, '') || linkPath + '/' === currentPath)) {
-                    link.classList.add('active');
-                    
-                    // If inside dropdown menu, also activate parent
-                    const parentDropdown = link.closest('.sidebar-dropdown');
-                    if (parentDropdown) {
-                        parentDropdown.classList.add('active');
-                        const dropdownToggle = parentDropdown.querySelector('.sidebar-dropdown-toggle');
-                        if (dropdownToggle) {
-                            dropdownToggle.classList.add('active');
+            // Map child URL prefixes to their parent sidebar link IDs
+            const childToParent = {
+                '/super-admin/lesson/': 'nav-lessons-library',
+                '/super-admin/add-lesson/': 'nav-add-lesson',
+                '/super-admin/coordinator/': 'nav-program-coordinators',
+                '/super-admin/onboard-coordinator/': 'nav-add-program-coordinators',
+                '/super-admin/teacher/': 'nav-thinking-coaches',
+                '/super-admin/onboard-teacher/': 'nav-add-thinking-coaches',
+                '/super-admin/student/': 'nav-students-list',
+                '/super-admin/onboard-student/': 'nav-add-student',
+                '/super-admin/school-admin/': 'nav-school-admins',
+                '/super-admin/onboard-school-admin/': 'nav-add-school-admins',
+                '/super-admin/parent/': 'nav-parent-list',
+                '/super-admin/onboard-parent/': 'nav-add-parent',
+                '/super-admin/school/': 'nav-school-list',
+                '/super-admin/onboard-school/': 'nav-add-school',
+                '/super-admin/class/': 'nav-class-list',
+                '/super-admin/add-class/': 'nav-add-class',
+                '/super-admin/bulk-upload/': 'nav-bulk-upload',
+            };
+
+            let matched = false;
+
+            // First try child-to-parent mapping
+            for (const [prefix, navId] of Object.entries(childToParent)) {
+                if (currentPath.startsWith(prefix)) {
+                    const parentLink = document.getElementById(navId);
+                    if (parentLink) {
+                        parentLink.classList.add('active');
+                        const parentDropdown = parentLink.closest('.sidebar-dropdown');
+                        if (parentDropdown) {
+                            parentDropdown.classList.add('active');
+                            const dropdownToggle = parentDropdown.querySelector('.sidebar-dropdown-toggle');
+                            if (dropdownToggle) {
+                                dropdownToggle.classList.add('active');
+                            }
                         }
+                        matched = true;
+                        break;
                     }
                 }
-            });
+            }
+
+            // Fallback: exact match
+            if (!matched) {
+                allSidebarLinks.forEach(link => {
+                    const linkPath = link.getAttribute('href');
+                    if (linkPath && (linkPath === currentPath || linkPath === currentPath.replace(/\/$/, '') || linkPath + '/' === currentPath)) {
+                        link.classList.add('active');
+                        const parentDropdown = link.closest('.sidebar-dropdown');
+                        if (parentDropdown) {
+                            parentDropdown.classList.add('active');
+                            const dropdownToggle = parentDropdown.querySelector('.sidebar-dropdown-toggle');
+                            if (dropdownToggle) {
+                                dropdownToggle.classList.add('active');
+                            }
+                        }
+                    }
+                });
+            }
         });
     </script>
     

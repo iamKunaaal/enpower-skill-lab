@@ -1820,7 +1820,8 @@ body.dark .dropdown-item .material-symbols-outlined {
 }
 
 /* Modal Styles */
-.modal {
+/* Custom modals (non-Bootstrap) — use .custom-modal class */
+.custom-modal {
     position: fixed;
     inset: 0;
     z-index: 9999;
@@ -1833,7 +1834,7 @@ body.dark .dropdown-item .material-symbols-outlined {
     transition: all 0.3s ease;
 }
 
-.modal.active {
+.custom-modal.active {
     opacity: 1;
     visibility: visible;
 }
@@ -1845,7 +1846,7 @@ body.dark .dropdown-item .material-symbols-outlined {
     backdrop-filter: blur(4px);
 }
 
-.modal-content {
+.custom-modal .modal-content {
     position: relative;
     background-color: var(--card-light);
     border-radius: 16px;
@@ -1858,11 +1859,11 @@ body.dark .dropdown-item .material-symbols-outlined {
     transition: transform 0.3s ease;
 }
 
-body.dark .modal-content {
+body.dark .custom-modal .modal-content {
     background-color: var(--card-dark);
 }
 
-.modal.active .modal-content {
+.custom-modal.active .modal-content {
     transform: scale(1);
 }
 
@@ -1870,7 +1871,7 @@ body.dark .modal-content {
     max-width: 700px;
 }
 
-.modal-header {
+.custom-modal .modal-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -1878,11 +1879,11 @@ body.dark .modal-content {
     border-bottom: 1px solid var(--border-light);
 }
 
-body.dark .modal-header {
+body.dark .custom-modal .modal-header {
     border-bottom-color: var(--border-dark);
 }
 
-.modal-title {
+.custom-modal .modal-title {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -1892,11 +1893,11 @@ body.dark .modal-header {
     margin: 0;
 }
 
-body.dark .modal-title {
+body.dark .custom-modal .modal-title {
     color: var(--heading-dark);
 }
 
-.modal-title .material-symbols-outlined {
+.custom-modal .modal-title .material-symbols-outlined {
     font-size: 1.75rem;
     color: #6b277e;
 }
@@ -1929,7 +1930,7 @@ body.dark .modal-close:hover {
     background-color: var(--gray-700);
 }
 
-.modal-body {
+.custom-modal .modal-body {
     padding: 28px;
 }
 
@@ -2331,20 +2332,20 @@ body.dark .toggle-slider {
 
 /* Responsive Modal Styles */
 @media (max-width: 767px) {
-    .modal-content {
+    .custom-modal .modal-content {
         max-width: 95%;
         max-height: 85vh;
     }
 
-    .modal-header {
+    .custom-modal .modal-header {
         padding: 20px;
     }
 
-    .modal-title {
+    .custom-modal .modal-title {
         font-size: 1.25rem;
     }
 
-    .modal-body {
+    .custom-modal .modal-body {
         padding: 20px;
     }
 

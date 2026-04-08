@@ -44,7 +44,88 @@ def superadmin_logout(request):
 @login_required
 @user_passes_test(is_superadmin)
 def dashboard(request):
-    return render(request, 'superadmin/dashboard.html')
+    from teacher.models import Teacher
+    from student.models import Student
+    from parent.models import Parent
+    from coordinator.models import ProgramCoordinator
+    from lms.models import Lesson
+    from schools.models import Class
+
+    # Platform overview stats
+    total_schools = School.objects.count()
+    active_schools = School.objects.filter(is_active=True).count()
+    total_teachers = Teacher.objects.count()
+    total_students = Student.objects.count()
+    total_parents = Parent.objects.count()
+    total_coordinators = ProgramCoordinator.objects.count()
+    total_school_admins = SchoolAdmin.objects.count()
+    total_lessons = Lesson.objects.count()
+    total_classes = Class.objects.count()
+
+    # Active counts
+    active_teachers = Teacher.objects.filter(is_active=True).count()
+    active_students = Student.objects.filter(is_active=True).count()
+
+    # Recently added schools (5)
+    recent_schools = School.objects.order_by('-created_at')[:5]
+
+    # Recent activities — mixed, sorted by created_at, limit 5 total
+    from itertools import chain
+    from operator import attrgetter
+
+    recent_activity_schools = list(School.objects.order_by('-created_at')[:5])
+    recent_activity_teachers = list(Teacher.objects.order_by('-created_at')[:5])
+    recent_activity_students = list(Student.objects.order_by('-created_at')[:5])
+
+    # Tag each item with its type for template rendering
+    for item in recent_activity_schools:
+        item.activity_type = 'school'
+    for item in recent_activity_teachers:
+        item.activity_type = 'teacher'
+    for item in recent_activity_students:
+        item.activity_type = 'student'
+
+    all_activities = sorted(
+        chain(recent_activity_schools, recent_activity_teachers, recent_activity_students),
+        key=attrgetter('created_at'),
+        reverse=True
+    )[:5]
+
+    context = {
+        'total_schools': total_schools,
+        'active_schools': active_schools,
+        'total_teachers': total_teachers,
+        'total_students': total_students,
+        'total_parents': total_parents,
+        'total_coordinators': total_coordinators,
+        'total_school_admins': total_school_admins,
+        'total_lessons': total_lessons,
+        'total_classes': total_classes,
+        'active_teachers': active_teachers,
+        'active_students': active_students,
+        'recent_schools': recent_schools,
+        'recent_activities': all_activities,
+    }
+    return render(request, 'superadmin/dashboard.html', context)
+
+
+@login_required
+@user_passes_test(is_superadmin)
+def bulk_upload_page(request):
+    """Bulk Upload / Manage Users page — all roles in one place"""
+    from teacher.models import Teacher
+    from student.models import Student
+    from parent.models import Parent
+    from coordinator.models import ProgramCoordinator
+
+    context = {
+        'total_school_admins': SchoolAdmin.objects.count(),
+        'total_teachers': Teacher.objects.count(),
+        'total_students': Student.objects.count(),
+        'total_parents': Parent.objects.count(),
+        'total_coordinators': ProgramCoordinator.objects.count(),
+    }
+    return render(request, 'superadmin/bulk-upload.html', context)
 
 
 @login_required
@@ -1855,35 +1936,116 @@ def view_coordinator(request, coordinator_id):
 def edit_coordinator(request, coordinator_id):
     """View to edit a coordinator"""
     from coordinator.models import ProgramCoordinator
-    
+
     coordinator = get_object_or_404(ProgramCoordinator, id=coordinator_id)
-    
+
     if request.method == 'POST':
         try:
             data = request.POST
-            
-            # Update basic information
+
+            # Basic Information
             coordinator.full_name = data.get('fullName', coordinator.full_name)
             coordinator.gender = data.get('gender', coordinator.gender)
+            if data.get('dateOfBirth'):
+                coordinator.date_of_birth = data.get('dateOfBirth')
+            coordinator.blood_group = data.get('bloodGroup') or None
+            coordinator.nationality = data.get('nationality', coordinator.nationality)
+            coordinator.aadhar_number = data.get('aadharNumber', coordinator.aadhar_number)
+            coordinator.pan_number = data.get('panNumber', coordinator.pan_number)
+
+            # Professional Details
             coordinator.designation = data.get('designation', coordinator.designation)
+            coordinator.qualification = data.get('qualification', coordinator.qualification)
+            coordinator.specialization = data.get('specialization', coordinator.specialization)
+            coordinator.total_experience = data.get('totalExperience', coordinator.total_experience)
+            coordinator.program_management_exp = data.get('programManagementExp') or None
+            coordinator.education_exp = data.get('educationExp') or None
+            coordinator.previous_organizations = data.get('previousOrganizations') or None
+            coordinator.languages_known = data.get('languagesKnown', coordinator.languages_known)
+            coordinator.certifications = data.get('certifications') or None
+
+            # Contact Information
             coordinator.mobile_number = data.get('mobileNumber', coordinator.mobile_number)
+            coordinator.alternate_number = data.get('alternateNumber') or None
             coordinator.official_email = data.get('officialEmail', coordinator.official_email)
-            coordinator.zone_assigned = data.get('zoneAssigned', coordinator.zone_assigned)
-            coordinator.program_assigned = data.get('programAssigned', coordinator.program_assigned)
-            coordinator.is_active = data.get('isActive') == 'on'
-            
+            coordinator.personal_email = data.get('personalEmail') or None
+
+            # Address Details
+            coordinator.current_address = data.get('currentAddress', coordinator.current_address)
+            coordinator.permanent_address = data.get('permanentAddress') or None
+            coordinator.city = data.get('city', coordinator.city)
+            coordinator.state = data.get('state', coordinator.state)
+            coordinator.pincode = data.get('pincode', coordinator.pincode)
+
+            # Compliance & Documentation
+            coordinator.id_proof = data.get('idProof') or None
+            coordinator.address_proof = data.get('addressProof') or None
+            coordinator.police_verification = data.get('policeVerification') or 'Pending'
+            coordinator.passport_photo_uploaded = data.get('passportPhotoUploaded') or 'No'
+            coordinator.contract_uploaded = data.get('contractUploaded') or 'No'
+            coordinator.pan_aadhar_linked = data.get('panAadharLinked') or 'No'
+            coordinator.nda_signed = data.get('ndaSigned') or 'No'
+
+            # Program & Work Assignment
+            coordinator.program_assigned = data.get('programAssigned') or None
+            coordinator.zone_assigned = data.get('zoneAssigned') or None
+            coordinator.branch_region = data.get('branchRegion') or None
+            coordinator.reporting_manager = data.get('reportingManager') or None
+            coordinator.login_role = data.get('loginRole') or None
+            if data.get('joiningDate'):
+                coordinator.joining_date = data.get('joiningDate')
+            coordinator.employment_type = data.get('employmentType', coordinator.employment_type)
+            coordinator.contract_start_date = data.get('contractStartDate') or None
+            coordinator.contract_end_date = data.get('contractEndDate') or None
+
+            # Bank & Payroll
+            coordinator.bank_name = data.get('bankName', coordinator.bank_name)
+            coordinator.branch_name = data.get('branchName', coordinator.branch_name)
+            coordinator.account_number = data.get('accountNumber', coordinator.account_number)
+            coordinator.ifsc_code = data.get('ifscCode', coordinator.ifsc_code)
+
+            # Additional Optional
+            coordinator.strength_areas = data.get('strengthAreas') or None
+            coordinator.hobbies = data.get('hobbies') or None
+            coordinator.work_style = data.get('workStyle') or None
+            coordinator.tools_comfortable = data.get('toolsComfortable') or None
+            coordinator.achievements = data.get('achievements') or None
+            coordinator.career_aspirations = data.get('careerAspirations') or None
+
+            # Status
+            coordinator.is_active = data.get('isActive') == 'true'
+
+            # Profile photo
+            if request.FILES.get('profilePhoto'):
+                coordinator.profile_photo = request.FILES['profilePhoto']
+
             coordinator.save()
-            
+
+            # Update M2M schools
+            school_ids = data.getlist('schools')
+            coordinator.schools_assigned.set(school_ids)
+
+            # Update linked user email if changed
+            if coordinator.user and coordinator.user.email != coordinator.official_email:
+                coordinator.user.email = coordinator.official_email
+                coordinator.user.save()
+
             messages.success(request, f'Coordinator "{coordinator.full_name}" updated successfully!')
             return redirect('coordinator_list')
-            
+
         except Exception as e:
             messages.error(request, f'Error updating coordinator: {str(e)}')
-    
+
     schools = School.objects.filter(is_active=True).order_by('school_name')
     context = {
         'coordinator': coordinator,
         'schools': schools,
+        'blood_group_choices': ProgramCoordinator.BLOOD_GROUP_CHOICES,
+        'designation_choices': ProgramCoordinator.DESIGNATION_CHOICES,
+        'specialization_choices': ProgramCoordinator.SPECIALIZATION_CHOICES,
+        'employment_type_choices': ProgramCoordinator.EMPLOYMENT_TYPE_CHOICES,
+        'work_style_choices': ProgramCoordinator.WORK_STYLE_CHOICES,
+        'verification_status_choices': ProgramCoordinator.VERIFICATION_STATUS_CHOICES,
     }
     return render(request, 'superadmin/edit-pc.html', context)
 
@@ -2112,13 +2274,28 @@ def add_lesson(request):
             # Get form data
             title = request.POST.get('title')
             description = request.POST.get('description')
-            competency = request.POST.get('competency')
+            competency_id = request.POST.get('competency')
             level = request.POST.get('level', 'beginner')
-            module = request.POST.get('module')
+            module_id = request.POST.get('module')
             applicable_grades = request.POST.get('applicable_grades')
             status = request.POST.get('status', 'draft')
             is_published = status == 'published'
             recommend_low_competency = request.POST.get('recommend_low_competency') == 'true'
+
+            # Resolve FKs
+            from competencies.models import Competency as CompModel, SubPillar as SPModel
+            competency_obj = None
+            module_obj = None
+            if competency_id:
+                try:
+                    competency_obj = CompModel.objects.get(pk=competency_id)
+                except CompModel.DoesNotExist:
+                    pass
+            if module_id:
+                try:
+                    module_obj = SPModel.objects.get(pk=module_id)
+                except SPModel.DoesNotExist:
+                    pass
 
             # Get content data
             video_urls = request.POST.get('video_urls', '')
@@ -2177,9 +2354,9 @@ def add_lesson(request):
             lesson = Lesson(
                 title=title,
                 description=description,
-                competency=competency,
+                competency=competency_obj,
                 level=level,
-                module=module,
+                module=module_obj,
                 applicable_grades=applicable_grades,
                 status=status,
                 is_published=is_published,
@@ -2236,9 +2413,12 @@ def add_lesson(request):
 
     # GET request - render form
     schools = School.objects.filter(is_active=True)
+    from competencies.models import Competency as CompModel, SubPillar as SPModel
 
     context = {
         'schools': schools,
+        'competencies': CompModel.objects.filter(status='Active').select_related('sub_pillar').order_by('code'),
+        'sub_pillars': SPModel.objects.all().select_related('pillar').order_by('sp_number'),
     }
     return render(request, 'superadmin/add-lessons.html', context)
 
@@ -2286,9 +2466,26 @@ def edit_lesson(request, lesson_id):
         try:
             lesson.title = request.POST.get('title', lesson.title)
             lesson.description = request.POST.get('description', lesson.description)
-            lesson.competency = request.POST.get('competency', lesson.competency)
             lesson.level = request.POST.get('level', lesson.level)
-            lesson.module = request.POST.get('module', lesson.module)
+
+            # Resolve FK for competency and module
+            from competencies.models import Competency as CompModel, SubPillar as SPModel
+            comp_id = request.POST.get('competency')
+            mod_id = request.POST.get('module')
+            if comp_id:
+                try:
+                    lesson.competency = CompModel.objects.get(pk=comp_id)
+                except CompModel.DoesNotExist:
+                    lesson.competency = None
+            else:
+                lesson.competency = None
+            if mod_id:
+                try:
+                    lesson.module = SPModel.objects.get(pk=mod_id)
+                except SPModel.DoesNotExist:
+                    lesson.module = None
+            else:
+                lesson.module = None
             lesson.applicable_grades = request.POST.get('applicable_grades', lesson.applicable_grades)
 
             status = request.POST.get('status', lesson.status)
@@ -2402,12 +2599,15 @@ def edit_lesson(request, lesson_id):
     videos = LessonVideo.objects.filter(lesson=lesson)
     schools = School.objects.filter(is_active=True)
     
+    from competencies.models import Competency as CompModel, SubPillar as SPModel
     context = {
         'lesson': lesson,
         'resources': resources,
         'videos': videos,
         'schools': schools,
         'edit_mode': True,  # Flag for edit mode
+        'competencies': CompModel.objects.filter(status='Active').select_related('sub_pillar').order_by('code'),
+        'sub_pillars': SPModel.objects.all().select_related('pillar').order_by('sp_number'),
     }
     return render(request, 'superadmin/edit-lesson.html', context)
 

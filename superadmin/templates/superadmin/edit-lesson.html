@@ -160,12 +160,27 @@
                         </h5>
 
                         <div class="mb-3">
+                            <label for="alModule" class="al-form-label">Module / Sub-Pillar</label>
+                            <select class="al-form-select" id="alModule" name="module">
+                                <option value="">Select Module</option>
+                                {% for sp in sub_pillars %}
+                                <option value="{{ sp.id }}" {% if lesson.module_id == sp.id %}selected{% endif %}>SP{{ sp.sp_number }}: {{ sp.name }} ({{ sp.pillar.name }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
                             <label for="alCompetency" class="al-form-label">Competency</label>
                             <select class="al-form-select" id="alCompetency" name="competency">
                                 <option value="">Select Competency</option>
-                                <option value="Financial Literacy" {% if lesson.competency == 'Financial Literacy' %}selected{% endif %}>Financial Literacy</option>
-                                <option value="Digital Skills" {% if lesson.competency == 'Digital Skills' %}selected{% endif %}>Digital Skills</option>
-                                <option value="Communication" {% if lesson.competency == 'Communication' %}selected{% endif %}>Communication</option>
+                                {% regroup competencies by sub_pillar as sp_groups %}
+                                {% for sp in sp_groups %}
+                                <optgroup label="SP{{ sp.grouper.sp_number }}: {{ sp.grouper.name }}">
+                                    {% for comp in sp.list %}
+                                    <option value="{{ comp.id }}" data-subpillar="{{ comp.sub_pillar_id }}" {% if lesson.competency_id == comp.id %}selected{% endif %}>{{ comp.code }}: {{ comp.name }}</option>
+                                    {% endfor %}
+                                </optgroup>
+                                {% endfor %}
                             </select>
                         </div>
 
@@ -176,15 +191,6 @@
                                 <option value="beginner" {% if lesson.level == 'beginner' %}selected{% endif %}>Beginner</option>
                                 <option value="intermediate" {% if lesson.level == 'intermediate' %}selected{% endif %}>Intermediate</option>
                                 <option value="advanced" {% if lesson.level == 'advanced' %}selected{% endif %}>Advanced</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label for="alModule" class="al-form-label">Module / Category</label>
-                            <select class="al-form-select" id="alModule" name="module">
-                                <option value="">Select Module</option>
-                                <option value="Module 1: Basics" {% if lesson.module == 'Module 1: Basics' %}selected{% endif %}>Module 1: Basics</option>
-                                <option value="Module 2: Application" {% if lesson.module == 'Module 2: Application' %}selected{% endif %}>Module 2: Application</option>
                             </select>
                         </div>
                     </div>
@@ -274,6 +280,27 @@
 
 {% block extra_js %}
 <script src="{% static 'js/common/add-lessons.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Filter competencies by sub-pillar
+        const moduleSelect = document.getElementById('alModule');
+        const compSelect = document.getElementById('alCompetency');
+        const allOptions = Array.from(compSelect.querySelectorAll('option[data-subpillar]'));
+
+        function filterCompetencies() {
+            const spId = moduleSelect.value;
+            allOptions.forEach(opt => {
+                opt.style.display = (!spId || opt.dataset.subpillar === spId) ? '' : 'none';
+            });
+        }
+
+        moduleSelect.addEventListener('change', function() {
+            compSelect.value = '';
+            filterCompetencies();
+        });
+        filterCompetencies();
+    });
+</script>
 <script>
     // Show/hide existing resources based on active tab
     document.addEventListener('DOMContentLoaded', function() {

@@ -14,13 +14,13 @@
     <div class="page-header">
         <h1>Parent List</h1>
         <div class="header-actions">
-            <button class="btn-gradient btn-download">
+            <a href="/super-admin/bulk-import/parent/sample-csv/" class="btn-gradient btn-download" style="text-decoration: none;">
                 <span class="material-symbols-outlined">download</span>
                 Download Sample CSV
-            </button>
-            <button class="btn-gradient btn-upload">
-                <span class="material-symbols-outlined">upload</span>
-                Upload CSV
+            </a>
+            <button class="btn-gradient btn-upload" data-bs-toggle="modal" data-bs-target="#bulkImportModal">
+                <span class="material-symbols-outlined">upload_file</span>
+                Bulk Import
             </button>
             <a href="{% url 'onboard_parent' %}" class="btn-gradient btn-add">
                 <span class="material-symbols-outlined">add</span>
@@ -91,6 +91,8 @@
         </table>
     </div>
 </div>
+
+{% include 'superadmin/includes/bulk_import_modal.html' with role='parent' role_label='Parent' %}
 {% endblock %}
 
 {% block extra_js %}

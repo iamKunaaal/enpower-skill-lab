@@ -1,10 +1,14 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.contrib.auth import logout, update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
-from schools.models import School
+from django.db.models import Count
+from schools.models import School, Class
+from teacher.models import Teacher
+from student.models import Student
 from django.utils import timezone
+from operator import attrgetter
 import json
 
 
@@ -14,28 +18,90 @@ def is_coordinator(user):
 
 
 @login_required
+@user_passes_test(is_coordinator)
 def coordinator_dashboard(request):
     """Coordinator dashboard view"""
-    if not is_coordinator(request.user):
-        messages.error(request, 'You do not have permission to access the coordinator dashboard.')
-        return redirect('login')
-    
+    # Get coordinator profile and assigned schools
+    try:
+        coordinator = request.user.program_coordinator
+        assigned_schools = coordinator.schools_assigned.all()
+    except Exception:
+        assigned_schools = School.objects.none()
+
+    assigned_school_ids = assigned_schools.values_list('id', flat=True)
+
+    # Dynamic counts
+    total_schools = assigned_schools.count()
+    total_teachers = Teacher.objects.filter(school_id__in=assigned_school_ids).count()
+    total_students = Student.objects.filter(school_id__in=assigned_school_ids).count()
+
+    # Schools with teacher/student/class counts for the table
+    schools_with_counts = assigned_schools.annotate(
+        teacher_count=Count('teachers', distinct=True),
+        student_count=Count('students', distinct=True),
+        class_count=Count('classes', distinct=True),
+    ).order_by('-created_at')[:5]
+
+    # Add initials for avatar display
+    for school in schools_with_counts:
+        words = school.school_name.split()
+        school.initials = ''.join([w[0].upper() for w in words[:2]]) if words else '??'
+
+    # School-wise summary (same data, add total_count for display)
+    school_summary = list(schools_with_counts)
+    max_students = 1
+    for school in school_summary:
+        school.total_count = school.teacher_count + school.student_count + school.class_count
+        if school.student_count > max_students:
+            max_students = school.student_count
+
+    # Recent Activities — merge recent teachers, students, classes from assigned schools
+    recent_teachers = Teacher.objects.filter(school_id__in=assigned_school_ids).order_by('-created_at')[:5]
+    recent_students = Student.objects.filter(school_id__in=assigned_school_ids).order_by('-created_at')[:5]
+    recent_classes = Class.objects.filter(school_id__in=assigned_school_ids).order_by('-created_at')[:5]
+
+    activities = []
+    for t in recent_teachers:
+        t.activity_type = 'teacher'
+        t.title = f'New Teacher Added'
+        t.description = f'{t.full_name} joined as {t.get_designation_display() if hasattr(t, "get_designation_display") else t.designation}'
+        t.school_name = t.school.school_name if t.school else '—'
+        activities.append(t)
+
+    for s in recent_students:
+        s.activity_type = 'student'
+        s.title = f'New Student Enrolled'
+        s.description = f'{s.first_name} {s.last_name} enrolled in Class {s.student_class or "—"}'
+        s.school_name = s.school.school_name if s.school else '—'
+        activities.append(s)
+
+    for c in recent_classes:
+        c.activity_type = 'class'
+        c.title = f'New Class Created'
+        c.description = f'{c.class_name} — {c.academic_year}'
+        c.school_name = c.school.school_name if c.school else '—'
+        activities.append(c)
+
+    activities.sort(key=attrgetter('created_at'), reverse=True)
+    recent_activities = activities[:5]
+
     context = {
-        'total_schools': 12,
-        'total_teachers': 89,
-        'total_students': 2456,
-        'pending_alerts': 7,
+        'total_schools': total_schools,
+        'total_teachers': total_teachers,
+        'total_students': total_students,
+        'pending_alerts': 0,
+        'assigned_schools': schools_with_counts,
+        'school_summary': school_summary,
+        'max_students': max_students,
+        'recent_activities': recent_activities,
     }
     return render(request, 'coordinator/dashboard.html', context)
 
 
 @login_required
+@user_passes_test(is_coordinator)
 def coordinator_profile(request):
     """Coordinator profile view with update functionality"""
-    if not is_coordinator(request.user):
-        messages.error(request, 'You do not have permission to access this page.')
-        return redirect('login')
-
     if request.method == 'POST':
         try:
             # Get or create program coordinator profile
@@ -96,12 +162,9 @@ def coordinator_profile(request):
 
 
 @login_required
+@user_passes_test(is_coordinator)
 def coordinator_change_password(request):
     """Coordinator change password view"""
-    if not is_coordinator(request.user):
-        messages.error(request, 'You do not have permission to access this page.')
-        return redirect('login')
-
     if request.method == 'POST':
         form = PasswordChangeForm(request.user, request.POST)
         if form.is_valid():
@@ -135,12 +198,9 @@ def coordinator_logout(request):
 
 
 @login_required
+@user_passes_test(is_coordinator)
 def school_list(request):
     """School list view"""
-    if not is_coordinator(request.user):
-        messages.error(request, 'You do not have permission to access this page.')
-        return redirect('login')
-
     # Fetch all schools from the database
     schools = School.objects.all().order_by('-created_at')
 

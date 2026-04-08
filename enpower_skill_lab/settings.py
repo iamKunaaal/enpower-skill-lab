@@ -172,3 +172,6 @@ DEFAULT_FROM_EMAIL = 'Enpower Skill Lab <noreply@enpowerskilllab.com>'
 
 # For console testing (emails printed to terminal), uncomment this:
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Auth
+LOGIN_URL = '/login/'

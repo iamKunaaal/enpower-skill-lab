@@ -1063,20 +1063,6 @@
                     </div>
                 </div>
 
-                <!-- Attendance -->
-                <div class="sidebar-dropdown">
-                    <a href="#" class="sidebar-dropdown-toggle" id="attendance-dropdown">
-                        <span class="material-symbols-outlined">how_to_reg</span>
-                        Attendance
-                        <span class="material-symbols-outlined dropdown-icon">expand_more</span>
-                    </a>
-                    <div class="sidebar-dropdown-menu">
-                        <a href="#" id="nav-attendance">
-                            <span class="material-symbols-outlined">calendar_month</span>
-                            Daily & Monthly Attendance
-                        </a>
-                    </div>
-                </div>
 
                 <!-- Assessments -->
                 <div class="sidebar-dropdown">
@@ -1166,7 +1152,7 @@
                             <span class="material-symbols-outlined">person</span>
                             Profile
                         </a>
-                        <a href="#" id="nav-change-password">
+                        <a href="{% url 'parent_change_password' %}" id="nav-change-password">
                             <span class="material-symbols-outlined">lock</span>
                             Change Password
                         </a>

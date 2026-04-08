@@ -176,8 +176,28 @@
                         </h5>
 
                         <div class="mb-3">
+                            <label for="alModule" class="al-form-label">Module / Sub-Pillar</label>
+                            <select class="al-form-select" id="alModule" name="module">
+                                <option value="">Select Module</option>
+                                {% for sp in sub_pillars %}
+                                <option value="{{ sp.id }}" {% if lesson.module_id == sp.id %}selected{% endif %}>SP{{ sp.sp_number }}: {{ sp.name }} ({{ sp.pillar.name }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
                             <label for="alCompetency" class="al-form-label">Competency</label>
-                            <input type="text" class="al-form-control" id="alCompetency" name="competency" value="{{ lesson.competency|default:'' }}" placeholder="Enter competency (e.g., Financial Literacy)">
+                            <select class="al-form-select" id="alCompetency" name="competency">
+                                <option value="">Select Competency</option>
+                                {% regroup competencies by sub_pillar as sp_groups %}
+                                {% for sp in sp_groups %}
+                                <optgroup label="SP{{ sp.grouper.sp_number }}: {{ sp.grouper.name }}">
+                                    {% for comp in sp.list %}
+                                    <option value="{{ comp.id }}" data-subpillar="{{ comp.sub_pillar_id }}" {% if lesson.competency_id == comp.id %}selected{% endif %}>{{ comp.code }}: {{ comp.name }}</option>
+                                    {% endfor %}
+                                </optgroup>
+                                {% endfor %}
+                            </select>
                         </div>
 
                         <div class="mb-3">
@@ -188,11 +208,6 @@
                                 <option value="intermediate" {% if lesson.level == 'intermediate' %}selected{% endif %}>Intermediate</option>
                                 <option value="advanced" {% if lesson.level == 'advanced' %}selected{% endif %}>Advanced</option>
                             </select>
-                        </div>
-
-                        <div>
-                            <label for="alModule" class="al-form-label">Module / Category</label>
-                            <input type="text" class="al-form-control" id="alModule" name="module" value="{{ lesson.module|default:'' }}" placeholder="Enter module (e.g., Module 1: Basics)">
                         </div>
                     </div>
 
@@ -265,6 +280,30 @@
                 parentDropdown.classList.add('active');
             }
         }
+
+        // Filter competencies when sub-pillar (module) changes
+        const moduleSelect = document.getElementById('alModule');
+        const compSelect = document.getElementById('alCompetency');
+        const allOptions = Array.from(compSelect.querySelectorAll('option[data-subpillar]'));
+
+        function filterCompetencies() {
+            const spId = moduleSelect.value;
+            allOptions.forEach(opt => {
+                if (!spId || opt.dataset.subpillar === spId) {
+                    opt.style.display = '';
+                } else {
+                    opt.style.display = 'none';
+                }
+            });
+        }
+
+        moduleSelect.addEventListener('change', function() {
+            compSelect.value = '';
+            filterCompetencies();
+        });
+
+        // Apply filter on load (for edit page with pre-selected values)
+        filterCompetencies();
     });
 </script>
 {% endblock %}

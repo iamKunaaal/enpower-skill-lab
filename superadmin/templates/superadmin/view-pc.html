@@ -1,0 +1,346 @@
+{% extends 'superadmin/base.html' %}
+{% load static %}
+
+{% block title %}View Coordinator - {{ coordinator.full_name }} - Enpower Skill Lab{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/superadmin/view-teacher.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="view-teacher-page">
+    <div class="container-xl">
+        <!-- Back Link -->
+        <a href="{% url 'coordinator_list' %}" class="back-link">
+            <span class="material-symbols-outlined">arrow_back</span>
+            Back to Coordinator List
+        </a>
+
+        <!-- Coordinator Profile Card -->
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-photo-container">
+                    {% if coordinator.profile_photo %}
+                    <img src="{{ coordinator.profile_photo.url }}" alt="{{ coordinator.full_name }}" class="profile-photo">
+                    {% else %}
+                    <div class="profile-photo-placeholder" style="background-color: #6b277e;">
+                        {{ coordinator.full_name|make_list|first }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="profile-info">
+                    <h1 class="teacher-name">{{ coordinator.full_name }}</h1>
+                    <p class="teacher-id">Employee ID: {{ coordinator.employee_id|default:"-" }}</p>
+                    <p class="teacher-designation">{{ coordinator.get_designation_display }}</p>
+                    <div class="status-badge {% if coordinator.is_active %}status-present{% else %}status-absent{% endif %}">
+                        {% if coordinator.is_active %}Active{% else %}Inactive{% endif %}
+                    </div>
+                </div>
+                <div class="profile-actions">
+                    <a href="{% url 'edit_coordinator' coordinator.id %}" class="btn-edit">
+                        <span class="material-symbols-outlined">edit</span>
+                        Edit Coordinator
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Details Sections -->
+        <div class="details-grid">
+            <!-- Basic Information -->
+            <div class="details-card">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">badge</span>
+                    <h2>Basic Information</h2>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <span class="label">Full Name</span>
+                        <span class="value">{{ coordinator.full_name }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Gender</span>
+                        <span class="value">{{ coordinator.get_gender_display }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Date of Birth</span>
+                        <span class="value">{{ coordinator.date_of_birth|date:"d M Y" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Blood Group</span>
+                        <span class="value">{{ coordinator.blood_group|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Nationality</span>
+                        <span class="value">{{ coordinator.nationality }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Aadhar Number</span>
+                        <span class="value">{{ coordinator.aadhar_number|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">PAN Number</span>
+                        <span class="value">{{ coordinator.pan_number|default:"-" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Professional Details -->
+            <div class="details-card">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">work</span>
+                    <h2>Professional Details</h2>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <span class="label">Designation</span>
+                        <span class="value">{{ coordinator.get_designation_display }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Qualification</span>
+                        <span class="value">{{ coordinator.qualification }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Specialization</span>
+                        <span class="value">{{ coordinator.get_specialization_display|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Total Experience</span>
+                        <span class="value">{{ coordinator.total_experience }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Program Management Exp.</span>
+                        <span class="value">{{ coordinator.program_management_exp|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Education Exp.</span>
+                        <span class="value">{{ coordinator.education_exp|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Previous Organizations</span>
+                        <span class="value">{{ coordinator.previous_organizations|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Languages Known</span>
+                        <span class="value">{{ coordinator.languages_known|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Certifications</span>
+                        <span class="value">{{ coordinator.certifications|default:"-" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="details-card">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">phone</span>
+                    <h2>Contact Information</h2>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <span class="label">Mobile Number</span>
+                        <span class="value">{{ coordinator.mobile_number }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Alternate Number</span>
+                        <span class="value">{{ coordinator.alternate_number|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Official Email</span>
+                        <span class="value">{{ coordinator.official_email }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Personal Email</span>
+                        <span class="value">{{ coordinator.personal_email|default:"-" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Address Details -->
+            <div class="details-card">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">home</span>
+                    <h2>Address Details</h2>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <span class="label">Current Address</span>
+                        <span class="value">{{ coordinator.current_address }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Permanent Address</span>
+                        <span class="value">{{ coordinator.permanent_address|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">City</span>
+                        <span class="value">{{ coordinator.city }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">State</span>
+                        <span class="value">{{ coordinator.state }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Pin Code</span>
+                        <span class="value">{{ coordinator.pincode }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Compliance & Documentation -->
+            <div class="details-card">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">verified_user</span>
+                    <h2>Compliance & Documentation</h2>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <span class="label">ID Proof</span>
+                        <span class="value">{{ coordinator.id_proof|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Address Proof</span>
+                        <span class="value">{{ coordinator.address_proof|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Police Verification</span>
+                        <span class="value">{{ coordinator.police_verification }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Passport Photo Uploaded</span>
+                        <span class="value">{{ coordinator.passport_photo_uploaded }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Contract Uploaded</span>
+                        <span class="value">{{ coordinator.contract_uploaded }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">PAN-Aadhar Linked</span>
+                        <span class="value">{{ coordinator.pan_aadhar_linked }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">NDA Signed</span>
+                        <span class="value">{{ coordinator.nda_signed }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Program & Work Assignment -->
+            <div class="details-card">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">assignment</span>
+                    <h2>Program & Work Assignment</h2>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <span class="label">Program Assigned</span>
+                        <span class="value">{{ coordinator.program_assigned|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Zone Assigned</span>
+                        <span class="value">{{ coordinator.zone_assigned|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Schools Assigned</span>
+                        <span class="value">
+                            {% for school in coordinator.schools_assigned.all %}
+                                {{ school.school_name }}{% if not forloop.last %}, {% endif %}
+                            {% empty %}
+                                -
+                            {% endfor %}
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Branch / Region</span>
+                        <span class="value">{{ coordinator.branch_region|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Reporting Manager</span>
+                        <span class="value">{{ coordinator.reporting_manager|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Login Role</span>
+                        <span class="value">{{ coordinator.login_role|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Joining Date</span>
+                        <span class="value">{{ coordinator.joining_date|date:"d M Y" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Employment Type</span>
+                        <span class="value">{{ coordinator.get_employment_type_display }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Contract Start Date</span>
+                        <span class="value">{{ coordinator.contract_start_date|date:"d M Y"|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Contract End Date</span>
+                        <span class="value">{{ coordinator.contract_end_date|date:"d M Y"|default:"-" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bank & Payroll Details -->
+            <div class="details-card">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">account_balance</span>
+                    <h2>Bank & Payroll Details</h2>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <span class="label">Bank Name</span>
+                        <span class="value">{{ coordinator.bank_name }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Branch Name</span>
+                        <span class="value">{{ coordinator.branch_name }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Account Number</span>
+                        <span class="value">{{ coordinator.account_number }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">IFSC Code</span>
+                        <span class="value">{{ coordinator.ifsc_code }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Information -->
+            <div class="details-card">
+                <div class="card-header">
+                    <span class="material-symbols-outlined">info</span>
+                    <h2>Additional Information</h2>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <span class="label">Strength Areas</span>
+                        <span class="value">{{ coordinator.strength_areas|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Hobbies</span>
+                        <span class="value">{{ coordinator.hobbies|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Work Style</span>
+                        <span class="value">{{ coordinator.get_work_style_display|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Tools Comfortable With</span>
+                        <span class="value">{{ coordinator.tools_comfortable|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Achievements</span>
+                        <span class="value">{{ coordinator.achievements|default:"-" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Career Aspirations</span>
+                        <span class="value">{{ coordinator.career_aspirations|default:"-" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

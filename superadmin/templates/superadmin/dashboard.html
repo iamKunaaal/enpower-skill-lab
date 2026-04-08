@@ -24,11 +24,11 @@
                 <span class="material-symbols-outlined">school</span>
             </div>
             <div class="stat-content">
-                <div class="stat-value">{{ total_schools|default:"45" }}</div>
+                <div class="stat-value">{{ total_schools }}</div>
                 <div class="stat-label">Total Schools</div>
                 <div class="stat-change positive">
                     <span class="material-symbols-outlined">trending_up</span>
-                    +5 new this month
+                    {{ active_schools }} active
                 </div>
             </div>
         </div>
@@ -38,11 +38,11 @@
                 <span class="material-symbols-outlined">groups</span>
             </div>
             <div class="stat-content">
-                <div class="stat-value">3,240</div>
+                <div class="stat-value">{{ total_teachers }}</div>
                 <div class="stat-label">Total Teachers</div>
                 <div class="stat-change positive">
                     <span class="material-symbols-outlined">trending_up</span>
-                    +8% from last month
+                    {{ active_teachers }} active
                 </div>
             </div>
         </div>
@@ -52,11 +52,11 @@
                 <span class="material-symbols-outlined">person</span>
             </div>
             <div class="stat-content">
-                <div class="stat-value">52,840</div>
+                <div class="stat-value">{{ total_students }}</div>
                 <div class="stat-label">Total Students</div>
                 <div class="stat-change positive">
                     <span class="material-symbols-outlined">trending_up</span>
-                    +12% from last month
+                    {{ active_students }} active
                 </div>
             </div>
         </div>
@@ -66,16 +66,15 @@
                 <span class="material-symbols-outlined">check_circle</span>
             </div>
             <div class="stat-content">
-                <div class="stat-value">{{ active_schools|default:"42" }}</div>
+                <div class="stat-value">{{ active_schools }}</div>
                 <div class="stat-label">Active Schools</div>
                 <div class="stat-change neutral">
                     <span class="material-symbols-outlined">remove</span>
-                    93% active rate
+                    {% if total_schools > 0 %}{% widthratio active_schools total_schools 100 %}%{% else %}0%{% endif %} active rate
                 </div>
             </div>
         </div>
     </div>
-
     <!-- Main Content Grid -->
     <div class="content-grid">
         <!-- Assessment Completion Heatmap -->
@@ -226,7 +225,7 @@
                     <span class="material-symbols-outlined">library_books</span>
                     LMS Usage Summary
                 </h3>
-                <a href="#" class="card-action">View Details</a>
+                <a href="{% url 'lesson_list' %}" class="card-action">View Details</a>
             </div>
             <div class="card-body">
                 <div class="lms-stats-grid">
@@ -235,7 +234,7 @@
                             <span class="material-symbols-outlined">auto_stories</span>
                         </div>
                         <div class="lms-stat-content">
-                            <div class="lms-stat-value">1,248</div>
+                            <div class="lms-stat-value">{{ total_lessons }}</div>
                             <div class="lms-stat-label">Total Lessons</div>
                         </div>
                     </div>
@@ -245,7 +244,7 @@
                             <span class="material-symbols-outlined">person_check</span>
                         </div>
                         <div class="lms-stat-content">
-                            <div class="lms-stat-value">48,320</div>
+                            <div class="lms-stat-value">{{ total_students }}</div>
                             <div class="lms-stat-label">Active Users</div>
                         </div>
                     </div>
@@ -255,8 +254,8 @@
                             <span class="material-symbols-outlined">task_alt</span>
                         </div>
                         <div class="lms-stat-content">
-                            <div class="lms-stat-value">87%</div>
-                            <div class="lms-stat-label">Avg. Completion</div>
+                            <div class="lms-stat-value">{{ total_classes }}</div>
+                            <div class="lms-stat-label">Total Classes</div>
                         </div>
                     </div>
 
@@ -265,8 +264,8 @@
                             <span class="material-symbols-outlined">schedule</span>
                         </div>
                         <div class="lms-stat-content">
-                            <div class="lms-stat-value">24,680</div>
-                            <div class="lms-stat-label">Sessions This Week</div>
+                            <div class="lms-stat-value">{{ total_coordinators }}</div>
+                            <div class="lms-stat-label">Coordinators</div>
                         </div>
                     </div>
                 </div>
@@ -323,74 +322,39 @@
             </div>
         </div>
     </div>
-
     <!-- Bottom Grid -->
     <div class="bottom-grid">
-        <!-- School Performance -->
+        <!-- Recently Added Schools -->
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">
                     <span class="material-symbols-outlined">leaderboard</span>
-                    Top Performing Schools
+                    Recently Added Schools
                 </h3>
-                <a href="#" class="card-action">View All</a>
+                <a href="{% url 'school_list' %}" class="card-action">View All</a>
             </div>
             <div class="card-body">
                 <div class="school-list">
+                    {% for school in recent_schools %}
                     <div class="school-item">
-                        <div class="school-rank rank-1">1</div>
+                        <div class="school-rank {% if forloop.counter == 1 %}rank-1{% elif forloop.counter == 2 %}rank-2{% elif forloop.counter == 3 %}rank-3{% endif %}">{{ forloop.counter }}</div>
                         <div class="school-info">
-                            <div class="school-name">Delhi Public School</div>
+                            <div class="school-name">{{ school.school_name }}</div>
                             <div class="school-stats">
-                                <span>2,340 students</span> • <span>98% completion</span>
+                                <span>{{ school.city|default:"-" }}</span> &bull; <span>{{ school.created_at|timesince }} ago</span>
                             </div>
                         </div>
-                        <div class="school-score">98%</div>
+                        <div class="school-score" style="font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 999px; {% if school.is_active %}background: rgba(16,185,129,0.1); color: #10B981;{% else %}background: rgba(239,68,68,0.1); color: #EF4444;{% endif %}">{% if school.is_active %}Active{% else %}Inactive{% endif %}</div>
                     </div>
-
+                    {% empty %}
                     <div class="school-item">
-                        <div class="school-rank rank-2">2</div>
+                        <div class="school-rank">-</div>
                         <div class="school-info">
-                            <div class="school-name">Ryan International School</div>
-                            <div class="school-stats">
-                                <span>1,890 students</span> • <span>96% completion</span>
-                            </div>
+                            <div class="school-name">No schools added yet</div>
+                            <div class="school-stats"><span>Add schools to get started</span></div>
                         </div>
-                        <div class="school-score">96%</div>
                     </div>
-
-                    <div class="school-item">
-                        <div class="school-rank rank-3">3</div>
-                        <div class="school-info">
-                            <div class="school-name">Modern School</div>
-                            <div class="school-stats">
-                                <span>1,650 students</span> • <span>95% completion</span>
-                            </div>
-                        </div>
-                        <div class="school-score">95%</div>
-                    </div>
-
-                    <div class="school-item">
-                        <div class="school-rank">4</div>
-                        <div class="school-info">
-                            <div class="school-name">St. Mary's School</div>
-                            <div class="school-stats">
-                                <span>1,420 students</span> • <span>93% completion</span>
-                            </div>
-                        </div>
-                        <div class="school-score">93%</div>
-                    </div>
-
-                    <div class="school-item">
-                        <div class="school-rank">5</div>
-                        <div class="school-info">
-                            <div class="school-name">Cambridge School</div>
-                            <div class="school-stats">
-                                <span>1,280 students</span> • <span>91% completion</span>
-                            </div>
-                        </div>
-                        <div class="school-score">91%</div>
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
@@ -412,35 +376,35 @@
                         <div class="quick-action-label">Add School</div>
                     </a>
 
-                    <a href="#" class="quick-action-item">
+                    <a href="{% url 'school_admin_list' %}" class="quick-action-item">
                         <div class="quick-action-icon admins">
                             <span class="material-symbols-outlined">admin_panel_settings</span>
                         </div>
                         <div class="quick-action-label">Manage Admins</div>
                     </a>
 
-                    <a href="#" class="quick-action-item">
+                    <a href="{% url 'add_lesson' %}" class="quick-action-item">
                         <div class="quick-action-icon lessons">
                             <span class="material-symbols-outlined">note_add</span>
                         </div>
                         <div class="quick-action-label">Add Lesson</div>
                     </a>
 
-                    <a href="#" class="quick-action-item">
+                    <a href="{% url 'learning_pillars' %}" class="quick-action-item">
                         <div class="quick-action-icon analytics">
                             <span class="material-symbols-outlined">analytics</span>
                         </div>
                         <div class="quick-action-label">View Analytics</div>
                     </a>
 
-                    <a href="#" class="quick-action-item">
+                    <a href="{% url 'superadmin_profile' %}" class="quick-action-item">
                         <div class="quick-action-icon settings">
                             <span class="material-symbols-outlined">settings</span>
                         </div>
                         <div class="quick-action-label">Settings</div>
                     </a>
 
-                    <a href="#" class="quick-action-item">
+                    <a href="{% url 'student_list' %}" class="quick-action-item">
                         <div class="quick-action-icon reports">
                             <span class="material-symbols-outlined">file_download</span>
                         </div>
@@ -461,52 +425,52 @@
             </div>
             <div class="card-body">
                 <div class="activity-list">
+                    {% for item in recent_activities %}
                     <div class="activity-item">
+                        {% if item.activity_type == 'school' %}
                         <div class="activity-icon school">
                             <span class="material-symbols-outlined">school</span>
                         </div>
                         <div class="activity-content">
                             <div class="activity-title">New school registered</div>
-                            <div class="activity-description">Green Valley International School onboarded</div>
-                            <div class="activity-time">2 hours ago</div>
+                            <div class="activity-description">{{ item.school_name }} onboarded</div>
+                            <div class="activity-time">{{ item.created_at|timesince }} ago</div>
                         </div>
-                    </div>
-
-                    <div class="activity-item">
+                        {% elif item.activity_type == 'teacher' %}
                         <div class="activity-icon admin">
                             <span class="material-symbols-outlined">admin_panel_settings</span>
                         </div>
                         <div class="activity-content">
-                            <div class="activity-title">School admin assigned</div>
-                            <div class="activity-description">John Smith assigned to manage Delhi Public School</div>
-                            <div class="activity-time">5 hours ago</div>
+                            <div class="activity-title">Teacher onboarded</div>
+                            <div class="activity-description">{{ item.full_name }} added to platform</div>
+                            <div class="activity-time">{{ item.created_at|timesince }} ago</div>
                         </div>
-                    </div>
-
-                    <div class="activity-item">
+                        {% elif item.activity_type == 'student' %}
                         <div class="activity-icon lesson">
                             <span class="material-symbols-outlined">library_add</span>
                         </div>
                         <div class="activity-content">
-                            <div class="activity-title">New lesson published</div>
-                            <div class="activity-description">Advanced Mathematics module added to LMS</div>
-                            <div class="activity-time">1 day ago</div>
+                            <div class="activity-title">Student enrolled</div>
+                            <div class="activity-description">{{ item.full_name }} added to platform</div>
+                            <div class="activity-time">{{ item.created_at|timesince }} ago</div>
                         </div>
+                        {% endif %}
                     </div>
-
+                    {% empty %}
                     <div class="activity-item">
                         <div class="activity-icon assessment">
-                            <span class="material-symbols-outlined">assignment_turned_in</span>
+                            <span class="material-symbols-outlined">info</span>
                         </div>
                         <div class="activity-content">
-                            <div class="activity-title">Assessment completed</div>
-                            <div class="activity-description">Mid-term assessments for 15 schools completed</div>
-                            <div class="activity-time">2 days ago</div>
+                            <div class="activity-title">No recent activities</div>
+                            <div class="activity-description">Start adding schools, teachers, and students to see activity here</div>
                         </div>
                     </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
+    </div>
     </div>
 </div>
 {% endblock %}

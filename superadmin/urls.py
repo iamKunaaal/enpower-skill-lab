@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .bulk_import import download_sample_csv, bulk_import
 
 
 urlpatterns = [
@@ -52,7 +53,12 @@ urlpatterns = [
     path('change-password/', views.change_password, name='superadmin_change_password'),
     path('logout/', views.superadmin_logout, name='superadmin_logout'),
     path('test-messages/', views.test_messages, name='test_messages'),  # Remove in production
-    # Skill Passport — Admin Setup
+    # Bulk Upload / Manage Users
+    path('bulk-upload/', views.bulk_upload_page, name='bulk_upload_page'),
+    # Bulk Import URLs
+    path('bulk-import/<str:role>/sample-csv/', download_sample_csv, name='download_sample_csv'),
+    path('bulk-import/<str:role>/upload/', bulk_import, name='bulk_import'),
+    # Skill Passport
     path('skill-passport/learning-pillars/', views.learning_pillars, name='learning_pillars'),
     path('skill-passport/profiles-competencies/', views.profiles_competencies, name='profiles_competencies'),
     path('skill-passport/project-assessment/', views.project_assessment, name='project_assessment'),
